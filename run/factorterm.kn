@@ -4,5 +4,5 @@ es(a) = ;
 t(a) = f ts;
 ts(a) = MUL f ts;
 ts(a) = ;
-f(a) = LEFTPAREN e RIGHTPAREN;
+f(a) = LEFT_PAREN e RIGHT_PAREN;
 f(a) = ID;

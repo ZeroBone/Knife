@@ -72,8 +72,8 @@ TOKEN: {
 
 // identifiers
 TOKEN : {
-    <BIG_ID: <BIG_LETTER> (<LETTER>|<DIGIT>)*>
-    | <SMALL_ID: <SMALL_LETTER> (<LETTER>|<DIGIT>)*>
+    <BIG_ID: <BIG_LETTER> (<LETTER>|<DIGIT>|"_")*>
+    | <SMALL_ID: <SMALL_LETTER> (<LETTER>|<DIGIT>|"_")*>
     | <#BIG_LETTER: ["A"-"Z"]>
     | <#SMALL_LETTER: ["a"-"z"]>
     | <#LETTER: ["a"-"z", "A"-"Z"]>
