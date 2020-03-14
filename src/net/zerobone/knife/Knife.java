@@ -100,6 +100,8 @@ public class Knife {
         System.out.println("First sets: " + cfg.computeFirstSets());
         System.out.println("Follow sets: " + cfg.computeFollowSets());
 
+        cfg.constructParsingTable();
+
     }
 
 }

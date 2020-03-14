@@ -81,11 +81,11 @@ public class CFG {
             for (CFGSymbol symbol : body) {
 
                 if (symbol.isTerminal) {
-                    set.add(symbol.sym);
+                    set.add(symbol.id);
                     break;
                 }
 
-                HashSet<String> firstSetOfNonTerminal = firstSet(symbol.sym);
+                HashSet<String> firstSetOfNonTerminal = firstSet(symbol.id);
 
                 set.addAll(firstSetOfNonTerminal);
 
@@ -154,7 +154,7 @@ public class CFG {
 
                     CFGSymbol symbol = body.get(i);
 
-                    if (symbol.isTerminal || !symbol.sym.equals(nonTerminal)) {
+                    if (symbol.isTerminal || !symbol.id.equals(nonTerminal)) {
                         continue;
                     }
 
@@ -176,13 +176,13 @@ public class CFG {
                     if (nextSymbol.isTerminal) {
                         // FIRST(terminal) = { terminal }
                         // so we just add the symbol to the set
-                        set.add(nextSymbol.sym);
+                        set.add(nextSymbol.id);
                         break;
                     }
 
                     // nextSymbol (aka beta) is a nonterminal
 
-                    HashSet<String> nextSymbolFirstSet = firstSet(nextSymbol.sym);
+                    HashSet<String> nextSymbolFirstSet = firstSet(nextSymbol.id);
 
                     if (nextSymbolFirstSet.contains("")) {
 
@@ -197,12 +197,9 @@ public class CFG {
                     else {
 
                         set.addAll(nextSymbolFirstSet);
-                        // we don't need to remove epsilon as we already cheched this case
+                        // we don't need to remove epsilon as we already handled this case
 
                     }
-
-                    // set.addAll(nextSymbolFirstSet);
-                    // set.remove(""); // epsilon could be in the first set, but epsilon can never be in the follow set
 
                     break;
 
@@ -218,7 +215,62 @@ public class CFG {
 
     }
 
+    public void constructParsingTable() {
 
+        final HashMap<String, HashSet<String>> firstSets = computeFirstSets();
+
+        final HashMap<String, HashSet<String>> followSets = computeFollowSets();
+
+        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+
+            String productionLabel = pair.getKey();
+
+            CFGProductions thisLabelProductions = pair.getValue();
+
+            for (CFGProduction production : thisLabelProductions.getProductions()) {
+
+                ArrayList<CFGSymbol> body = production.getBody();
+
+                if (body.size() == 0) {
+                    // epsilon-rule
+
+                    HashSet<String> followSet = followSets.get(productionLabel);
+
+                    for (String follow : followSet) {
+
+                        System.out.println("Row: " + productionLabel + " Col: " + follow + " Production: " + productionLabel + " -> ;");
+
+                    }
+
+                    continue;
+                }
+
+                CFGSymbol symbol = body.get(0);
+
+                if (symbol.isTerminal) {
+                    System.out.println("Row: " + productionLabel + " Col: " + symbol.id + " Production: " + productionLabel + " -> " + production.toString());
+                    continue;
+                }
+
+                // nonterminal
+
+                HashSet<String> firstSet = firstSets.get(productionLabel);
+
+                for (String first : firstSet) {
+
+                    if (first.isEmpty()) {
+                        continue;
+                    }
+
+                    System.out.println("Row: " + productionLabel + " Col: " + first + " Production: " + productionLabel + " -> " + production.toString());
+
+                }
+
+            }
+
+        }
+
+    }
 
     @Override
     public String toString() {

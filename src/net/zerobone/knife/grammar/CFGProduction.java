@@ -26,7 +26,7 @@ public class CFGProduction {
 
             CFGSymbol symbol = (CFGSymbol)it.next();
 
-            sb.append(symbol.sym);
+            sb.append(symbol.id);
 
             // it.remove(); // to avoid a ConcurrentModificationException
 
