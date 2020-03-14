@@ -1,5 +1,7 @@
 package net.zerobone.knife.grammar;
 
+import com.sun.istack.internal.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +14,8 @@ public class CFG {
     private HashMap<String, CFGProductions> productions;
 
     private HashMap<String, HashSet<String>> cachedFirstSets = new HashMap<>();
+
+    private HashMap<String, HashSet<String>> cachedFollowSets = new HashMap<>();
 
     public CFG(String startSymbol, CFGProduction startProduction) {
 
@@ -34,7 +38,23 @@ public class CFG {
 
     }
 
-    public HashSet<String> firstSet(String nonTerminal) {
+    public HashMap<String, HashSet<String>> computeFirstSets() {
+
+        HashMap<String, HashSet<String>> firstSets = new HashMap<>();
+
+        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+
+            String nonTerminal = pair.getKey();
+
+            firstSets.put(nonTerminal, firstSet(nonTerminal));
+
+        }
+
+        return firstSets;
+
+    }
+
+    private HashSet<String> firstSet(@NotNull String nonTerminal) {
 
         if (cachedFirstSets.containsKey(nonTerminal)) {
             return cachedFirstSets.get(nonTerminal);
@@ -82,6 +102,117 @@ public class CFG {
         }
 
         cachedFirstSets.put(nonTerminal, set);
+
+        return set;
+
+    }
+
+    public HashMap<String, HashSet<String>> computeFollowSets() {
+
+        HashMap<String, HashSet<String>> followSets = new HashMap<>();
+
+        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+
+            String nonTerminal = pair.getKey();
+
+            followSets.put(nonTerminal, followSet(nonTerminal));
+
+        }
+
+        return followSets;
+
+    }
+
+    private HashSet<String> followSet(@NotNull String nonTerminal) {
+
+        if (cachedFollowSets.containsKey(nonTerminal)) {
+            return cachedFollowSets.get(nonTerminal);
+        }
+
+        HashSet<String> set = new HashSet<>();
+
+        if (nonTerminal.equals(startSymbol)) {
+            set.add("$");
+        }
+
+        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+
+            String productionLabel = pair.getKey();
+
+            if (productionLabel.equals(nonTerminal)) {
+                // we only look in productions with other labels
+                continue;
+            }
+
+            CFGProductions thisLabelProductions = pair.getValue();
+
+            for (CFGProduction production : thisLabelProductions.getProductions()) {
+
+                ArrayList<CFGSymbol> body = production.getBody();
+
+                for (int i = 0; i < body.size(); i++) {
+
+                    CFGSymbol symbol = body.get(i);
+
+                    if (symbol.isTerminal || !symbol.sym.equals(nonTerminal)) {
+                        continue;
+                    }
+
+                    // we found a production either of the form alpha A beta
+                    // or alpha a
+                    // examine the next symbol to find out
+
+                    if (i == body.size() - 1) {
+                        // beta = epsilon
+                        // so we are in the alpha A situation
+                        set.addAll(followSet(productionLabel));
+                        break;
+                    }
+
+                    // we are in the alpha A beta
+
+                    CFGSymbol nextSymbol = body.get(i + 1);
+
+                    if (nextSymbol.isTerminal) {
+                        // FIRST(terminal) = { terminal }
+                        // so we just add the symbol to the set
+                        set.add(nextSymbol.sym);
+                        break;
+                    }
+
+                    // nextSymbol (aka beta) is a nonterminal
+
+                    HashSet<String> nextSymbolFirstSet = firstSet(nextSymbol.sym);
+
+                    if (nextSymbolFirstSet.contains("")) {
+
+                        // union with FIRST(beta) \ epsilon
+                        set.addAll(nextSymbolFirstSet);
+                        set.remove("");
+
+                        // union with FOLLOW(A)
+                        set.addAll(followSet(productionLabel));
+
+                    }
+                    else {
+
+                        set.addAll(nextSymbolFirstSet);
+                        set.remove(""); // epsilon could be in the first set, but epsilon can never be in the follow set
+
+                    }
+
+                    // set.addAll(nextSymbolFirstSet);
+                    // set.remove(""); // epsilon could be in the first set, but epsilon can never be in the follow set
+
+                    break;
+
+                }
+
+            }
+
+        }
+
+        cachedFollowSets.put(nonTerminal, set);
 
         return set;
 
