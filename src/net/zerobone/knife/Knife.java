@@ -100,12 +100,6 @@ public class Knife {
         System.out.println("First sets: " + cfg.computeFirstSets());
         System.out.println("Follow sets: " + cfg.computeFollowSets());
 
-        /*System.out.println("FOLLOW(e) = " + cfg.followSet("e"));
-        System.out.println("FOLLOW(es) = " + cfg.followSet("es"));
-        System.out.println("FOLLOW(t) = " + cfg.followSet("t"));
-        System.out.println("FOLLOW(ts) = " + cfg.followSet("ts"));
-        System.out.println("FOLLOW(f) = " + cfg.followSet("f"));*/
-
     }
 
 }

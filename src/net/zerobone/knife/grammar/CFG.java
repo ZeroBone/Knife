@@ -197,7 +197,7 @@ public class CFG {
                     else {
 
                         set.addAll(nextSymbolFirstSet);
-                        set.remove(""); // epsilon could be in the first set, but epsilon can never be in the follow set
+                        // we don't need to remove epsilon as we already cheched this case
 
                     }
 
@@ -217,6 +217,8 @@ public class CFG {
         return set;
 
     }
+
+
 
     @Override
     public String toString() {
