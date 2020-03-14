@@ -1,6 +1,12 @@
 package net.zerobone.knife;
 
 import net.zerobone.knife.ast.TranslationUnitNode;
+import net.zerobone.knife.ast.entities.ProductionSymbol;
+import net.zerobone.knife.ast.statements.ProductionStatementNode;
+import net.zerobone.knife.ast.statements.StatementNode;
+import net.zerobone.knife.grammar.CFG;
+import net.zerobone.knife.grammar.CFGProduction;
+import net.zerobone.knife.grammar.CFGSymbol;
 import net.zerobone.knife.parser.KnifeParser;
 import net.zerobone.knife.parser.ParseException;
 import net.zerobone.knife.parser.TokenMgrError;
@@ -37,14 +43,57 @@ public class Knife {
             }
 
             System.out.println(t.statements.size());
-            System.out.println("success");
+            System.out.println("Creating context-free grammar...");
+
+            generateParser(t);
 
             return;
 
         }
 
         System.out.println("Invalid arguments!");
-        System.out.println("Usage: knife filename.rex");
+        System.out.println("Usage: knife filename.kn");
+
+    }
+
+    private static CFGProduction convertProduction(ProductionStatementNode statement) {
+
+        CFGProduction production = new CFGProduction();
+
+        for (ProductionSymbol symbol : statement.production) {
+            production.append(new CFGSymbol(symbol.id, symbol.terminal));
+        }
+
+        return production;
+
+    }
+
+    private static void generateParser(TranslationUnitNode t) {
+
+        CFG cfg = null;
+
+        for (StatementNode stmt : t.statements) {
+
+            if (stmt instanceof ProductionStatementNode) {
+
+                ProductionStatementNode production = (ProductionStatementNode)stmt;
+
+                if (cfg == null) {
+                    cfg = new CFG(production.nonTerminal, convertProduction(production));
+                }
+                else {
+                    cfg.addProduction(production.nonTerminal, convertProduction(production));
+                }
+
+            }
+
+        }
+
+        if (cfg == null) {
+            throw new RuntimeException("Could not find start symbol.");
+        }
+
+        System.out.println(cfg.toString());
 
     }
 
