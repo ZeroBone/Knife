@@ -93,7 +93,15 @@ public class Knife {
             throw new RuntimeException("Could not find start symbol.");
         }
 
+        System.out.println("Grammar:");
         System.out.println(cfg.toString());
+        System.out.println("==========");
+
+        System.out.println("FIRST(e) = " + cfg.firstSet("e"));
+        System.out.println("FIRST(es) = " + cfg.firstSet("es"));
+        System.out.println("FIRST(t) = " + cfg.firstSet("t"));
+        System.out.println("FIRST(ts) = " + cfg.firstSet("ts"));
+        System.out.println("FIRST(f) = " + cfg.firstSet("f"));
 
     }
 

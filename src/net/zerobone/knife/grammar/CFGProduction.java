@@ -1,14 +1,18 @@
 package net.zerobone.knife.grammar;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 public class CFGProduction {
 
-    private LinkedList<CFGSymbol> body = new LinkedList<>();
+    private ArrayList<CFGSymbol> body = new ArrayList<>();
 
     public void append(CFGSymbol symbol) {
         body.add(symbol);
+    }
+
+    public ArrayList<CFGSymbol> getBody() {
+        return body;
     }
 
     @Override
@@ -24,7 +28,7 @@ public class CFGProduction {
 
             sb.append(symbol.sym);
 
-            it.remove(); // to avoid a ConcurrentModificationException
+            // it.remove(); // to avoid a ConcurrentModificationException
 
             if (it.hasNext()) {
                 sb.append(' ');

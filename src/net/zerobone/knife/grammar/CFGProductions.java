@@ -1,15 +1,15 @@
 package net.zerobone.knife.grammar;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 public class CFGProductions {
 
-    private final LinkedList<CFGProduction> productions;
+    private final ArrayList<CFGProduction> productions;
 
     public CFGProductions(CFGProduction initialProduction) {
 
-        productions = new LinkedList<>();
+        productions = new ArrayList<>();
 
         productions.add(initialProduction);
 
@@ -17,6 +17,10 @@ public class CFGProductions {
 
     public void addProduction(CFGProduction production) {
         productions.add(production);
+    }
+
+    public ArrayList<CFGProduction> getProductions() {
+        return productions;
     }
 
     @Override
@@ -32,7 +36,7 @@ public class CFGProductions {
 
             sb.append(production);
 
-            it.remove(); // to avoid a ConcurrentModificationException
+            // it.remove(); // to avoid a ConcurrentModificationException
 
             if (it.hasNext()) {
                 sb.append('\n');
