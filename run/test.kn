@@ -1,0 +1,5 @@
+translationUnit = ;
+
+statement = productionStatement;
+
+productionStatement = ID EQUALS;

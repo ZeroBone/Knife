@@ -1,0 +1,131 @@
+options {
+  LOOKAHEAD = 1;
+  CHOICE_AMBIGUITY_CHECK = 2;
+  OTHER_AMBIGUITY_CHECK = 1;
+  STATIC = false;
+  DEBUG_PARSER = false;
+  DEBUG_LOOKAHEAD = false;
+  DEBUG_TOKEN_MANAGER = false;
+  ERROR_REPORTING = true;
+  JAVA_UNICODE_ESCAPE = false;
+  UNICODE_INPUT = false;
+  IGNORE_CASE = false;
+  USER_TOKEN_MANAGER = false;
+  USER_CHAR_STREAM = false;
+  BUILD_PARSER = true;
+  BUILD_TOKEN_MANAGER = true;
+  SANITY_CHECK = true;
+  FORCE_LA_CHECK = false;
+}
+
+PARSER_BEGIN(KnifeParser)
+
+package net.zerobone.knife.parser;
+
+import net.zerobone.knife.ast.*;
+import net.zerobone.knife.ast.statements.*;
+
+public class KnifeParser {}
+
+PARSER_END(KnifeParser)
+
+// ignored characters
+SKIP: {
+    " "
+    | "\n"
+    | "\r"
+    | "\t"
+    | "\f"
+}
+
+// comments
+// TODO: fix bug when comment is at the end of the file
+
+MORE: {
+    "//": IN_SINGLE_LINE_COMMENT
+    | "/*": IN_MULTI_LINE_COMMENT
+}
+
+<IN_SINGLE_LINE_COMMENT>
+SPECIAL_TOKEN: {
+    <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n">: DEFAULT
+}
+
+<IN_MULTI_LINE_COMMENT>
+SPECIAL_TOKEN: {
+    <MULTI_LINE_COMMENT: "*/">: DEFAULT
+}
+
+<IN_SINGLE_LINE_COMMENT,IN_MULTI_LINE_COMMENT>
+MORE: {
+    <~[]>
+}
+
+// reserved tokens
+TOKEN: {
+    <SEMICOLON: ";">
+    | <ASSIGN: "=">
+    | <LEFT_PAREN: "(">
+    | <RIGHT_PAREN: ")">
+}
+
+// identifiers
+TOKEN : {
+    <ID: <LETTER> (<LETTER>|<DIGIT>)*>
+    | <TERMINAL_ID: <BIG_LETTER> (<LETTER>|<DIGIT>)*>
+    | <#BIG_LETTER: ["A"-"Z"]>
+    | <#LETTER: ["a"-"z", "A"-"Z"]>
+    | <#DIGIT: ["0"-"9"]>
+}
+
+TranslationUnitNode translationUnit():
+{
+    StatementNode s;
+    TranslationUnitNode t;
+}
+{
+    <EOF> { return new TranslationUnitNode(); }
+    | s=statement() t=translationUnit() { t.addStatement(s); return t; }
+}
+
+String id():
+{
+    Token t;
+}
+{
+    t=<ID> { return t.image; }
+}
+
+String terminalId():
+{
+    Token t;
+}
+{
+    t=<TERMINAL_ID> { return t.image; }
+}
+
+StatementNode statement():
+{
+    StatementNode s;
+}
+{
+    s=productionStatement() { return s; }
+}
+
+ProductionStatementNode productionStatement():
+{
+    String nonTerminal;
+}
+{
+    nonTerminal=id() <ASSIGN> productionStatementBody() { return new ProductionStatementNode(); }
+}
+
+void productionStatementBody():
+{}
+{
+    <SEMICOLON>
+    | LOOKAHEAD(2) id() productionStatementBody()
+    | id() <LEFT_PAREN> id() <RIGHT_PAREN> productionStatementBody()
+    | LOOKAHEAD(2) terminalId() productionStatementBody()
+    | terminalId() <LEFT_PAREN> id() <RIGHT_PAREN> productionStatementBody()
+}
