@@ -4,6 +4,7 @@ package net.zerobone.knife.parser;
 
 import net.zerobone.knife.ast.*;
 import net.zerobone.knife.ast.statements.*;
+import net.zerobone.knife.ast.entities.*;
 
 public class KnifeParser implements KnifeParserConstants {
 
@@ -55,40 +56,47 @@ t.addStatement(s); {if ("" != null) return t;}
     throw new Error("Missing return statement in function");
 }
 
-  final public void productionStatementBody() throws ParseException {
+  final public ProductionStatementBody productionStatementBody() throws ParseException {String s;
+    String arg;
+    ProductionStatementBody b;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case SEMICOLON:{
       jj_consume_token(SEMICOLON);
+{if ("" != null) return new ProductionStatementBody();}
       break;
       }
     default:
       jj_la1[1] = jj_gen;
       if (jj_2_1(2)) {
-        id();
-        productionStatementBody();
+        s = id();
+        b = productionStatementBody();
+b.addNonTerminal(s); {if ("" != null) return b;}
       } else {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case ID:{
-          id();
+          s = id();
           jj_consume_token(LEFT_PAREN);
-          id();
+          arg = id();
           jj_consume_token(RIGHT_PAREN);
-          productionStatementBody();
+          b = productionStatementBody();
+b.addNonTerminal(s, arg); {if ("" != null) return b;}
           break;
           }
         default:
           jj_la1[2] = jj_gen;
           if (jj_2_2(2)) {
-            terminalId();
-            productionStatementBody();
+            s = terminalId();
+            b = productionStatementBody();
+b.addTerminal(s); {if ("" != null) return b;}
           } else {
             switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
             case TERMINAL_ID:{
-              terminalId();
+              s = terminalId();
               jj_consume_token(LEFT_PAREN);
-              id();
+              arg = id();
               jj_consume_token(RIGHT_PAREN);
-              productionStatementBody();
+              b = productionStatementBody();
+b.addTerminal(s, arg); {if ("" != null) return b;}
               break;
               }
             default:
@@ -100,6 +108,7 @@ t.addStatement(s); {if ("" != null) return t;}
         }
       }
     }
+    throw new Error("Missing return statement in function");
 }
 
   private boolean jj_2_1(int xla)
@@ -118,33 +127,7 @@ t.addStatement(s); {if ("" != null) return t;}
     finally { jj_save(1, xla); }
   }
 
-  private boolean jj_3R_3()
- {
-    if (jj_scan_token(TERMINAL_ID)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_2()
- {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_3_1()) {
-    jj_scanpos = xsp;
-    if (jj_3R_4()) {
-    jj_scanpos = xsp;
-    if (jj_3_2()) {
-    jj_scanpos = xsp;
-    if (jj_3R_5()) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_5()
+  private boolean jj_3R_6()
  {
     if (jj_3R_3()) return true;
     return false;
@@ -157,9 +140,42 @@ t.addStatement(s); {if ("" != null) return t;}
     return false;
   }
 
-  private boolean jj_3R_4()
+  private boolean jj_3R_5()
  {
     if (jj_3R_1()) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_3R_1()) return true;
+    if (jj_3R_2()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_4()
+ {
+    if (jj_scan_token(SEMICOLON)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_2()
+ {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_4()) {
+    jj_scanpos = xsp;
+    if (jj_3_1()) {
+    jj_scanpos = xsp;
+    if (jj_3R_5()) {
+    jj_scanpos = xsp;
+    if (jj_3_2()) {
+    jj_scanpos = xsp;
+    if (jj_3R_6()) return true;
+    }
+    }
+    }
+    }
     return false;
   }
 
@@ -169,10 +185,9 @@ t.addStatement(s); {if ("" != null) return t;}
     return false;
   }
 
-  private boolean jj_3_1()
+  private boolean jj_3R_3()
  {
-    if (jj_3R_1()) return true;
-    if (jj_3R_2()) return true;
+    if (jj_scan_token(TERMINAL_ID)) return true;
     return false;
   }
 

@@ -24,6 +24,7 @@ package net.zerobone.knife.parser;
 
 import net.zerobone.knife.ast.*;
 import net.zerobone.knife.ast.statements.*;
+import net.zerobone.knife.ast.entities.*;
 
 public class KnifeParser {}
 
@@ -120,12 +121,16 @@ ProductionStatementNode productionStatement():
     nonTerminal=id() <ASSIGN> productionStatementBody() { return new ProductionStatementNode(); }
 }
 
-void productionStatementBody():
-{}
+ProductionStatementBody productionStatementBody():
 {
-    <SEMICOLON>
-    | LOOKAHEAD(2) id() productionStatementBody()
-    | id() <LEFT_PAREN> id() <RIGHT_PAREN> productionStatementBody()
-    | LOOKAHEAD(2) terminalId() productionStatementBody()
-    | terminalId() <LEFT_PAREN> id() <RIGHT_PAREN> productionStatementBody()
+    String s;
+    String arg;
+    ProductionStatementBody b;
+}
+{
+    <SEMICOLON> { return new ProductionStatementBody(); }
+    | LOOKAHEAD(2) s=id() b=productionStatementBody() { b.addNonTerminal(s); return b; }
+    | s=id() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addNonTerminal(s, arg); return b; }
+    | LOOKAHEAD(2) s=terminalId() b=productionStatementBody() { b.addTerminal(s); return b; }
+    | s=terminalId() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addTerminal(s, arg); return b; }
 }

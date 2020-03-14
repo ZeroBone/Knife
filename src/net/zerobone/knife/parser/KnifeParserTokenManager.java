@@ -3,6 +3,7 @@
 package net.zerobone.knife.parser;
 import net.zerobone.knife.ast.*;
 import net.zerobone.knife.ast.statements.*;
+import net.zerobone.knife.ast.entities.*;
 
 /** Token Manager. */
 public class KnifeParserTokenManager implements KnifeParserConstants {
