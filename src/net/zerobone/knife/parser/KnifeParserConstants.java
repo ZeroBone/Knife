@@ -23,15 +23,17 @@ public interface KnifeParserConstants {
   /** RegularExpression Id. */
   int RIGHT_PAREN = 14;
   /** RegularExpression Id. */
-  int ID = 15;
+  int BIG_ID = 15;
   /** RegularExpression Id. */
-  int TERMINAL_ID = 16;
+  int SMALL_ID = 16;
   /** RegularExpression Id. */
   int BIG_LETTER = 17;
   /** RegularExpression Id. */
-  int LETTER = 18;
+  int SMALL_LETTER = 18;
   /** RegularExpression Id. */
-  int DIGIT = 19;
+  int LETTER = 19;
+  /** RegularExpression Id. */
+  int DIGIT = 20;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -57,9 +59,10 @@ public interface KnifeParserConstants {
     "\"=\"",
     "\"(\"",
     "\")\"",
-    "<ID>",
-    "<TERMINAL_ID>",
+    "<BIG_ID>",
+    "<SMALL_ID>",
     "<BIG_LETTER>",
+    "<SMALL_LETTER>",
     "<LETTER>",
     "<DIGIT>",
   };

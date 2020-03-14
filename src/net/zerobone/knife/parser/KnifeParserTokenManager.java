@@ -110,17 +110,17 @@ private int jjMoveNfa_0(int startState, int curPos)
             switch(jjstateSet[--i])
             {
                case 0:
-                  if ((0x7fffffe07fffffeL & l) != 0L)
-                  {
-                     if (kind > 15)
-                        kind = 15;
-                     { jjCheckNAdd(1); }
-                  }
-                  if ((0x7fffffeL & l) != 0L)
+                  if ((0x7fffffe00000000L & l) != 0L)
                   {
                      if (kind > 16)
                         kind = 16;
                      { jjCheckNAdd(3); }
+                  }
+                  else if ((0x7fffffeL & l) != 0L)
+                  {
+                     if (kind > 15)
+                        kind = 15;
+                     { jjCheckNAdd(1); }
                   }
                   break;
                case 1:
@@ -131,7 +131,7 @@ private int jjMoveNfa_0(int startState, int curPos)
                   { jjCheckNAdd(1); }
                   break;
                case 2:
-                  if ((0x7fffffeL & l) == 0L)
+                  if ((0x7fffffe00000000L & l) == 0L)
                      break;
                   if (kind > 16)
                      kind = 16;
@@ -281,7 +281,7 @@ private int jjMoveNfa_1(int startState, int curPos)
 /** Token literal values. */
 public static final String[] jjstrLiteralImages = {
 "", null, null, null, null, null, null, null, null, null, null, "\73", "\75", 
-"\50", "\51", null, null, null, null, null, };
+"\50", "\51", null, null, null, null, null, null, };
 protected Token jjFillToken()
 {
    final Token t;
@@ -550,7 +550,7 @@ public static final String[] lexStateNames = {
 
 /** Lex State array. */
 public static final int[] jjnewLexState = {
-   -1, -1, -1, -1, -1, -1, 1, 2, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+   -1, -1, -1, -1, -1, -1, 1, 2, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
 };
 static final long[] jjtoToken = {
    0x1f801L, 

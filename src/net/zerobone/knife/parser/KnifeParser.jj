@@ -72,9 +72,10 @@ TOKEN: {
 
 // identifiers
 TOKEN : {
-    <ID: <LETTER> (<LETTER>|<DIGIT>)*>
-    | <TERMINAL_ID: <BIG_LETTER> (<LETTER>|<DIGIT>)*>
+    <BIG_ID: <BIG_LETTER> (<LETTER>|<DIGIT>)*>
+    | <SMALL_ID: <SMALL_LETTER> (<LETTER>|<DIGIT>)*>
     | <#BIG_LETTER: ["A"-"Z"]>
+    | <#SMALL_LETTER: ["a"-"z"]>
     | <#LETTER: ["a"-"z", "A"-"Z"]>
     | <#DIGIT: ["0"-"9"]>
 }
@@ -89,20 +90,29 @@ TranslationUnitNode translationUnit():
     | s=statement() t=translationUnit() { t.addStatement(s); return t; }
 }
 
+String smallId():
+{
+    Token t;
+}
+{
+    t=<SMALL_ID> { return t.image; }
+}
+
+String bigId():
+{
+    Token t;
+}
+{
+    t=<BIG_ID> { return t.image; }
+}
+
 String id():
 {
     Token t;
 }
 {
-    t=<ID> { return t.image; }
-}
-
-String terminalId():
-{
-    Token t;
-}
-{
-    t=<TERMINAL_ID> { return t.image; }
+    t=<BIG_ID> { return t.image; }
+    | t=<SMALL_ID> { return t.image; }
 }
 
 StatementNode statement():
@@ -116,9 +126,13 @@ StatementNode statement():
 ProductionStatementNode productionStatement():
 {
     String nonTerminal;
+    String arg;
+    ProductionStatementBody body;
 }
 {
-    nonTerminal=id() <ASSIGN> productionStatementBody() { return new ProductionStatementNode(); }
+    nonTerminal=id() <LEFT_PAREN> arg=id() <RIGHT_PAREN> <ASSIGN> body=productionStatementBody() {
+        return new ProductionStatementNode(nonTerminal, arg, body.getProduction());
+    }
 }
 
 ProductionStatementBody productionStatementBody():
@@ -129,8 +143,8 @@ ProductionStatementBody productionStatementBody():
 }
 {
     <SEMICOLON> { return new ProductionStatementBody(); }
-    | LOOKAHEAD(2) s=id() b=productionStatementBody() { b.addNonTerminal(s); return b; }
-    | s=id() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addNonTerminal(s, arg); return b; }
-    | LOOKAHEAD(2) s=terminalId() b=productionStatementBody() { b.addTerminal(s); return b; }
-    | s=terminalId() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addTerminal(s, arg); return b; }
+    | LOOKAHEAD(2) s=bigId() b=productionStatementBody() { b.addTerminal(s); return b; }
+    | s=bigId() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addTerminal(s, arg); return b; }
+    | LOOKAHEAD(2) s=smallId() b=productionStatementBody() { b.addNonTerminal(s); return b; }
+    | s=smallId() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addNonTerminal(s, arg); return b; }
 }
