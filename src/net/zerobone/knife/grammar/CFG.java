@@ -1,7 +1,5 @@
 package net.zerobone.knife.grammar;
 
-import com.sun.istack.internal.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,7 +52,9 @@ public class CFG {
 
     }
 
-    private HashSet<String> firstSet(@NotNull String nonTerminal) {
+    private HashSet<String> firstSet(String nonTerminal) {
+
+        assert nonTerminal != null;
 
         if (cachedFirstSets.containsKey(nonTerminal)) {
             return cachedFirstSets.get(nonTerminal);
@@ -123,7 +123,9 @@ public class CFG {
 
     }
 
-    private HashSet<String> followSet(@NotNull String nonTerminal) {
+    private HashSet<String> followSet(String nonTerminal) {
+
+        assert nonTerminal != null;
 
         if (cachedFollowSets.containsKey(nonTerminal)) {
             return cachedFollowSets.get(nonTerminal);
@@ -215,11 +217,59 @@ public class CFG {
 
     }
 
-    public void constructParsingTable() {
+    private CFGSymbolMapping mapSymbols() {
+
+        int terminalCounter = 1;
+        int nonTerminalCounter = -1;
+
+        HashMap<String, Integer> map = new HashMap<>();
+
+        for (CFGProductions thisLabelProductions : productions.values()) {
+
+            for (CFGProduction production : thisLabelProductions.getProductions()) {
+
+                ArrayList<CFGSymbol> body = production.getBody();
+
+                for (CFGSymbol symbol : body) {
+
+                    if (map.containsKey(symbol.id)) {
+                        continue;
+                    }
+
+                    if (symbol.isTerminal) {
+
+                        map.put(symbol.id, terminalCounter++);
+
+                    }
+                    else {
+
+                        map.put(symbol.id, nonTerminalCounter--);
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return new CFGSymbolMapping(terminalCounter, -nonTerminalCounter - 1, map);
+
+    }
+
+    public CFGParsingTable constructParsingTable() {
 
         final HashMap<String, HashSet<String>> firstSets = computeFirstSets();
 
         final HashMap<String, HashSet<String>> followSets = computeFollowSets();
+
+        final CFGSymbolMapping mapping = mapSymbols();
+
+        int productionCounter = 0;
+
+        int[][] table = new int[mapping.nonTerminalCount][mapping.terminalCount];
+
+        ArrayList<CFGParsingTableProduction> productionActions = new ArrayList<>();
 
         for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
 
@@ -240,6 +290,15 @@ public class CFG {
 
                         System.out.println("Row: " + productionLabel + " Col: " + follow + " Production: " + productionLabel + " -> ;");
 
+                        final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
+                        final int terminalIndex = mapping.terminalToIndex(follow);
+
+                        table[nonTerminalIndex][terminalIndex] = productionCounter;
+
+                        productionActions.add(new CFGParsingTableProduction(productionLabel, new ArrayList<>()));
+
+                        productionCounter++;
+
                     }
 
                     continue;
@@ -248,7 +307,18 @@ public class CFG {
                 CFGSymbol symbol = body.get(0);
 
                 if (symbol.isTerminal) {
+
                     System.out.println("Row: " + productionLabel + " Col: " + symbol.id + " Production: " + productionLabel + " -> " + production.toString());
+
+                    final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
+                    final int terminalIndex = mapping.terminalToIndex(symbol.id);
+
+                    table[nonTerminalIndex][terminalIndex] = productionCounter;
+
+                    productionActions.add(new CFGParsingTableProduction(productionLabel, production.getBody()));
+
+                    productionCounter++;
+
                     continue;
                 }
 
@@ -264,11 +334,26 @@ public class CFG {
 
                     System.out.println("Row: " + productionLabel + " Col: " + first + " Production: " + productionLabel + " -> " + production.toString());
 
+                    final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
+                    final int terminalIndex = mapping.terminalToIndex(first);
+
+                    table[nonTerminalIndex][terminalIndex] = productionCounter;
+
+                    productionActions.add(new CFGParsingTableProduction(productionLabel, production.getBody()));
+
+                    productionCounter++;
+
                 }
 
             }
 
         }
+
+        CFGParsingTableProduction[] productionActionsArray = new CFGParsingTableProduction[productionCounter];
+
+        productionActions.toArray(productionActionsArray);
+
+        return new CFGParsingTable(mapping, productionActionsArray, table);
 
     }
 
@@ -288,8 +373,6 @@ public class CFG {
                 .append(" -> ")
                 .append(pair.getValue())
                 .append(';');
-
-            // it.remove(); // to avoid a ConcurrentModificationException
 
             if (it.hasNext()) {
                 sb.append('\n');
