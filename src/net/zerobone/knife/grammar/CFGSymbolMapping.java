@@ -8,13 +8,16 @@ public class CFGSymbolMapping {
 
     public final int nonTerminalCount;
 
+    public final String startNonTerminalId;
+
     private final HashMap<String, Integer> symbolToIdMap;
 
     private final HashMap<Integer, String> idToSymbolMap;
 
-    public CFGSymbolMapping(int terminalCount, int nonTerminalCount, HashMap<String, Integer> symbolToIdMap, HashMap<Integer, String> idToSymbolMap) {
+    public CFGSymbolMapping(int terminalCount, int nonTerminalCount, String startNonTerminalId, HashMap<String, Integer> symbolToIdMap, HashMap<Integer, String> idToSymbolMap) {
         this.terminalCount = terminalCount;
         this.nonTerminalCount = nonTerminalCount;
+        this.startNonTerminalId = startNonTerminalId;
         this.symbolToIdMap = symbolToIdMap;
         this.idToSymbolMap = idToSymbolMap;
     }

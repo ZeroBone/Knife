@@ -264,7 +264,13 @@ public class CFG {
 
         }
 
-        return new CFGSymbolMapping(terminalCounter, -nonTerminalCounter - 1, symbolToId, idToSymbol);
+        return new CFGSymbolMapping(
+            terminalCounter,
+            -nonTerminalCounter - 1,
+            startSymbol,
+            symbolToId,
+            idToSymbol
+        );
 
     }
 

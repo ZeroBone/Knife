@@ -56,16 +56,23 @@ public class ParserGenerator {
         {
             // write terminal count
 
-            FieldSpec field = FieldSpec.builder(int[].class, "terminalCount")
+            FieldSpec field = FieldSpec.builder(int.class, "terminalCount")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$L", table.mapping.terminalCount)
                 .build();
 
             classBuilder.addField(field);
 
-            field = FieldSpec.builder(int[].class, "nonTerminalCount")
+            field = FieldSpec.builder(int.class, "nonTerminalCount")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$L", table.mapping.nonTerminalCount)
+                .build();
+
+            classBuilder.addField(field);
+
+            field = FieldSpec.builder(int.class, "startSymbol")
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+                .initializer("$L", table.mapping.map(table.mapping.startNonTerminalId))
                 .build();
 
             classBuilder.addField(field);
@@ -117,18 +124,18 @@ public class ParserGenerator {
 
             sb.append('{');
 
-            int nonTerminalIndex = table.mapping.nonTerminalToIndex(productionAction.label);
-
-            sb.append(nonTerminalIndex);
-
             for (CFGSymbol symbol : productionAction.body) {
-
-                sb.append(',');
 
                 int id = table.mapping.map(symbol.id);
 
                 sb.append(id);
 
+                sb.append(',');
+
+            }
+
+            if (!productionAction.body.isEmpty()) {
+                sb.deleteCharAt(sb.length() - 1);
             }
 
             sb.append('}');

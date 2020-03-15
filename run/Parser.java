@@ -16,9 +16,11 @@ public final class Parser {
 
   public static final int T_PLUS = 4;
 
-  private static final int[] terminalCount = 6;
+  private static final int terminalCount = 6;
 
-  private static final int[] nonTerminalCount = 5;
+  private static final int nonTerminalCount = 5;
+
+  private static final int startSymbol = -3;
 
   private static final int[] table = {
   0,9,0,8,0,0,
@@ -28,19 +30,19 @@ public final class Parser {
   11,0,12,0,13,10};
 
   private static final int[][] actionTable = {
-  {2,-1,-2},
-  {2,-1,-2},
-  {3,1,-3,2},
-  {3,3},
-  {1,4,-1,-2},
-  {1},
-  {1},
-  {0,-4,-5},
-  {0,-4,-5},
-  {4,5,-4,-5},
-  {4},
-  {4},
-  {4}};
+  {-1,-2},
+  {-1,-2},
+  {1,-3,2},
+  {3},
+  {4,-1,-2},
+  {},
+  {},
+  {-4,-5},
+  {-4,-5},
+  {5,-4,-5},
+  {},
+  {},
+  {}};
 
   public void parse(int tokenId, Object token) {
     System.out.println("Hello, ZeroBone!");
