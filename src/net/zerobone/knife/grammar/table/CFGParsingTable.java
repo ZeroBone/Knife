@@ -6,13 +6,13 @@ public class CFGParsingTable {
 
     public final CFGSymbolMapping mapping;
 
-    public final CFGParsingTableProduction[] productions;
+    public final CFGParsingTableProduction[] productionActions;
 
     public final int[][] table;
 
-    public CFGParsingTable(CFGSymbolMapping mapping, CFGParsingTableProduction[] productions, int[][] table) {
+    public CFGParsingTable(CFGSymbolMapping mapping, CFGParsingTableProduction[] productionActions, int[][] table) {
         this.mapping = mapping;
-        this.productions = productions;
+        this.productionActions = productionActions;
         this.table = table;
     }
 
@@ -61,11 +61,11 @@ public class CFGParsingTable {
         sb.append('\n');
         sb.append("Production actions: \n");
 
-        for (int i = 0; i < productions.length; i++) {
+        for (int i = 0; i < productionActions.length; i++) {
 
             sb.append(i + 1);
             sb.append(": ");
-            sb.append(productions[i]);
+            sb.append(productionActions[i]);
             sb.append('\n');
 
         }

@@ -6,7 +6,9 @@ import com.squareup.javapoet.MethodSpec;
 import javax.lang.model.element.Modifier;
 
 import com.squareup.javapoet.TypeSpec;
+import net.zerobone.knife.grammar.CFGSymbol;
 import net.zerobone.knife.grammar.table.CFGParsingTable;
+import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -103,6 +105,45 @@ public class ParserGenerator {
 
     }
 
+    private FieldSpec constructActionTable() {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append('{');
+
+        for (CFGParsingTableProduction productionAction : table.productionActions) {
+
+            sb.append('\n');
+
+            sb.append('{');
+
+            int nonTerminalIndex = table.mapping.nonTerminalToIndex(productionAction.label);
+
+            sb.append(nonTerminalIndex);
+
+            for (CFGSymbol symbol : productionAction.body) {
+
+                sb.append(',');
+
+                int id = table.mapping.map(symbol.id);
+
+                sb.append(id);
+
+            }
+
+            sb.append('}');
+
+        }
+
+        sb.append('}');
+
+        return FieldSpec.builder(int[][].class, "actionTable")
+            .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+            .initializer("$L", sb.toString())
+            .build();
+
+    }
+
     private MethodSpec constructParseMethod() {
 
         return MethodSpec.methodBuilder("parse")
@@ -125,6 +166,7 @@ public class ParserGenerator {
         constructConstants(classBuilder);
 
         classBuilder.addField(constructTable());
+        classBuilder.addField(constructActionTable());
 
         // methods
 

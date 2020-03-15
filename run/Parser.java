@@ -27,6 +27,21 @@ public final class Parser {
   0,3,0,4,0,0,
   11,0,12,0,13,10};
 
+  private static final int[][] actionTable = {
+  {2,-1,-2}
+  {2,-1,-2}
+  {3,1,-3,2}
+  {3,3}
+  {1,4,-1,-2}
+  {1}
+  {1}
+  {0,-4,-5}
+  {0,-4,-5}
+  {4,5,-4,-5}
+  {4}
+  {4}
+  {4}};
+
   public void parse(int tokenId, Object token) {
     System.out.println("Hello, ZeroBone!");
   }
