@@ -5,15 +5,14 @@ import net.zerobone.knife.ast.entities.ProductionSymbol;
 import net.zerobone.knife.ast.statements.ProductionStatementNode;
 import net.zerobone.knife.ast.statements.StatementNode;
 import net.zerobone.knife.grammar.CFG;
+import net.zerobone.knife.grammar.CFGParsingTable;
 import net.zerobone.knife.grammar.CFGProduction;
 import net.zerobone.knife.grammar.CFGSymbol;
 import net.zerobone.knife.parser.KnifeParser;
 import net.zerobone.knife.parser.ParseException;
 import net.zerobone.knife.parser.TokenMgrError;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 
 public class Knife {
 
@@ -42,10 +41,11 @@ public class Knife {
                 return;
             }
 
-            System.out.println(t.statements.size());
             System.out.println("Creating context-free grammar...");
 
             generateParser(t);
+
+            System.out.println("Success.");
 
             return;
 
@@ -93,17 +93,35 @@ public class Knife {
             throw new RuntimeException("Could not find start symbol.");
         }
 
-        System.out.println("Grammar:");
-        System.out.println(cfg.toString());
-        System.out.println("==========");
+        CFGParsingTable table = cfg.constructParsingTable();
 
-        System.out.println("First sets: " + cfg.computeFirstSets());
-        System.out.println("Follow sets: " + cfg.computeFollowSets());
+        try {
 
-        System.out.println(cfg.constructParsingTable());
+            BufferedWriter debugLogWriter = new BufferedWriter(new FileWriter("debug.log"));
 
-        // System.out.println("==========");
-        // System.out.println(cfg.mapSymbols());
+            debugLogWriter.write("Grammar:");
+            debugLogWriter.newLine();
+            debugLogWriter.newLine();
+
+            debugLogWriter.write(cfg.toString());
+
+            debugLogWriter.newLine();
+            debugLogWriter.newLine();
+
+            debugLogWriter.write("First sets: " + cfg.computeFirstSets());
+            debugLogWriter.newLine();
+            debugLogWriter.write("Follow sets: " + cfg.computeFollowSets());
+            debugLogWriter.newLine();
+            debugLogWriter.newLine();
+
+            debugLogWriter.write(table.toString());
+
+            debugLogWriter.close();
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

@@ -265,7 +265,7 @@ public class CFG {
 
         final CFGSymbolMapping mapping = mapSymbols();
 
-        int productionCounter = 0;
+        int productionCounter = 1;
 
         int[][] table = new int[mapping.nonTerminalCount][mapping.terminalCount];
 
@@ -288,7 +288,7 @@ public class CFG {
 
                     for (String follow : followSet) {
 
-                        System.out.println("Row: " + productionLabel + " Col: " + follow + " Production: " + productionLabel + " -> ;");
+                        System.out.println("[1]: Row: " + productionLabel + " Col: " + follow + " Production: " + productionLabel + " -> ;");
 
                         final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
                         final int terminalIndex = mapping.terminalToIndex(follow);
@@ -308,7 +308,7 @@ public class CFG {
 
                 if (symbol.isTerminal) {
 
-                    System.out.println("Row: " + productionLabel + " Col: " + symbol.id + " Production: " + productionLabel + " -> " + production.toString());
+                    System.out.println("[2]: Row: " + productionLabel + " Col: " + symbol.id + " Production: " + productionLabel + " -> " + production.toString());
 
                     final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
                     final int terminalIndex = mapping.terminalToIndex(symbol.id);
@@ -332,7 +332,7 @@ public class CFG {
                         continue;
                     }
 
-                    System.out.println("Row: " + productionLabel + " Col: " + first + " Production: " + productionLabel + " -> " + production.toString());
+                    System.out.println("[3]: Row: " + productionLabel + " Col: " + first + " Production: " + productionLabel + " -> " + production.toString());
 
                     final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
                     final int terminalIndex = mapping.terminalToIndex(first);
@@ -349,7 +349,7 @@ public class CFG {
 
         }
 
-        CFGParsingTableProduction[] productionActionsArray = new CFGParsingTableProduction[productionCounter];
+        CFGParsingTableProduction[] productionActionsArray = new CFGParsingTableProduction[productionCounter - 1];
 
         productionActions.toArray(productionActionsArray);
 
