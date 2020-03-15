@@ -21,12 +21,7 @@ public class ParserGenerator {
         this.table = table;
     }
 
-    public void generate() throws IOException {
-
-        System.out.println("Generating...");
-
-        TypeSpec.Builder classBuilder = TypeSpec.classBuilder("Parser")
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+    private void constructConstants(TypeSpec.Builder classBuilder) {
 
         {
             // T_EOF = 0
@@ -75,52 +70,72 @@ public class ParserGenerator {
 
         }
 
-        {
-            // write table
+    }
 
-            StringBuilder sb = new StringBuilder();
+    private FieldSpec constructTable() {
 
-            sb.append('{');
+        StringBuilder sb = new StringBuilder();
 
-            for (int y = 0; y < table.mapping.nonTerminalCount; y++) {
+        sb.append('{');
 
-                sb.append('\n');
+        for (int y = 0; y < table.mapping.nonTerminalCount; y++) {
 
-                for (int x = 0; x < table.mapping.terminalCount; x++) {
+            sb.append('\n');
 
-                    sb.append(table.table[y][x]);
+            for (int x = 0; x < table.mapping.terminalCount; x++) {
 
-                    if (x != table.mapping.terminalCount - 1 || y != table.mapping.nonTerminalCount - 1) {
-                        sb.append(',');
-                    }
+                sb.append(table.table[y][x]);
 
+                if (x != table.mapping.terminalCount - 1 || y != table.mapping.nonTerminalCount - 1) {
+                    sb.append(',');
                 }
 
             }
 
-            sb.append('}');
-
-            FieldSpec field = FieldSpec.builder(int[].class, "table")
-                .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", sb.toString())
-                .build();
-
-            classBuilder.addField(field);
         }
 
-        MethodSpec main = MethodSpec.methodBuilder("main")
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .returns(void.class)
-            .addParameter(String[].class, "args")
-            .addStatement("$T.out.println($S)", System.class, "Hello, JavaPoet!")
+        sb.append('}');
+
+        return FieldSpec.builder(int[].class, "table")
+            .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
+            .initializer("$L", sb.toString())
             .build();
+
+    }
+
+    private MethodSpec constructParseMethod() {
+
+        return MethodSpec.methodBuilder("parse")
+            .addModifiers(Modifier.PUBLIC)
+            .returns(void.class)
+            .addParameter(int.class, "tokenId")
+            .addParameter(Object.class, "token")
+            .addStatement("$T.out.println($S)", System.class, "Hello, ZeroBone!")
+            .build();
+
+    }
+
+    public void generate() throws IOException {
+
+        TypeSpec.Builder classBuilder = TypeSpec.classBuilder("Parser")
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+
+        // fields
+
+        constructConstants(classBuilder);
+
+        classBuilder.addField(constructTable());
+
+        // methods
 
         TypeSpec helloWorld = classBuilder
-            .addMethod(main)
+            .addMethod(constructParseMethod())
             .build();
 
+        // write to file
+
         JavaFile javaFile = JavaFile
-            .builder("com.example.parser", helloWorld)
+            .builder("net.zerobone.knife.parser", helloWorld)
             .build();
 
         BufferedWriter mainClassWriter = new BufferedWriter(new FileWriter("Parser.java"));

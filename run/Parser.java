@@ -1,6 +1,6 @@
-package com.example.parser;
+package net.zerobone.knife.parser;
 
-import java.lang.String;
+import java.lang.Object;
 import java.lang.System;
 
 public final class Parser {
@@ -27,7 +27,7 @@ public final class Parser {
   0,3,0,4,0,0,
   11,0,12,0,13,10};
 
-  public static void main(String[] args) {
-    System.out.println("Hello, JavaPoet!");
+  public void parse(int tokenId, Object token) {
+    System.out.println("Hello, ZeroBone!");
   }
 }
