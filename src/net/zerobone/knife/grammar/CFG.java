@@ -1,5 +1,9 @@
 package net.zerobone.knife.grammar;
 
+import net.zerobone.knife.grammar.table.CFGParsingTable;
+import net.zerobone.knife.grammar.table.CFGParsingTableBuilder;
+import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -222,7 +226,8 @@ public class CFG {
         int terminalCounter = 1;
         int nonTerminalCounter = -1;
 
-        HashMap<String, Integer> map = new HashMap<>();
+        HashMap<String, Integer> symbolToId = new HashMap<>();
+        HashMap<Integer, String> idToSymbol = new HashMap<>();
 
         for (CFGProductions thisLabelProductions : productions.values()) {
 
@@ -232,18 +237,24 @@ public class CFG {
 
                 for (CFGSymbol symbol : body) {
 
-                    if (map.containsKey(symbol.id)) {
+                    if (symbolToId.containsKey(symbol.id)) {
                         continue;
                     }
 
                     if (symbol.isTerminal) {
 
-                        map.put(symbol.id, terminalCounter++);
+                        symbolToId.put(symbol.id, terminalCounter);
+                        idToSymbol.put(terminalCounter, symbol.id);
+
+                        terminalCounter++;
 
                     }
                     else {
 
-                        map.put(symbol.id, nonTerminalCounter--);
+                        symbolToId.put(symbol.id, nonTerminalCounter);
+                        idToSymbol.put(nonTerminalCounter, symbol.id);
+
+                        nonTerminalCounter--;
 
                     }
 
@@ -253,7 +264,7 @@ public class CFG {
 
         }
 
-        return new CFGSymbolMapping(terminalCounter, -nonTerminalCounter - 1, map);
+        return new CFGSymbolMapping(terminalCounter, -nonTerminalCounter - 1, symbolToId, idToSymbol);
 
     }
 
@@ -265,11 +276,7 @@ public class CFG {
 
         final CFGSymbolMapping mapping = mapSymbols();
 
-        int productionCounter = 1;
-
-        int[][] table = new int[mapping.nonTerminalCount][mapping.terminalCount];
-
-        ArrayList<CFGParsingTableProduction> productionActions = new ArrayList<>();
+        final CFGParsingTableBuilder tableBuilder = new CFGParsingTableBuilder(mapping);
 
         for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
 
@@ -290,14 +297,7 @@ public class CFG {
 
                         System.out.println("[1]: Row: " + productionLabel + " Col: " + follow + " Production: " + productionLabel + " -> ;");
 
-                        final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
-                        final int terminalIndex = mapping.terminalToIndex(follow);
-
-                        table[nonTerminalIndex][terminalIndex] = productionCounter;
-
-                        productionActions.add(new CFGParsingTableProduction(productionLabel, new ArrayList<>()));
-
-                        productionCounter++;
+                        tableBuilder.write(productionLabel, follow, new CFGParsingTableProduction(productionLabel, new ArrayList<>()));
 
                     }
 
@@ -310,14 +310,7 @@ public class CFG {
 
                     System.out.println("[2]: Row: " + productionLabel + " Col: " + symbol.id + " Production: " + productionLabel + " -> " + production.toString());
 
-                    final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
-                    final int terminalIndex = mapping.terminalToIndex(symbol.id);
-
-                    table[nonTerminalIndex][terminalIndex] = productionCounter;
-
-                    productionActions.add(new CFGParsingTableProduction(productionLabel, production.getBody()));
-
-                    productionCounter++;
+                    tableBuilder.write(productionLabel, symbol.id, new CFGParsingTableProduction(productionLabel, production.getBody()));
 
                     continue;
                 }
@@ -334,14 +327,7 @@ public class CFG {
 
                     System.out.println("[3]: Row: " + productionLabel + " Col: " + first + " Production: " + productionLabel + " -> " + production.toString());
 
-                    final int nonTerminalIndex = mapping.nonTerminalToIndex(productionLabel);
-                    final int terminalIndex = mapping.terminalToIndex(first);
-
-                    table[nonTerminalIndex][terminalIndex] = productionCounter;
-
-                    productionActions.add(new CFGParsingTableProduction(productionLabel, production.getBody()));
-
-                    productionCounter++;
+                    tableBuilder.write(productionLabel, first, new CFGParsingTableProduction(productionLabel, production.getBody()));
 
                 }
 
@@ -349,11 +335,7 @@ public class CFG {
 
         }
 
-        CFGParsingTableProduction[] productionActionsArray = new CFGParsingTableProduction[productionCounter - 1];
-
-        productionActions.toArray(productionActionsArray);
-
-        return new CFGParsingTable(mapping, productionActionsArray, table);
+        return tableBuilder.getTable();
 
     }
 

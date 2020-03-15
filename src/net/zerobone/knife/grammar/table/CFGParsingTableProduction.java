@@ -1,4 +1,6 @@
-package net.zerobone.knife.grammar;
+package net.zerobone.knife.grammar.table;
+
+import net.zerobone.knife.grammar.CFGSymbol;
 
 import java.util.ArrayList;
 import java.util.Iterator;

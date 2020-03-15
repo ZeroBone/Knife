@@ -6,7 +6,7 @@ import net.zerobone.knife.ast.statements.ProductionStatementNode;
 import net.zerobone.knife.ast.statements.StatementNode;
 import net.zerobone.knife.generator.ParserGenerator;
 import net.zerobone.knife.grammar.CFG;
-import net.zerobone.knife.grammar.CFGParsingTable;
+import net.zerobone.knife.grammar.table.CFGParsingTable;
 import net.zerobone.knife.grammar.CFGProduction;
 import net.zerobone.knife.grammar.CFGSymbol;
 import net.zerobone.knife.parser.KnifeParser;

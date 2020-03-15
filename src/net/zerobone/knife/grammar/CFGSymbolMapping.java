@@ -8,33 +8,22 @@ public class CFGSymbolMapping {
 
     public final int nonTerminalCount;
 
-    private final HashMap<String, Integer> mapping;
+    private final HashMap<String, Integer> symbolToIdMap;
+    private final HashMap<Integer, String> idToSymbolMap;
 
-    public CFGSymbolMapping(int terminalCount, int nonTerminalCount, HashMap<String, Integer> mapping) {
+    public CFGSymbolMapping(int terminalCount, int nonTerminalCount, HashMap<String, Integer> symbolToIdMap, HashMap<Integer, String> idToSymbolMap) {
         this.terminalCount = terminalCount;
         this.nonTerminalCount = nonTerminalCount;
-        this.mapping = mapping;
+        this.symbolToIdMap = symbolToIdMap;
+        this.idToSymbolMap = idToSymbolMap;
     }
 
     public int map(String symbol) {
-        return mapping.get(symbol);
+        return symbolToIdMap.get(symbol);
     }
 
-    public HashMap<Integer, String> getDebugReverseMapping() {
-
-        HashMap<Integer, String> reverseMapping = new HashMap<>();
-
-        for (HashMap.Entry<String, Integer> entry : mapping.entrySet()) {
-
-            String key = entry.getKey();
-            int value = entry.getValue();
-
-            reverseMapping.put(value, key);
-
-        }
-
-        return reverseMapping;
-
+    public String idToSymbol(int id) {
+        return idToSymbolMap.get(id);
     }
 
     public int terminalToIndex(String symbol) {
@@ -44,7 +33,7 @@ public class CFGSymbolMapping {
         }
 
         // terminals are represented as positive integers
-        int value = mapping.get(symbol);
+        int value = symbolToIdMap.get(symbol);
 
         if (value < 0) {
             throw new RuntimeException("Symbol " + symbol + " is not a terminal.");
@@ -57,7 +46,7 @@ public class CFGSymbolMapping {
     public int nonTerminalToIndex(String symbol) {
 
         // non-terminals are represented as negative integers
-        int value = mapping.get(symbol);
+        int value = symbolToIdMap.get(symbol);
 
         if (value >= 0) {
             throw new RuntimeException("Symbol " + symbol + " is not a non-terminal.");
@@ -72,7 +61,7 @@ public class CFGSymbolMapping {
         return "CFGMapping{" +
             "terminalCount=" + terminalCount +
             ", nonTerminalCount=" + nonTerminalCount +
-            ", mapping=" + mapping +
+            ", mapping=" + symbolToIdMap +
             '}';
     }
 

@@ -6,7 +6,7 @@ import com.squareup.javapoet.MethodSpec;
 import javax.lang.model.element.Modifier;
 
 import com.squareup.javapoet.TypeSpec;
-import net.zerobone.knife.grammar.CFGParsingTable;
+import net.zerobone.knife.grammar.table.CFGParsingTable;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

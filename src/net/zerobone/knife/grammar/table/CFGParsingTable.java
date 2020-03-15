@@ -1,6 +1,6 @@
-package net.zerobone.knife.grammar;
+package net.zerobone.knife.grammar.table;
 
-import java.util.HashMap;
+import net.zerobone.knife.grammar.CFGSymbolMapping;
 
 public class CFGParsingTable {
 
@@ -30,13 +30,11 @@ public class CFGParsingTable {
         sb.append('\n');
         sb.append('\n');
 
-        HashMap<Integer, String> debugReverseMapping = mapping.getDebugReverseMapping();
-
         sb.append(String.format("%12s ", "LL(1) TABLE"));
 
         for (int x = 0; x < mapping.terminalCount; x++) {
 
-            sb.append(String.format("%12s", x == 0 ? "$" : debugReverseMapping.get(x)));
+            sb.append(String.format("%12s", x == 0 ? "$" : mapping.idToSymbol(x)));
             sb.append(' ');
 
         }
@@ -45,7 +43,7 @@ public class CFGParsingTable {
 
         for (int y = 0; y < mapping.nonTerminalCount; y++) {
 
-            sb.append(String.format("%10s", debugReverseMapping.get(-y - 1)));
+            sb.append(String.format("%10s", mapping.idToSymbol(-y - 1)));
 
             sb.append(" | ");
 
