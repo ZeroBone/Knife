@@ -9,6 +9,7 @@ public class CFGSymbolMapping {
     public final int nonTerminalCount;
 
     private final HashMap<String, Integer> symbolToIdMap;
+
     private final HashMap<Integer, String> idToSymbolMap;
 
     public CFGSymbolMapping(int terminalCount, int nonTerminalCount, HashMap<String, Integer> symbolToIdMap, HashMap<Integer, String> idToSymbolMap) {
@@ -24,6 +25,10 @@ public class CFGSymbolMapping {
 
     public String idToSymbol(int id) {
         return idToSymbolMap.get(id);
+    }
+
+    public HashMap<String, Integer> getSymbolToIdMap() {
+        return symbolToIdMap;
     }
 
     public int terminalToIndex(String symbol) {
