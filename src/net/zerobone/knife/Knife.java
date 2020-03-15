@@ -13,6 +13,8 @@ import net.zerobone.knife.parser.ParseException;
 import net.zerobone.knife.parser.TokenMgrError;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Knife {
 
@@ -108,10 +110,42 @@ public class Knife {
             debugLogWriter.newLine();
             debugLogWriter.newLine();
 
-            debugLogWriter.write("First sets: " + cfg.computeFirstSets());
+            debugLogWriter.write("First sets:");
             debugLogWriter.newLine();
-            debugLogWriter.write("Follow sets: " + cfg.computeFollowSets());
+
+            HashMap<String, HashSet<String>> firstSets = cfg.computeFirstSets();
+
+            for (HashMap.Entry<String, HashSet<String>> entry : firstSets.entrySet()) {
+
+                debugLogWriter.write("FIRST(");
+                debugLogWriter.write(entry.getKey());
+                debugLogWriter.write(") = ");
+
+                debugLogWriter.write(entry.getValue().toString());
+
+                debugLogWriter.newLine();
+
+            }
+
             debugLogWriter.newLine();
+
+            debugLogWriter.write("Follow sets:");
+            debugLogWriter.newLine();
+
+            HashMap<String, HashSet<String>> followSets = cfg.computeFollowSets();
+
+            for (HashMap.Entry<String, HashSet<String>> entry : followSets.entrySet()) {
+
+                debugLogWriter.write("FOLLOW(");
+                debugLogWriter.write(entry.getKey());
+                debugLogWriter.write(") = ");
+
+                debugLogWriter.write(entry.getValue().toString());
+
+                debugLogWriter.newLine();
+
+            }
+
             debugLogWriter.newLine();
 
             debugLogWriter.write(table.toString());
