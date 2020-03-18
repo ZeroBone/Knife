@@ -23,4 +23,9 @@
 hs_err_pid*
 
 .idea
+demo/.idea
 knife.iml
+demo/KnifeDemo.iml
+
+out
+demo/out
