@@ -45,6 +45,8 @@ public final class Parser {
         {},
         {}};
 
+    // TODO: make all these helper classes private
+
     public interface IParseTreeNode {
 
         void print(int indent);
@@ -53,11 +55,7 @@ public final class Parser {
 
     public static class ParseTreeTerminalNode implements IParseTreeNode {
 
-        public String terminal;
-
-        public ParseTreeTerminalNode(String terminal) {
-            this.terminal = terminal;
-        }
+        public String terminal = null;
 
         @Override
         public void print(int indent) {
@@ -71,7 +69,7 @@ public final class Parser {
         private LinkedList<IParseTreeNode> subNodes = new LinkedList<>();
 
         private void add(IParseTreeNode node) {
-            subNodes.add(node);
+            subNodes.addFirst(node);
         }
 
         @Override
@@ -88,15 +86,25 @@ public final class Parser {
         }
     }
 
-    private Stack<Integer> stack = new Stack<>();
+    private Stack<Integer> stack;
 
-    public Stack<IParseTreeNode> treeStack = new Stack<>();
+    public Stack<IParseTreeNode> treeStack;
 
-    public IParseTreeNode parseTree;
+    public IParseTreeNode parseTree = null;
 
     public Parser() {
+        reset();
+    }
+
+    public void reset() {
+
+        stack = new Stack<>();
+        treeStack = new Stack<>();
+
         stack.push(startSymbol);
+
         treeInit();
+
     }
 
     public void parse(int tokenId, String token) {
@@ -183,26 +191,11 @@ public final class Parser {
 
         for (int i = action.length - 1; i >= 0; i--) {
 
-            if (action[i] < 0) {
+            IParseTreeNode child = action[i] < 0 ? new ParseTreeNode() : new ParseTreeTerminalNode();
 
-                // non-terminal
+            prevRoot.add(child);
 
-                ParseTreeNode child = new ParseTreeNode();
-
-                prevRoot.add(child);
-
-                treeStack.push(child);
-
-            }
-            else {
-
-                ParseTreeTerminalNode child = new ParseTreeTerminalNode("<to be replaced>");
-
-                prevRoot.add(child);
-
-                treeStack.push(child);
-
-            }
+            treeStack.push(child);
 
         }
 
