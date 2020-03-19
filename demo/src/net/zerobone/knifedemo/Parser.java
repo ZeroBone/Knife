@@ -1,5 +1,7 @@
 package net.zerobone.knifedemo;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Stack;
 
@@ -49,56 +51,9 @@ public final class Parser {
 
     private Stack<IParseTreeNode> treeStack;
 
+    private boolean successfullyParsed = false;
+
     private IParseTreeNode parseTree = null;
-
-    // TODO: make all these helper classes private
-
-    public interface IParseTreeNode {
-
-        void print(int indent);
-
-    }
-
-    public static class ParseTreeTerminalNode implements IParseTreeNode {
-
-        public String terminal = null;
-
-        @Override
-        public void print(int indent) {
-            for (int i = 0; i < indent; i++) System.out.print("    ");
-            System.out.println(terminal);
-        }
-
-    }
-
-    public static class ParseTreeNode implements IParseTreeNode {
-
-        public final int nonTerminal;
-
-        private LinkedList<IParseTreeNode> subNodes = new LinkedList<>();
-
-        public ParseTreeNode(int nonTerminal) {
-            this.nonTerminal = nonTerminal;
-        }
-
-        private void add(IParseTreeNode node) {
-            subNodes.addFirst(node);
-        }
-
-        @Override
-        public void print(int indent) {
-
-            for (int i = 0; i < indent; i++) System.out.print("    ");
-            System.out.println("NODE(" + nonTerminal + "):");
-
-            for (IParseTreeNode node : subNodes) {
-
-                node.print(indent + 1);
-
-            }
-        }
-
-    }
 
     public Parser() {
         reset();
@@ -107,11 +62,9 @@ public final class Parser {
     public void reset() {
 
         stack = new Stack<>();
-        treeStack = new Stack<>();
-
         stack.push(startSymbol);
 
-        treeInit();
+        treeReset();
 
     }
 
@@ -122,7 +75,13 @@ public final class Parser {
             if (stack.isEmpty()) {
 
                 if (tokenId == T_EOF) {
-                    System.out.println("successful parse");
+
+                    treeParseEof();
+
+                    successfullyParsed = true;
+
+                    System.out.println("successful parse: stack size: " + stack.size() + " tree stack size: " + treeStack.size());
+
                     return;
                 }
 
@@ -178,9 +137,14 @@ public final class Parser {
 
     }
 
-    private void treeInit() {
+    private void treeReset() {
+
+        treeStack = new Stack<>();
+
         parseTree = new ParseTreeNode(startSymbol);
+
         treeStack.push(parseTree);
+
     }
 
     private void treeMatchToken(String token) {
@@ -195,7 +159,24 @@ public final class Parser {
 
         ParseTreeNode prevRoot = (ParseTreeNode)treeStack.peek();
 
-        treeStack.pop();
+        if (prevRoot.isParent) {
+
+            do {
+
+                prevRoot.isParent = false;
+                prevRoot.optimize();
+
+                treeStack.pop();
+
+                prevRoot = (ParseTreeNode)treeStack.peek();
+
+            } while (prevRoot.isParent);
+
+        }
+
+        // treeStack.pop();
+
+        prevRoot.isParent = true;
 
         for (int i = action.length - 1; i >= 0; i--) {
 
@@ -209,7 +190,26 @@ public final class Parser {
 
     }
 
-    public IParseTreeNode getParseTree() {
-        return parseTree;
+    private void treeParseEof() {
+
+        while (!treeStack.isEmpty()) {
+            ((ParseTreeNode)treeStack.pop()).optimize();
+        }
+
     }
+
+    public boolean isSuccessfullyParsed() {
+        return successfullyParsed;
+    }
+
+    public IParseTreeNode getParseTree() {
+
+        if (!successfullyParsed) {
+            return null;
+        }
+
+        return parseTree;
+
+    }
+
 }

@@ -166,6 +166,15 @@ public class ParserGenerator {
 
     }
 
+    private void generateMetaInformation(TypeSpec.Builder classBuilder) {
+
+        constructConstants(classBuilder);
+
+        classBuilder.addField(constructTable());
+        classBuilder.addField(constructActionTable());
+
+    }
+
     public void generate() throws IOException {
 
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder("Parser")
@@ -173,10 +182,7 @@ public class ParserGenerator {
 
         // fields
 
-        constructConstants(classBuilder);
-
-        classBuilder.addField(constructTable());
-        classBuilder.addField(constructActionTable());
+        generateMetaInformation(classBuilder);
 
         // methods
 
