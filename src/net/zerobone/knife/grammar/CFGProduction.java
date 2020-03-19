@@ -21,6 +21,10 @@ public class CFGProduction {
         return body;
     }
 
+    public String getCode() {
+        return code;
+    }
+
     @Override
     public String toString() {
 
@@ -37,6 +41,15 @@ public class CFGProduction {
             if (it.hasNext()) {
                 sb.append(' ');
             }
+
+        }
+
+        if (code != null) {
+
+            sb.append("    ");
+            sb.append("<code:");
+            sb.append(code.length());
+            sb.append(">");
 
         }
 

@@ -11,9 +11,12 @@ public class CFGParsingTableProduction {
 
     public final ArrayList<CFGSymbol> body;
 
-    public CFGParsingTableProduction(String label, ArrayList<CFGSymbol> body) {
+    public final String code;
+
+    public CFGParsingTableProduction(String label, ArrayList<CFGSymbol> body, String code) {
         this.label = label;
         this.body = body;
+        this.code = code;
     }
 
     @Override
@@ -32,6 +35,14 @@ public class CFGParsingTableProduction {
 
             sb.append(symbol.id);
 
+            if (symbol.argumentName != null) {
+
+                sb.append('(');
+                sb.append(symbol.argumentName);
+                sb.append(')');
+
+            }
+
             if (it.hasNext()) {
                 sb.append(' ');
             }
@@ -39,6 +50,15 @@ public class CFGParsingTableProduction {
         }
 
         sb.append(';');
+
+        if (code != null) {
+
+            sb.append("    ");
+            sb.append("{ ");
+            sb.append(code);
+            sb.append(" }");
+
+        }
 
         return sb.toString();
     }

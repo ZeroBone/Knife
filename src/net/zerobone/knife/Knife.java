@@ -4,7 +4,7 @@ import net.zerobone.knife.ast.TranslationUnitNode;
 import net.zerobone.knife.ast.entities.ProductionSymbol;
 import net.zerobone.knife.ast.statements.ProductionStatementNode;
 import net.zerobone.knife.ast.statements.StatementNode;
-import net.zerobone.knife.generator.ParserGenerator;
+import net.zerobone.knife.generator.Generator;
 import net.zerobone.knife.grammar.CFG;
 import net.zerobone.knife.grammar.table.CFGParsingTable;
 import net.zerobone.knife.grammar.CFGProduction;
@@ -160,9 +160,7 @@ public class Knife {
 
         try {
 
-            ParserGenerator generator = new ParserGenerator(table);
-
-            generator.generate();
+            Generator.generate(table, "net.zerobone.knife.parser");
 
         }
         catch (IOException e) {
