@@ -45,6 +45,12 @@ public final class Parser {
         {},
         {}};
 
+    private Stack<Integer> stack;
+
+    private Stack<IParseTreeNode> treeStack;
+
+    private IParseTreeNode parseTree = null;
+
     // TODO: make all these helper classes private
 
     public interface IParseTreeNode {
@@ -62,11 +68,18 @@ public final class Parser {
             for (int i = 0; i < indent; i++) System.out.print("    ");
             System.out.println(terminal);
         }
+
     }
 
     public static class ParseTreeNode implements IParseTreeNode {
 
+        public final int nonTerminal;
+
         private LinkedList<IParseTreeNode> subNodes = new LinkedList<>();
+
+        public ParseTreeNode(int nonTerminal) {
+            this.nonTerminal = nonTerminal;
+        }
 
         private void add(IParseTreeNode node) {
             subNodes.addFirst(node);
@@ -76,7 +89,7 @@ public final class Parser {
         public void print(int indent) {
 
             for (int i = 0; i < indent; i++) System.out.print("    ");
-            System.out.println("NODE");
+            System.out.println("NODE(" + nonTerminal + "):");
 
             for (IParseTreeNode node : subNodes) {
 
@@ -84,13 +97,8 @@ public final class Parser {
 
             }
         }
+
     }
-
-    private Stack<Integer> stack;
-
-    public Stack<IParseTreeNode> treeStack;
-
-    public IParseTreeNode parseTree = null;
 
     public Parser() {
         reset();
@@ -146,12 +154,13 @@ public final class Parser {
             int actionId = table[(-top - 1) * terminalCount + tokenId];
 
             if (actionId == 0) {
-                throw new RuntimeException("error");
+                throw new RuntimeException("Syntax error. Token: " + token);
             }
 
             int[] action = actionTable[actionId - 1];
 
-            System.out.println("--> Applying action " + actionId);
+            System.out.println("--> Applying action " + actionId + " Production label: " + top);
+
             treeApplyAction(action);
 
             stack.pop();
@@ -170,14 +179,13 @@ public final class Parser {
     }
 
     private void treeInit() {
-        parseTree = new ParseTreeNode();
+        parseTree = new ParseTreeNode(startSymbol);
         treeStack.push(parseTree);
     }
 
     private void treeMatchToken(String token) {
 
-        ParseTreeTerminalNode node = (ParseTreeTerminalNode)treeStack.peek();
-        node.terminal = token;
+        ((ParseTreeTerminalNode)treeStack.peek()).terminal = token;
 
         treeStack.pop();
 
@@ -191,7 +199,7 @@ public final class Parser {
 
         for (int i = action.length - 1; i >= 0; i--) {
 
-            IParseTreeNode child = action[i] < 0 ? new ParseTreeNode() : new ParseTreeTerminalNode();
+            IParseTreeNode child = action[i] < 0 ? new ParseTreeNode(action[i]) : new ParseTreeTerminalNode();
 
             prevRoot.add(child);
 
@@ -201,4 +209,7 @@ public final class Parser {
 
     }
 
+    public IParseTreeNode getParseTree() {
+        return parseTree;
+    }
 }
