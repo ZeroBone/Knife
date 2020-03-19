@@ -10,6 +10,8 @@ public class ParseTreeNode implements IParseTreeNode {
 
     public boolean isParent = false;
 
+    private Object payload;
+
     private LinkedList<IParseTreeNode> subNodes = new LinkedList<>();
 
     public ParseTreeNode(int nonTerminal) {

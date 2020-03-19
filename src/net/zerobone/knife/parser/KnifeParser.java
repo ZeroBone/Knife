@@ -78,21 +78,31 @@ t.addStatement(s); {if ("" != null) return t;}
     jj_consume_token(RIGHT_PAREN);
     jj_consume_token(ASSIGN);
     body = productionStatementBody();
-{if ("" != null) return new ProductionStatementNode(nonTerminal, arg, body.getProduction());}
+{if ("" != null) return new ProductionStatementNode(nonTerminal, arg, body.getProduction(), body.getCode());}
     throw new Error("Missing return statement in function");
 }
 
   final public ProductionStatementBody productionStatementBody() throws ParseException {String s;
     String arg;
     ProductionStatementBody b;
+    String code = null;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case SEMICOLON:{
       jj_consume_token(SEMICOLON);
-{if ("" != null) return new ProductionStatementBody();}
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case CODE:{
+        code = productionStatementCode();
+        break;
+        }
+      default:
+        jj_la1[2] = jj_gen;
+        ;
+      }
+{if ("" != null) return new ProductionStatementBody(code);}
       break;
       }
     default:
-      jj_la1[2] = jj_gen;
+      jj_la1[3] = jj_gen;
       if (jj_2_1(2)) {
         s = bigId();
         b = productionStatementBody();
@@ -109,7 +119,7 @@ b.addTerminal(s, arg); {if ("" != null) return b;}
           break;
           }
         default:
-          jj_la1[3] = jj_gen;
+          jj_la1[4] = jj_gen;
           if (jj_2_2(2)) {
             s = smallId();
             b = productionStatementBody();
@@ -126,7 +136,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
               break;
               }
             default:
-              jj_la1[4] = jj_gen;
+              jj_la1[5] = jj_gen;
               jj_consume_token(-1);
               throw new ParseException();
             }
@@ -134,6 +144,12 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
         }
       }
     }
+    throw new Error("Missing return statement in function");
+}
+
+  final public String productionStatementCode() throws ParseException {Token t;
+    t = jj_consume_token(CODE);
+{if ("" != null) return t.image.substring(1, t.image.length() - 1).trim();}
     throw new Error("Missing return statement in function");
 }
 
@@ -151,13 +167,6 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
     try { return (!jj_3_2()); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(1, xla); }
-  }
-
-  private boolean jj_3_1()
- {
-    if (jj_3R_1()) return true;
-    if (jj_3R_2()) return true;
-    return false;
   }
 
   private boolean jj_3R_4()
@@ -198,12 +207,6 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
     return false;
   }
 
-  private boolean jj_3R_1()
- {
-    if (jj_scan_token(BIG_ID)) return true;
-    return false;
-  }
-
   private boolean jj_3_2()
  {
     if (jj_3R_3()) return true;
@@ -214,6 +217,19 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
   private boolean jj_3R_5()
  {
     if (jj_3R_1()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_1()
+ {
+    if (jj_scan_token(BIG_ID)) return true;
+    return false;
+  }
+
+  private boolean jj_3_1()
+ {
+    if (jj_3R_1()) return true;
+    if (jj_3R_2()) return true;
     return false;
   }
 
@@ -228,13 +244,13 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[5];
+  final private int[] jj_la1 = new int[6];
   static private int[] jj_la1_0;
   static {
 	   jj_la1_init_0();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x18001,0x18000,0x800,0x8000,0x10000,};
+	   jj_la1_0 = new int[] {0x18001,0x18000,0x200000,0x800,0x8000,0x10000,};
 	}
   final private JJCalls[] jj_2_rtns = new JJCalls[2];
   private boolean jj_rescan = false;
@@ -251,7 +267,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 6; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -266,7 +282,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 6; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -277,7 +293,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 6; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -296,7 +312,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 6; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -306,7 +322,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 6; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -316,7 +332,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 6; i++) jj_la1[i] = -1;
 	 for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -442,12 +458,12 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[21];
+	 boolean[] la1tokens = new boolean[22];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 5; i++) {
+	 for (int i = 0; i < 6; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -456,7 +472,7 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 21; i++) {
+	 for (int i = 0; i < 22; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;

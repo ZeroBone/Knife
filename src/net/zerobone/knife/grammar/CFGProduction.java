@@ -5,7 +5,13 @@ import java.util.Iterator;
 
 public class CFGProduction {
 
+    private final String code;
+
     private ArrayList<CFGSymbol> body = new ArrayList<>();
+
+    public CFGProduction(String code) {
+        this.code = code;
+    }
 
     public void append(CFGSymbol symbol) {
         body.add(symbol);
@@ -27,8 +33,6 @@ public class CFGProduction {
             CFGSymbol symbol = (CFGSymbol)it.next();
 
             sb.append(symbol.id);
-
-            // it.remove(); // to avoid a ConcurrentModificationException
 
             if (it.hasNext()) {
                 sb.append(' ');

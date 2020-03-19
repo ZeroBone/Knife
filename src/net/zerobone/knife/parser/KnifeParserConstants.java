@@ -34,6 +34,8 @@ public interface KnifeParserConstants {
   int LETTER = 19;
   /** RegularExpression Id. */
   int DIGIT = 20;
+  /** RegularExpression Id. */
+  int CODE = 21;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -65,6 +67,7 @@ public interface KnifeParserConstants {
     "<SMALL_LETTER>",
     "<LETTER>",
     "<DIGIT>",
+    "<CODE>",
   };
 
 }

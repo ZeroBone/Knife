@@ -6,9 +6,12 @@ public class CFGSymbol {
 
     public boolean isTerminal;
 
-    public CFGSymbol(String id, boolean isTerminal) {
+    public final String argumentName;
+
+    public CFGSymbol(String id, boolean isTerminal, String argumentName) {
         this.id = id;
         this.isTerminal = isTerminal;
+        this.argumentName = argumentName;
     }
 
 }

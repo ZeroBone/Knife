@@ -61,10 +61,10 @@ public class Knife {
 
     private static CFGProduction convertProduction(ProductionStatementNode statement) {
 
-        CFGProduction production = new CFGProduction();
+        CFGProduction production = new CFGProduction(statement.code);
 
         for (ProductionSymbol symbol : statement.production) {
-            production.append(new CFGSymbol(symbol.id, symbol.terminal));
+            production.append(new CFGSymbol(symbol.id, symbol.terminal, symbol.argument));
         }
 
         return production;

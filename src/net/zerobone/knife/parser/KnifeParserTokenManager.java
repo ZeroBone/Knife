@@ -66,10 +66,13 @@ private int jjMoveStringLiteralDfa1_0(long active0){
    }
    return jjStartNfa_0(0, active0);
 }
+static final long[] jjbitVec0 = {
+   0x0L, 0x0L, 0xffffffffffffffffL, 0xffffffffffffffffL
+};
 private int jjMoveNfa_0(int startState, int curPos)
 {
    int startsAt = 0;
-   jjnewStateCnt = 4;
+   jjnewStateCnt = 7;
    int i = 1;
    jjstateSet[0] = startState;
    int kind = 0x7fffffff;
@@ -98,6 +101,9 @@ private int jjMoveNfa_0(int startState, int curPos)
                      kind = 16;
                   jjstateSet[jjnewStateCnt++] = 3;
                   break;
+               case 5:
+                  { jjAddStates(0, 1); }
+                  break;
                default : break;
             }
          } while(i != startsAt);
@@ -122,6 +128,8 @@ private int jjMoveNfa_0(int startState, int curPos)
                         kind = 15;
                      { jjCheckNAdd(1); }
                   }
+                  else if (curChar == 123)
+                     { jjCheckNAddTwoStates(5, 6); }
                   break;
                case 1:
                   if ((0x7fffffe87fffffeL & l) == 0L)
@@ -144,6 +152,17 @@ private int jjMoveNfa_0(int startState, int curPos)
                      kind = 16;
                   { jjCheckNAdd(3); }
                   break;
+               case 4:
+                  if (curChar == 123)
+                     { jjCheckNAddTwoStates(5, 6); }
+                  break;
+               case 5:
+                  { jjCheckNAddTwoStates(5, 6); }
+                  break;
+               case 6:
+                  if (curChar == 125 && kind > 21)
+                     kind = 21;
+                  break;
                default : break;
             }
          } while(i != startsAt);
@@ -156,6 +175,10 @@ private int jjMoveNfa_0(int startState, int curPos)
          {
             switch(jjstateSet[--i])
             {
+               case 5:
+                  if ((jjbitVec0[i2] & l2) != 0L)
+                     { jjAddStates(0, 1); }
+                  break;
                default : break;
             }
          } while(i != startsAt);
@@ -167,7 +190,7 @@ private int jjMoveNfa_0(int startState, int curPos)
          kind = 0x7fffffff;
       }
       ++curPos;
-      if ((i = jjnewStateCnt) == (startsAt = 4 - (jjnewStateCnt = startsAt)))
+      if ((i = jjnewStateCnt) == (startsAt = 7 - (jjnewStateCnt = startsAt)))
          return curPos;
       try { curChar = input_stream.readChar(); }
       catch(java.io.IOException e) { return curPos; }
@@ -281,7 +304,7 @@ private int jjMoveNfa_1(int startState, int curPos)
 /** Token literal values. */
 public static final String[] jjstrLiteralImages = {
 "", null, null, null, null, null, null, null, null, null, null, "\73", "\75", 
-"\50", "\51", null, null, null, null, null, null, };
+"\50", "\51", null, null, null, null, null, null, null, };
 protected Token jjFillToken()
 {
    final Token t;
@@ -305,7 +328,8 @@ protected Token jjFillToken()
 
    return t;
 }
-static final int[] jjnextStates = {0
+static final int[] jjnextStates = {
+   5, 6, 
 };
 
 int curLexState = 0;
@@ -519,7 +543,7 @@ private void jjCheckNAddTwoStates(int state1, int state2)
   {
     int i;
     jjround = 0x80000001;
-    for (i = 4; i-- > 0;)
+    for (i = 7; i-- > 0;)
       jjrounds[i] = 0x80000000;
   }
 
@@ -550,10 +574,10 @@ public static final String[] lexStateNames = {
 
 /** Lex State array. */
 public static final int[] jjnewLexState = {
-   -1, -1, -1, -1, -1, -1, 1, 2, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+   -1, -1, -1, -1, -1, -1, 1, 2, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
 };
 static final long[] jjtoToken = {
-   0x1f801L, 
+   0x21f801L, 
 };
 static final long[] jjtoSkip = {
    0x33eL, 
@@ -566,8 +590,8 @@ static final long[] jjtoMore = {
 };
     protected SimpleCharStream  input_stream;
 
-    private final int[] jjrounds = new int[4];
-    private final int[] jjstateSet = new int[2 * 4];
+    private final int[] jjrounds = new int[7];
+    private final int[] jjstateSet = new int[2 * 7];
     private final StringBuilder jjimage = new StringBuilder();
     private StringBuilder image = jjimage;
     private int jjimageLen;

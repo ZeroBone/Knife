@@ -1,8 +1,5 @@
 package net.zerobone.knifedemo;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedList;
 import java.util.Stack;
 
 public final class Parser {
@@ -173,8 +170,6 @@ public final class Parser {
             } while (prevRoot.isParent);
 
         }
-
-        // treeStack.pop();
 
         prevRoot.isParent = true;
 

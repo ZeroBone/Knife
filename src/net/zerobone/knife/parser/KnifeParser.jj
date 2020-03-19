@@ -71,13 +71,14 @@ TOKEN: {
 }
 
 // identifiers
-TOKEN : {
+TOKEN: {
     <BIG_ID: <BIG_LETTER> (<LETTER>|<DIGIT>|"_")*>
     | <SMALL_ID: <SMALL_LETTER> (<LETTER>|<DIGIT>|"_")*>
     | <#BIG_LETTER: ["A"-"Z"]>
     | <#SMALL_LETTER: ["a"-"z"]>
     | <#LETTER: ["a"-"z", "A"-"Z"]>
     | <#DIGIT: ["0"-"9"]>
+    | <CODE: "{" (~[])* "}">
 }
 
 TranslationUnitNode translationUnit():
@@ -131,7 +132,7 @@ ProductionStatementNode productionStatement():
 }
 {
     nonTerminal=id() <LEFT_PAREN> arg=id() <RIGHT_PAREN> <ASSIGN> body=productionStatementBody() {
-        return new ProductionStatementNode(nonTerminal, arg, body.getProduction());
+        return new ProductionStatementNode(nonTerminal, arg, body.getProduction(), body.getCode());
     }
 }
 
@@ -140,11 +141,20 @@ ProductionStatementBody productionStatementBody():
     String s;
     String arg;
     ProductionStatementBody b;
+    String code = null;
 }
 {
-    <SEMICOLON> { return new ProductionStatementBody(); }
+    <SEMICOLON> (code=productionStatementCode())? { return new ProductionStatementBody(code); }
     | LOOKAHEAD(2) s=bigId() b=productionStatementBody() { b.addTerminal(s); return b; }
     | s=bigId() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addTerminal(s, arg); return b; }
     | LOOKAHEAD(2) s=smallId() b=productionStatementBody() { b.addNonTerminal(s); return b; }
     | s=smallId() <LEFT_PAREN> arg=id() <RIGHT_PAREN> b=productionStatementBody() { b.addNonTerminal(s, arg); return b; }
+}
+
+String productionStatementCode():
+{
+    Token t;
+}
+{
+    t=<CODE> { return t.image.substring(1, t.image.length() - 1).trim(); }
 }

@@ -4,9 +4,13 @@ import java.util.LinkedList;
 
 public class ProductionStatementBody {
 
+    private final String code;
+
     private LinkedList<ProductionSymbol> production = new LinkedList<>();
 
-    public ProductionStatementBody() {}
+    public ProductionStatementBody(String code) {
+        this.code = code;
+    }
 
     public void addNonTerminal(String id) {
         production.addFirst(new ProductionSymbol(id, false));
@@ -26,6 +30,10 @@ public class ProductionStatementBody {
 
     public LinkedList<ProductionSymbol> getProduction() {
         return production;
+    }
+
+    public String getCode() {
+        return code;
     }
 
 }

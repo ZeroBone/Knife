@@ -1,4 +1,4 @@
-e(a) = t es;
+e(a) = t es; { return new ExpressionNode(); }
 es(a) = PLUS t es;
 es(a) = ;
 t(a) = f ts;
