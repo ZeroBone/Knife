@@ -5,11 +5,10 @@ import net.zerobone.knife.grammar.CFGSymbol;
 import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
 
 import javax.lang.model.element.Modifier;
-import java.util.HashMap;
 
-class ParseTreeNodeGenerator {
+class ParseNodeGenerator {
 
-    private ParseTreeNodeGenerator() {}
+    private ParseNodeGenerator() {}
 
     private static MethodSpec constructReduceMethod(GeneratorContext context) {
 
@@ -45,12 +44,7 @@ class ParseTreeNodeGenerator {
 
                 int childIndex = production.body.size() - 1 - j;
 
-                if (symbol.isTerminal) {
-                    b.addStatement("Object " + symbol.argumentName + " = ((ParseTreeTerminalNode)children.get(" + childIndex + ")).terminal");
-                }
-                else {
-                    b.addStatement("Object " + symbol.argumentName + " = ((ParseTreeNode)children.get(" + childIndex + ")).payload");
-                }
+                b.addStatement("Object " + symbol.argumentName + " = ((ParseNode)children.get(" + childIndex + ")).payload");
 
             }
 
@@ -73,7 +67,7 @@ class ParseTreeNodeGenerator {
         b.endControlFlow();
 
         b.addStatement("payload = v");
-        b.addStatement("children = new ArrayList<>()");
+        b.addStatement("children = null");
 
         return b.build();
 
@@ -81,13 +75,20 @@ class ParseTreeNodeGenerator {
 
     private static MethodSpec constructConstructor() {
 
-        return MethodSpec.constructorBuilder().build();
+        MethodSpec.Builder b = MethodSpec.constructorBuilder();
+
+        b.addParameter(int.class, "symbolId");
+
+        b.addStatement("this.symbolId = symbolId");
+        b.addStatement("children = this.symbolId < 0 ? new ArrayList<>() : null");
+
+        return b.build();
 
     }
 
     static TypeSpec.Builder generate(GeneratorContext context) {
 
-        TypeSpec.Builder classBuilder = TypeSpec.classBuilder("ParseTreeNode")
+        TypeSpec.Builder classBuilder = TypeSpec.classBuilder("ParseNode")
             .addModifiers(Modifier.FINAL);
 
         // methods
@@ -95,13 +96,13 @@ class ParseTreeNodeGenerator {
         classBuilder.addField(
             FieldSpec
                 .builder(int.class, "actionId")
-                .initializer("$L", 0)
+                .initializer("0")
                 .build()
         );
 
         classBuilder.addField(
-            FieldSpec.builder(boolean.class, "isParent")
-                .initializer("$L", false)
+            FieldSpec.builder(int.class, "symbolId")
+                .addModifiers(Modifier.FINAL)
                 .build()
         );
 
@@ -115,8 +116,8 @@ class ParseTreeNodeGenerator {
         final ClassName nodesClassName = ClassName.get("java.lang", "Object");
 
         classBuilder.addField(
-            FieldSpec.builder(ParameterizedTypeName.get(arrayList, nodesClassName), "children")
-                .initializer("new $T<>()", arrayList)
+            FieldSpec
+                .builder(ParameterizedTypeName.get(arrayList, nodesClassName), "children")
                 .build()
         );
 

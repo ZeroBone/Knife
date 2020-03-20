@@ -1,6 +1,5 @@
 package net.zerobone.knife.parser;
 
-import java.lang.Integer;
 import java.lang.Object;
 import java.util.Stack;
 
@@ -35,13 +34,11 @@ public final class Parser {
 	{3,-2,-2},
 	{4,-2,-2}};
 
-	private Stack<Integer> stack;
-
-	private Stack<Object> treeStack;
+	private Stack<ParseNode> stack;
 
 	private boolean success = false;
 
-	private Object parseTree;
+	private ParseNode parseTree;
 
 	public Parser() {
 		reset();
@@ -49,66 +46,53 @@ public final class Parser {
 
 	public void parse(int tokenId, Object token) {
 		while (true) {
-			if (stack.isEmpty()) {
-				if (tokenId == T_EOF) {
-					while (!treeStack.isEmpty()) {
-						((ParseTreeNode)treeStack.pop()).reduce();
+			ParseNode prevRoot = stack.peek();
+			while (prevRoot.actionId != 0) {
+				prevRoot.reduce();
+				stack.pop();
+				if (stack.isEmpty()) {
+					if (tokenId != T_EOF) {
+						throw new RuntimeException("Expected end of input. Got: " + tokenId);
 					}
 					success = true;
 					return;
 				}
-				throw new RuntimeException("Expected end of input. Got: " + tokenId);
+				prevRoot = stack.peek();
 			}
-			int top = stack.peek();
-			if (top > 0) {
-				if (tokenId != top) {
-					throw new RuntimeException("Expected: " + top + " Got: " + tokenId);
+			if (prevRoot.symbolId > 0) {
+				if (tokenId != prevRoot.symbolId) {
+					throw new RuntimeException("Expected: " + prevRoot.symbolId + " Got: " + tokenId);
 				}
+				prevRoot.payload = token;
 				stack.pop();
-				((ParseTreeTerminalNode)treeStack.peek()).terminal = token;
-				treeStack.pop();
 				return;
 			}
-			int actionId = table[(-top - 1) * terminalCount + tokenId];
+			int actionId = table[(-prevRoot.symbolId - 1) * terminalCount + tokenId];
 			if (actionId == 0) {
 				throw new RuntimeException("Syntax error. Token: " + token);
 			}
 			int[] action = actionTable[actionId - 1];
-			ParseTreeNode prevRoot = (ParseTreeNode)treeStack.peek();
-			while (prevRoot.isParent) {
-				prevRoot.isParent = false;
-				prevRoot.reduce();
-				treeStack.pop();
-				prevRoot = (ParseTreeNode)treeStack.peek();
-			}
 			prevRoot.actionId = actionId;
-			prevRoot.isParent = true;
 			for (int i = action.length - 1; i >= 0; i--) {
-				Object child = action[i] < 0 ? new ParseTreeNode() : new ParseTreeTerminalNode();
+				ParseNode child = new ParseNode(action[i]);
 				prevRoot.children.add(child);
-				treeStack.push(child);
-			}
-			stack.pop();
-			for (int i = action.length - 1; i >= 0; i--) {
-				stack.push(action[i]);
+				stack.push(child);
 			}
 		}
 	}
 
 	public void reset() {
 		success = false;
+		parseTree = new ParseNode(startSymbol);
 		stack = new Stack<>();
-		stack.push(startSymbol);
-		treeStack = new Stack<>();
-		parseTree = new ParseTreeNode();
-		treeStack.push(parseTree);
+		stack.push(parseTree);
 	}
 
 	public Object getValue() {
 		if (!success) {
 			return null;
 		}
-		return ((ParseTreeNode)parseTree).payload;
+		return parseTree.payload;
 	}
 
 	public boolean successfullyParsed() {

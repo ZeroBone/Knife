@@ -8,30 +8,19 @@ class ParserGenerator {
 
     private ParserGenerator() {}
 
-    private static void constructParserFields(TypeSpec.Builder classBuilder) {
+    private static void constructParserFields(GeneratorContext context, TypeSpec.Builder classBuilder) {
 
-        ClassName stack = ClassName.get("java.util", "Stack");
+        final ClassName stack = ClassName.get("java.util", "Stack");
+        final ClassName parseNode = ClassName.get(context.packageName, "ParseNode");
 
         TypeName stackType = ParameterizedTypeName.get(
             stack,
-            ClassName.get("java.lang", "Integer")
-        );
-
-        TypeName treeStackType = ParameterizedTypeName.get(
-            stack,
-            ClassName.get("java.lang", "Object")
+            parseNode
         );
 
         {
-            FieldSpec field = FieldSpec.builder(stackType, "stack")
-                .addModifiers(Modifier.PRIVATE)
-                .build();
-
-            classBuilder.addField(field);
-        }
-
-        {
-            FieldSpec field = FieldSpec.builder(treeStackType, "treeStack")
+            FieldSpec field = FieldSpec
+                .builder(stackType, "stack")
                 .addModifiers(Modifier.PRIVATE)
                 .build();
 
@@ -41,57 +30,19 @@ class ParserGenerator {
         {
             FieldSpec field = FieldSpec.builder(boolean.class, "success")
                 .addModifiers(Modifier.PRIVATE)
-                .initializer("$L", false)
+                .initializer("false")
                 .build();
 
             classBuilder.addField(field);
         }
 
         {
-            FieldSpec field = FieldSpec.builder(Object.class, "parseTree")
+            FieldSpec field = FieldSpec.builder(parseNode, "parseTree")
                 .addModifiers(Modifier.PRIVATE)
                 .build();
 
             classBuilder.addField(field);
         }
-
-    }
-
-    private static void inlineTreeParseEof(MethodSpec.Builder b) {
-
-        b.beginControlFlow("while (!treeStack.isEmpty())");
-        b.addStatement("((ParseTreeNode)treeStack.pop()).reduce()");
-        b.endControlFlow();
-
-    }
-
-    private static void inlineTreeMatchToken(MethodSpec.Builder b, String argumentName) {
-
-        b.addStatement("((ParseTreeTerminalNode)treeStack.peek()).terminal = " + argumentName);
-        b.addStatement("treeStack.pop()");
-
-    }
-
-    private static void inlineTreeApplyAction(MethodSpec.Builder b, final String actionIdArgumentName, final String actionArgumentName) {
-
-        b.addStatement("ParseTreeNode prevRoot = (ParseTreeNode)treeStack.peek()");
-
-        b.beginControlFlow("while (prevRoot.isParent)");
-        b.addStatement("prevRoot.isParent = false");
-        b.addStatement("prevRoot.reduce()");
-        b.addStatement("treeStack.pop()");
-        b.addStatement("prevRoot = (ParseTreeNode)treeStack.peek()");
-        b.endControlFlow();
-
-        b.addStatement("prevRoot.actionId = " + actionIdArgumentName);
-        b.addStatement("prevRoot.isParent = true");
-
-        // action iteration loop
-        b.beginControlFlow("for (int i = " + actionArgumentName + ".length - 1; i >= 0; i--)");
-        b.addStatement("Object child = " + actionArgumentName + "[i] < 0 ? new ParseTreeNode() : new ParseTreeTerminalNode()");
-        b.addStatement("prevRoot.children.add(child)");
-        b.addStatement("treeStack.push(child)");
-        b.endControlFlow();
 
     }
 
@@ -104,75 +55,67 @@ class ParserGenerator {
         b.addParameter(int.class, "tokenId");
         b.addParameter(context.getTokenTypeName(), "token");
 
+        // method body
+
         b.beginControlFlow("while (true)");
 
+        b.addStatement("ParseNode prevRoot = stack.peek()");
+
+        // inner loop
+        b.beginControlFlow("while (prevRoot.actionId != 0)");
+
+        b.addStatement("prevRoot.reduce()");
+        b.addStatement("stack.pop()");
         b.beginControlFlow("if (stack.isEmpty())");
-        b.beginControlFlow("if (tokenId == T_EOF)");
-
-        // call treeParseEof()
-        inlineTreeParseEof(b);
-
+        b.beginControlFlow("if (tokenId != T_EOF)");
+        b.addStatement("throw new RuntimeException(\"Expected end of input. Got: \" + tokenId)");
+        b.endControlFlow();
         b.addStatement("success = true");
         b.addStatement("return");
         b.endControlFlow();
 
-        b.addStatement("throw new RuntimeException(\"Expected end of input. Got: \" + tokenId)");
+        b.addStatement("prevRoot = stack.peek()");
 
+        b.endControlFlow(); // end of inner loop
+
+        // prevRoot is not a parent node
+
+        b.beginControlFlow("if (prevRoot.symbolId > 0)");
+        // if the current symbol is a terminal
+
+        b.beginControlFlow("if (tokenId != prevRoot.symbolId)");
+        b.addStatement("throw new RuntimeException(\"Expected: \" + prevRoot.symbolId + \" Got: \" + tokenId)");
         b.endControlFlow();
 
-        // handle non-eof state
-
-        b.addStatement("int top = stack.peek()");
-
-        // if top is a terminal
-
-        b.beginControlFlow("if (top > 0)");
-
-        b.beginControlFlow("if (tokenId != top)");
-        b.addStatement("throw new RuntimeException(\"Expected: \" + top + \" Got: \" + tokenId)");
-        b.endControlFlow();
-
-        // pop both the stack as well a terminal from the the input buffer
+        // tokens match
+        b.addStatement("prevRoot.payload = token");
         b.addStatement("stack.pop()");
-
-        // call treeMatchToken(token)
-        inlineTreeMatchToken(b, "token");
-
         b.addStatement("return");
 
         b.endControlFlow();
 
-        // if top is not a terminal
-        // perform action
+        // now handle non-terminals
 
-        b.addStatement("int actionId = table[(-top - 1) * terminalCount + tokenId]");
+        b.addStatement("int actionId = table[(-prevRoot.symbolId - 1) * terminalCount + tokenId]");
 
         b.beginControlFlow("if (actionId == 0)");
         b.addStatement("throw new RuntimeException(\"Syntax error. Token: \" + token)");
         b.endControlFlow();
 
         b.addStatement("int[] action = actionTable[actionId - 1]");
+        b.addStatement("prevRoot.actionId = actionId");
 
-        // call treeApplyAction(action);
-        inlineTreeApplyAction(b, "actionId", "action");
+        b.beginControlFlow("for (int i = action.length - 1; i >= 0; i--)"); // inner loop over action
 
-        b.addStatement("stack.pop()");
+        b.addStatement("ParseNode child = new ParseNode(action[i])");
+        b.addStatement("prevRoot.children.add(child)");
+        b.addStatement("stack.push(child)");
 
-        b.beginControlFlow("for (int i = action.length - 1; i >= 0; i--)");
-        b.addStatement("stack.push(action[i])");
-        b.endControlFlow();
+        b.endControlFlow(); // end of inner loop over action
 
-        b.endControlFlow(); // end of while
+        b.endControlFlow(); // end of outer loop
 
         return b.build();
-
-    }
-
-    private static void inlineTreeReset(MethodSpec.Builder b) {
-
-        b.addStatement("treeStack = new Stack<>()");
-        b.addStatement("parseTree = new ParseTreeNode()");
-        b.addStatement("treeStack.push(parseTree)");
 
     }
 
@@ -183,11 +126,12 @@ class ParserGenerator {
         b.addModifiers(Modifier.PUBLIC);
         b.returns(void.class);
 
-        b.addStatement("success = false");
-        b.addStatement("stack = new Stack<>()");
-        b.addStatement("stack.push(startSymbol)");
+        // method body
 
-        inlineTreeReset(b);
+        b.addStatement("success = false");
+        b.addStatement("parseTree = new ParseNode(startSymbol)");
+        b.addStatement("stack = new Stack<>()");
+        b.addStatement("stack.push(parseTree)");
 
         return b.build();
 
@@ -204,7 +148,7 @@ class ParserGenerator {
         b.addStatement("return null");
         b.endControlFlow();
 
-        b.addStatement("return ((ParseTreeNode)parseTree).payload");
+        b.addStatement("return parseTree.payload");
 
         return b.build();
 
@@ -222,7 +166,7 @@ class ParserGenerator {
         classBuilder.addField(MetaGenerator.constructTable(context.table));
         classBuilder.addField(MetaGenerator.constructActionTable(context.table));
 
-        constructParserFields(classBuilder);
+        constructParserFields(context, classBuilder);
 
         // methods
 
