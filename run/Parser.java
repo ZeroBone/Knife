@@ -77,9 +77,10 @@ public final class Parser {
 				treeStack.pop();
 				prevRoot = (ParseTreeNode)treeStack.peek();
 			}
+			prevRoot.actionId = actionId;
 			prevRoot.isParent = true;
 			for (int i = action.length - 1; i >= 0; i--) {
-				Object child = action[i] < 0 ? new ParseTreeNode(action[i]) : new ParseTreeTerminalNode();
+				Object child = action[i] < 0 ? new ParseTreeNode() : new ParseTreeTerminalNode();
 				prevRoot.children.add(child);
 				treeStack.push(child);
 			}
@@ -95,7 +96,7 @@ public final class Parser {
 		stack = new Stack<>();
 		stack.push(startSymbol);
 		treeStack = new Stack<>();
-		parseTree = new ParseTreeNode(startSymbol);
+		parseTree = new ParseTreeNode();
 		treeStack.push(parseTree);
 	}
 
@@ -103,7 +104,7 @@ public final class Parser {
 		if (!success) {
 			return null;
 		}
-		return parseTree;
+		return ((ParseTreeNode)parseTree).payload;
 	}
 
 	public boolean successfullyParsed() {

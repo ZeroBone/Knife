@@ -119,7 +119,7 @@ public final class Parser {
 
             System.out.println("--> Applying action " + actionId + " Production label: " + top);
 
-            treeApplyAction(action);
+            treeApplyAction(actionId - 1, action);
 
             stack.pop();
 
@@ -154,7 +154,7 @@ public final class Parser {
 
     }
 
-    private void treeApplyAction(int[] action) {
+    private void treeApplyAction(int actionIndex, int[] action) {
 
         ParseTreeNode prevRoot = (ParseTreeNode)treeStack.peek();
 
@@ -172,6 +172,8 @@ public final class Parser {
             } while (prevRoot.isParent);
 
         }
+
+        prevRoot.actionIndex = actionIndex;
 
         prevRoot.isParent = true;
 

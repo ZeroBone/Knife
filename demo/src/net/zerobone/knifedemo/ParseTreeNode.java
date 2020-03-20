@@ -6,7 +6,9 @@ import java.util.LinkedList;
 
 public class ParseTreeNode implements IParseTreeNode {
 
-    public final int nonTerminal;
+    public final int nonTerminalId;
+
+    public int actionIndex = -1;
 
     public boolean isParent = false;
 
@@ -14,8 +16,8 @@ public class ParseTreeNode implements IParseTreeNode {
 
     private LinkedList<IParseTreeNode> children = new LinkedList<>();
 
-    public ParseTreeNode(int nonTerminal) {
-        this.nonTerminal = nonTerminal;
+    public ParseTreeNode(int nonTerminalId) {
+        this.nonTerminalId = nonTerminalId;
     }
 
     public void add(IParseTreeNode node) {
@@ -27,9 +29,9 @@ public class ParseTreeNode implements IParseTreeNode {
         try {
             FileWriter fw = new FileWriter("debug.log", true);
 
-            System.out.println("Optimizing non-terminal " + nonTerminal + ":");
+            System.out.println("Optimizing non-terminal " + nonTerminalId + " action index: " + actionIndex + ".");
 
-            fw.write("\nOptimizing non-terminal " + nonTerminal + ": " + this + "\n");
+            fw.write("\nOptimizing non-terminal " + nonTerminalId + " action index: " + actionIndex + " : " + this + "\n");
             print(0, fw);
 
             fw.close();
@@ -44,7 +46,7 @@ public class ParseTreeNode implements IParseTreeNode {
     public void print(int indent, FileWriter w) throws IOException {
 
         for (int i = 0; i < indent; i++) w.write("  ");
-        w.write("NODE(" + nonTerminal + "):");
+        w.write("NODE(" + nonTerminalId + "):");
         w.write('\n');
 
         for (IParseTreeNode node : children) {

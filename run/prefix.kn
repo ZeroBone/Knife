@@ -1,4 +1,4 @@
 e = expr(e); { v = e; }
-expr = ID(id); { v = new IdNode(id); }
-expr = PLUS expr(op1) expr(op2); { v = new PlusNode(op1, op2); }
-expr = MUL expr(op1) expr(op2); { v = new PlusNode(op1, op2); }
+expr = ID(id); { v = id; }
+expr = PLUS expr(op1) expr(op2); { v = (int)op1 + (int)op2; }
+expr = MUL expr(op1) expr(op2); { v = (int)op1 * (int)op2; }

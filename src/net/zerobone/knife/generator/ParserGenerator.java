@@ -72,7 +72,7 @@ class ParserGenerator {
 
     }
 
-    private static void inlineTreeApplyAction(MethodSpec.Builder b, String argumentName) {
+    private static void inlineTreeApplyAction(MethodSpec.Builder b, final String actionIdArgumentName, final String actionArgumentName) {
 
         b.addStatement("ParseTreeNode prevRoot = (ParseTreeNode)treeStack.peek()");
 
@@ -83,11 +83,12 @@ class ParserGenerator {
         b.addStatement("prevRoot = (ParseTreeNode)treeStack.peek()");
         b.endControlFlow();
 
+        b.addStatement("prevRoot.actionId = " + actionIdArgumentName);
         b.addStatement("prevRoot.isParent = true");
 
         // action iteration loop
-        b.beginControlFlow("for (int i = " + argumentName + ".length - 1; i >= 0; i--)");
-        b.addStatement("Object child = " + argumentName + "[i] < 0 ? new ParseTreeNode(" + argumentName + "[i]) : new ParseTreeTerminalNode()");
+        b.beginControlFlow("for (int i = " + actionArgumentName + ".length - 1; i >= 0; i--)");
+        b.addStatement("Object child = " + actionArgumentName + "[i] < 0 ? new ParseTreeNode() : new ParseTreeTerminalNode()");
         b.addStatement("prevRoot.children.add(child)");
         b.addStatement("treeStack.push(child)");
         b.endControlFlow();
@@ -153,7 +154,7 @@ class ParserGenerator {
         b.addStatement("int[] action = actionTable[actionId - 1]");
 
         // call treeApplyAction(action);
-        inlineTreeApplyAction(b, "action");
+        inlineTreeApplyAction(b, "actionId", "action");
 
         b.addStatement("stack.pop()");
 
@@ -170,7 +171,7 @@ class ParserGenerator {
     private static void inlineTreeReset(MethodSpec.Builder b) {
 
         b.addStatement("treeStack = new Stack<>()");
-        b.addStatement("parseTree = new ParseTreeNode(startSymbol)");
+        b.addStatement("parseTree = new ParseTreeNode()");
         b.addStatement("treeStack.push(parseTree)");
 
     }
@@ -203,7 +204,7 @@ class ParserGenerator {
         b.addStatement("return null");
         b.endControlFlow();
 
-        b.addStatement("return parseTree");
+        b.addStatement("return ((ParseTreeNode)parseTree).payload");
 
         return b.build();
 
