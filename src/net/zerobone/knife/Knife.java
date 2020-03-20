@@ -97,6 +97,8 @@ public class Knife {
             throw new RuntimeException("Could not find start symbol.");
         }
 
+        System.out.println("Building parse tables...");
+
         CFGParsingTable table = cfg.constructParsingTable();
 
         try {

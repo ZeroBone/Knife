@@ -1,5 +1,0 @@
-translationUnit(T) = ;
-
-statement(S) = productionStatement;
-
-productionStatement(PS) = ID EQUALS productionStatement;

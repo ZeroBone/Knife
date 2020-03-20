@@ -4,5 +4,5 @@ es = ;
 t = f ts;
 ts = MUL f ts;
 ts = ;
-f = LEFT_PAREN e RIGHT_PAREN;
-f = ID;
+f = LEFT_PAREN e(e) RIGHT_PAREN; { v = e; }
+f = ID(id); { v = new IdNode(id); }

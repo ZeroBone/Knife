@@ -157,10 +157,11 @@ private int jjMoveNfa_0(int startState, int curPos)
                      { jjCheckNAddTwoStates(5, 6); }
                   break;
                case 5:
-                  { jjCheckNAddTwoStates(5, 6); }
+                  if ((0xdfffffffffffffffL & l) != 0L)
+                     { jjCheckNAddTwoStates(5, 6); }
                   break;
                case 6:
-                  if (curChar == 125 && kind > 21)
+                  if (curChar == 125)
                      kind = 21;
                   break;
                default : break;

@@ -47,6 +47,14 @@ class ParserGenerator {
             classBuilder.addField(field);
         }
 
+        {
+            FieldSpec field = FieldSpec.builder(Object.class, "parseTree")
+                .addModifiers(Modifier.PRIVATE)
+                .build();
+
+            classBuilder.addField(field);
+        }
+
     }
 
     private static void inlineTreeParseEof(MethodSpec.Builder b) {
@@ -79,8 +87,8 @@ class ParserGenerator {
 
         // action iteration loop
         b.beginControlFlow("for (int i = " + argumentName + ".length - 1; i >= 0; i--)");
-        b.addStatement("IParseTreeNode child = " + argumentName + "[i] < 0 ? new ParseTreeNode(" + argumentName + "[i]) : new ParseTreeTerminalNode()");
-        b.addStatement("prevRoot.add(child)");
+        b.addStatement("Object child = " + argumentName + "[i] < 0 ? new ParseTreeNode(" + argumentName + "[i]) : new ParseTreeTerminalNode()");
+        b.addStatement("prevRoot.children.add(child)");
         b.addStatement("treeStack.push(child)");
         b.endControlFlow();
 
@@ -184,10 +192,27 @@ class ParserGenerator {
 
     }
 
+    private static MethodSpec constructGetValueMethod() {
+
+        MethodSpec.Builder b = MethodSpec.methodBuilder("getValue");
+
+        b.addModifiers(Modifier.PUBLIC);
+        b.returns(Object.class);
+
+        b.beginControlFlow("if (!success)");
+        b.addStatement("return null");
+        b.endControlFlow();
+
+        b.addStatement("return parseTree");
+
+        return b.build();
+
+    }
+
     static TypeSpec.Builder generate(GeneratorContext context) {
 
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder("Parser")
-            .addModifiers(Modifier.FINAL);
+            .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
         // fields
 
@@ -200,14 +225,23 @@ class ParserGenerator {
 
         // methods
 
-        classBuilder.addMethod(MethodSpec.constructorBuilder().addStatement("reset()").build());
+        classBuilder.addMethod(
+            MethodSpec
+                .constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("reset()")
+                .build()
+        );
+
         classBuilder.addMethod(constructParseMethod(context));
 
         classBuilder.addMethod(constructResetMethod());
+        classBuilder.addMethod(constructGetValueMethod());
 
         classBuilder.addMethod(
             MethodSpec
                 .methodBuilder("successfullyParsed")
+                .addModifiers(Modifier.PUBLIC)
                 .returns(boolean.class)
                 .addStatement("return success")
                 .build()

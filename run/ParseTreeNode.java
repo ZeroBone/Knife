@@ -7,7 +7,7 @@ import java.util.ArrayList;
 final class ParseTreeNode {
 	final int nonTerminal;
 
-	final boolean isParent = false;
+	boolean isParent = false;
 
 	Object payload = null;
 

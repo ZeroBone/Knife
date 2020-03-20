@@ -4,46 +4,22 @@ import java.lang.Integer;
 import java.lang.Object;
 import java.util.Stack;
 
-final class Parser {
+public final class Parser {
 	public static final int T_EOF = 0;
 
-	public static final int T_MUL = 5;
+	public static final int T_PLUS = 1;
 
-	public static final int T_RIGHT_PAREN = 2;
+	private static final int terminalCount = 2;
 
-	public static final int T_ID = 3;
+	private static final int nonTerminalCount = 1;
 
-	public static final int T_LEFT_PAREN = 1;
-
-	public static final int T_PLUS = 4;
-
-	private static final int terminalCount = 6;
-
-	private static final int nonTerminalCount = 5;
-
-	private static final int startSymbol = -3;
+	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	0,9,0,8,0,0,
-	6,0,7,0,5,0,
-	0,2,0,1,0,0,
-	0,3,0,4,0,0,
-	11,0,12,0,13,10};
+	0,1};
 
 	private static final int[][] actionTable = {
-	{-1,-2},
-	{-1,-2},
-	{1,-3,2},
-	{3},
-	{4,-1,-2},
-	{},
-	{},
-	{-4,-5},
-	{-4,-5},
-	{5,-4,-5},
-	{},
-	{},
-	{}};
+	{1,-1,-1}};
 
 	private Stack<Integer> stack;
 
@@ -51,7 +27,9 @@ final class Parser {
 
 	private boolean success = false;
 
-	Parser() {
+	private Object parseTree;
+
+	public Parser() {
 		reset();
 	}
 
@@ -91,8 +69,8 @@ final class Parser {
 			}
 			prevRoot.isParent = true;
 			for (int i = action.length - 1; i >= 0; i--) {
-				IParseTreeNode child = action[i] < 0 ? new ParseTreeNode(action[i]) : new ParseTreeTerminalNode();
-				prevRoot.add(child);
+				Object child = action[i] < 0 ? new ParseTreeNode(action[i]) : new ParseTreeTerminalNode();
+				prevRoot.children.add(child);
 				treeStack.push(child);
 			}
 			stack.pop();
@@ -111,7 +89,14 @@ final class Parser {
 		treeStack.push(parseTree);
 	}
 
-	boolean successfullyParsed() {
+	public Object getValue() {
+		if (!success) {
+			return null;
+		}
+		return parseTree;
+	}
+
+	public boolean successfullyParsed() {
 		return success;
 	}
 }

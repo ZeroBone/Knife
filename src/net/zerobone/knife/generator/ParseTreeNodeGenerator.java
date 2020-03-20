@@ -41,7 +41,6 @@ class ParseTreeNodeGenerator {
 
         classBuilder.addField(
             FieldSpec.builder(boolean.class, "isParent")
-                .addModifiers(Modifier.FINAL)
                 .initializer("$L", false)
                 .build()
         );
