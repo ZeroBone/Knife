@@ -48,15 +48,17 @@ public final class Parser {
 
     private Stack<IParseTreeNode> treeStack;
 
-    private boolean successfullyParsed = false;
+    private boolean success = false;
 
-    private IParseTreeNode parseTree = null;
+    private IParseTreeNode parseTree;
 
     public Parser() {
         reset();
     }
 
     public void reset() {
+
+        success = false;
 
         stack = new Stack<>();
         stack.push(startSymbol);
@@ -75,7 +77,7 @@ public final class Parser {
 
                     treeParseEof();
 
-                    successfullyParsed = true;
+                    success = true;
 
                     System.out.println("successful parse: stack size: " + stack.size() + " tree stack size: " + treeStack.size());
 
@@ -161,7 +163,7 @@ public final class Parser {
             do {
 
                 prevRoot.isParent = false;
-                prevRoot.optimize();
+                prevRoot.reduce();
 
                 treeStack.pop();
 
@@ -188,18 +190,18 @@ public final class Parser {
     private void treeParseEof() {
 
         while (!treeStack.isEmpty()) {
-            ((ParseTreeNode)treeStack.pop()).optimize();
+            ((ParseTreeNode)treeStack.pop()).reduce();
         }
 
     }
 
-    public boolean isSuccessfullyParsed() {
-        return successfullyParsed;
+    public boolean successfullyParsed() {
+        return success;
     }
 
     public IParseTreeNode getParseTree() {
 
-        if (!successfullyParsed) {
+        if (!success) {
             return null;
         }
 

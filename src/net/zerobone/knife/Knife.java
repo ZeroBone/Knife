@@ -5,6 +5,7 @@ import net.zerobone.knife.ast.entities.ProductionSymbol;
 import net.zerobone.knife.ast.statements.ProductionStatementNode;
 import net.zerobone.knife.ast.statements.StatementNode;
 import net.zerobone.knife.generator.Generator;
+import net.zerobone.knife.generator.GeneratorContext;
 import net.zerobone.knife.grammar.CFG;
 import net.zerobone.knife.grammar.table.CFGParsingTable;
 import net.zerobone.knife.grammar.CFGProduction;
@@ -29,7 +30,7 @@ public class Knife {
                 is = new FileInputStream(args[0]);
             }
             catch (FileNotFoundException e) {
-                System.out.println("File: " + args[0] + " was not found!");
+                System.out.println("Error: File '" + args[0] + "' was not found!");
                 return;
             }
 
@@ -48,7 +49,7 @@ public class Knife {
 
             generateParser(t);
 
-            System.out.println("Success.");
+            System.out.println("Parser generated succesfully.");
 
             return;
 
@@ -158,9 +159,11 @@ public class Knife {
             e.printStackTrace();
         }
 
+        GeneratorContext context = new GeneratorContext("net.zerobone.knife.parser", table);
+
         try {
 
-            Generator.generate(table, "net.zerobone.knife.parser");
+            Generator.generate(context);
 
         }
         catch (IOException e) {

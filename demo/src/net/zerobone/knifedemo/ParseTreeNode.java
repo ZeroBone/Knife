@@ -22,7 +22,7 @@ public class ParseTreeNode implements IParseTreeNode {
         children.addFirst(node);
     }
 
-    public void optimize() {
+    public void reduce() {
 
         try {
             FileWriter fw = new FileWriter("debug.log", true);

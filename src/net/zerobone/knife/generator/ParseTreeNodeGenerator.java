@@ -1,7 +1,6 @@
 package net.zerobone.knife.generator;
 
 import com.squareup.javapoet.*;
-import net.zerobone.knife.grammar.table.CFGParsingTable;
 
 import javax.lang.model.element.Modifier;
 
@@ -9,7 +8,7 @@ class ParseTreeNodeGenerator {
 
     private ParseTreeNodeGenerator() {}
 
-    private static MethodSpec constructReduceMethod(CFGParsingTable table) {
+    private static MethodSpec constructReduceMethod(GeneratorContext context) {
 
         return MethodSpec.methodBuilder("reduce")
             .returns(void.class)
@@ -27,7 +26,7 @@ class ParseTreeNodeGenerator {
 
     }
 
-    static TypeSpec.Builder generate(CFGParsingTable table) {
+    static TypeSpec.Builder generate(GeneratorContext context) {
 
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder("ParseTreeNode")
             .addModifiers(Modifier.FINAL);
@@ -63,7 +62,7 @@ class ParseTreeNodeGenerator {
         );
 
         classBuilder.addMethod(constructConstructor());
-        classBuilder.addMethod(constructReduceMethod(table));
+        classBuilder.addMethod(constructReduceMethod(context));
 
         return classBuilder;
 

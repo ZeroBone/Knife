@@ -11,12 +11,12 @@ public class Generator {
 
     private Generator() {}
 
-    public static void generate(CFGParsingTable table, String packageName) throws IOException {
+    public static void generate(GeneratorContext context) throws IOException {
 
         {
 
             JavaFile javaFile = JavaFile
-                .builder(packageName, ParseTreeNodeGenerator.generate(table).build())
+                .builder(context.packageName, ParseTreeNodeGenerator.generate(context).build())
                 .indent("\t")
                 .build();
 
@@ -26,8 +26,20 @@ public class Generator {
         }
 
         {
+
             JavaFile javaFile = JavaFile
-                .builder(packageName, ParserGenerator.generate(table).build())
+                .builder(context.packageName, ParseTreeTerminalNodeGenerator.generate(context).build())
+                .indent("\t")
+                .build();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter("ParseTreeTerminalNode.java"));
+            javaFile.writeTo(writer);
+            writer.close();
+        }
+
+        {
+            JavaFile javaFile = JavaFile
+                .builder(context.packageName, ParserGenerator.generate(context).build())
                 .indent("\t")
                 .build();
 

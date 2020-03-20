@@ -1,7 +1,8 @@
 package net.zerobone.knife.parser;
 
+import java.lang.Integer;
 import java.lang.Object;
-import java.lang.System;
+import java.util.Stack;
 
 final class Parser {
 	public static final int T_EOF = 0;
@@ -44,7 +45,73 @@ final class Parser {
 	{},
 	{}};
 
+	private Stack<Integer> stack;
+
+	private Stack<Object> treeStack;
+
+	private boolean success = false;
+
+	Parser() {
+		reset();
+	}
+
 	public void parse(int tokenId, Object token) {
-		System.out.println("lol!!!");
+		while (true) {
+			if (stack.isEmpty()) {
+				if (tokenId == T_EOF) {
+					while (!treeStack.isEmpty()) {
+						((ParseTreeNode)treeStack.pop()).reduce();
+					}
+					success = true;
+					return;
+				}
+				throw new RuntimeException("Expected end of input. Got: " + tokenId);
+			}
+			int top = stack.peek();
+			if (top > 0) {
+				if (tokenId != top) {
+					throw new RuntimeException("Expected: " + top + " Got: " + tokenId);
+				}
+				stack.pop();
+				((ParseTreeTerminalNode)treeStack.peek()).terminal = token;
+				treeStack.pop();
+				return;
+			}
+			int actionId = table[(-top - 1) * terminalCount + tokenId];
+			if (actionId == 0) {
+				throw new RuntimeException("Syntax error. Token: " + token);
+			}
+			int[] action = actionTable[actionId - 1];
+			ParseTreeNode prevRoot = (ParseTreeNode)treeStack.peek();
+			while (prevRoot.isParent) {
+				prevRoot.isParent = false;
+				prevRoot.reduce();
+				treeStack.pop();
+				prevRoot = (ParseTreeNode)treeStack.peek();
+			}
+			prevRoot.isParent = true;
+			for (int i = action.length - 1; i >= 0; i--) {
+				IParseTreeNode child = action[i] < 0 ? new ParseTreeNode(action[i]) : new ParseTreeTerminalNode();
+				prevRoot.add(child);
+				treeStack.push(child);
+			}
+			stack.pop();
+			for (int i = action.length - 1; i >= 0; i--) {
+				stack.push(action[i]);
+			}
+		}
+	}
+
+	public void reset() {
+		success = false;
+		stack = new Stack<>();
+		stack.push(startSymbol);
+		treeStack = new Stack<>();
+		parseTree = new ParseTreeNode(startSymbol);
+		treeStack.push(parseTree);
+	}
+
+	boolean successfullyParsed() {
+		return success;
 	}
 }

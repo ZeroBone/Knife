@@ -24,7 +24,7 @@ public class Main {
 
         FileWriter treeWriter = new FileWriter("ast.log");
 
-        if (parser.isSuccessfullyParsed())
+        if (parser.successfullyParsed())
 
         parser.getParseTree().print(0, treeWriter);
 
