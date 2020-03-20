@@ -229,7 +229,21 @@ public class CFG {
         HashMap<String, Integer> symbolToId = new HashMap<>();
         HashMap<Integer, String> idToSymbol = new HashMap<>();
 
-        for (CFGProductions thisLabelProductions : productions.values()) {
+        for (HashMap.Entry<String, CFGProductions> entry : productions.entrySet()) {
+
+            String thisLabel = entry.getKey();
+
+            CFGProductions thisLabelProductions = entry.getValue();
+
+            if (!symbolToId.containsKey(thisLabel)) {
+
+                // create entry for left-side nonterminal
+
+                symbolToId.put(thisLabel, nonTerminalCounter);
+                idToSymbol.put(nonTerminalCounter, thisLabel);
+
+                nonTerminalCounter--;
+            }
 
             for (CFGProduction production : thisLabelProductions.getProductions()) {
 
