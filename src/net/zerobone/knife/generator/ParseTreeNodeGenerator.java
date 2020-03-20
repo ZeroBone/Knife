@@ -27,6 +27,11 @@ class ParseTreeNodeGenerator {
 
             final CFGParsingTableProduction production = context.table.productionActions[i];
 
+            if (production.code == null) {
+                b.addStatement("case $L: break", i);
+                continue;
+            }
+
             b.addCode("case $L:\n$>", i);
             b.addCode("{$>\n");
 
