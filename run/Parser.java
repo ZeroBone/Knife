@@ -7,29 +7,33 @@ import java.util.Stack;
 public final class Parser {
 	public static final int T_EOF = 0;
 
-	public static final int T_MUL = 3;
+	public static final int T_MUL = 4;
 
 	public static final int T_ID = 1;
 
 	public static final int T_PLUS = 2;
 
-	private static final int terminalCount = 4;
+	public static final int T_MINUS = 3;
+
+	private static final int terminalCount = 5;
 
 	private static final int nonTerminalCount = 2;
 
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	0,2,3,1,
-	0,4,5,6};
+	0,2,3,4,1,
+	0,5,6,7,8};
 
 	private static final int[][] actionTable = {
 	{-2},
 	{-2},
 	{-2},
+	{-2},
 	{1},
 	{2,-2,-2},
-	{3,-2,-2}};
+	{3,-2,-2},
+	{4,-2,-2}};
 
 	private Stack<Integer> stack;
 

@@ -39,18 +39,31 @@ final class ParseTreeNode {
 				break;
 			case 3:
 				{
+					Object e = ((ParseTreeNode)children.get(0)).payload;
+					v = e;
+				}
+				break;
+			case 4:
+				{
 					Object id = ((ParseTreeTerminalNode)children.get(0)).terminal;
 					v = id;
 				}
 				break;
-			case 4:
+			case 5:
 				{
 					Object op1 = ((ParseTreeNode)children.get(1)).payload;
 					Object op2 = ((ParseTreeNode)children.get(0)).payload;
 					v = (int)op1 + (int)op2;
 				}
 				break;
-			case 5:
+			case 6:
+				{
+					Object op1 = ((ParseTreeNode)children.get(1)).payload;
+					Object op2 = ((ParseTreeNode)children.get(0)).payload;
+					v = (int)op1 - (int)op2;
+				}
+				break;
+			case 7:
 				{
 					Object op1 = ((ParseTreeNode)children.get(1)).payload;
 					Object op2 = ((ParseTreeNode)children.get(0)).payload;

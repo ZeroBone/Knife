@@ -1,4 +1,5 @@
 e = expr(e); { v = e; }
 expr = ID(id); { v = id; }
 expr = PLUS expr(op1) expr(op2); { v = (int)op1 + (int)op2; }
+expr = MINUS expr(op1) expr(op2); { v = (int)op1 - (int)op2; }
 expr = MUL expr(op1) expr(op2); { v = (int)op1 * (int)op2; }
