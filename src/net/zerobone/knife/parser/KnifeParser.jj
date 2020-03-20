@@ -127,12 +127,11 @@ StatementNode statement():
 ProductionStatementNode productionStatement():
 {
     String nonTerminal;
-    String arg;
     ProductionStatementBody body;
 }
 {
-    nonTerminal=id() <LEFT_PAREN> arg=id() <RIGHT_PAREN> <ASSIGN> body=productionStatementBody() {
-        return new ProductionStatementNode(nonTerminal, arg, body.getProduction(), body.getCode());
+    nonTerminal=id() <ASSIGN> body=productionStatementBody() {
+        return new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode());
     }
 }
 

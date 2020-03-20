@@ -70,15 +70,11 @@ t.addStatement(s); {if ("" != null) return t;}
 }
 
   final public ProductionStatementNode productionStatement() throws ParseException {String nonTerminal;
-    String arg;
     ProductionStatementBody body;
     nonTerminal = id();
-    jj_consume_token(LEFT_PAREN);
-    arg = id();
-    jj_consume_token(RIGHT_PAREN);
     jj_consume_token(ASSIGN);
     body = productionStatementBody();
-{if ("" != null) return new ProductionStatementNode(nonTerminal, arg, body.getProduction(), body.getCode());}
+{if ("" != null) return new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode());}
     throw new Error("Missing return statement in function");
 }
 
@@ -207,6 +203,12 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
     return false;
   }
 
+  private boolean jj_3R_1()
+ {
+    if (jj_scan_token(BIG_ID)) return true;
+    return false;
+  }
+
   private boolean jj_3_2()
  {
     if (jj_3R_3()) return true;
@@ -217,12 +219,6 @@ b.addNonTerminal(s, arg); {if ("" != null) return b;}
   private boolean jj_3R_5()
  {
     if (jj_3R_1()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_1()
- {
-    if (jj_scan_token(BIG_ID)) return true;
     return false;
   }
 

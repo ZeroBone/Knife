@@ -12,14 +12,14 @@ public class ParseTreeNode implements IParseTreeNode {
 
     private Object payload = null;
 
-    private LinkedList<IParseTreeNode> subNodes = new LinkedList<>();
+    private LinkedList<IParseTreeNode> children = new LinkedList<>();
 
     public ParseTreeNode(int nonTerminal) {
         this.nonTerminal = nonTerminal;
     }
 
     public void add(IParseTreeNode node) {
-        subNodes.addFirst(node);
+        children.addFirst(node);
     }
 
     public void optimize() {
@@ -47,7 +47,7 @@ public class ParseTreeNode implements IParseTreeNode {
         w.write("NODE(" + nonTerminal + "):");
         w.write('\n');
 
-        for (IParseTreeNode node : subNodes) {
+        for (IParseTreeNode node : children) {
 
             node.print(indent + 1, w);
 

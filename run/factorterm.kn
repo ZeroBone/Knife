@@ -1,8 +1,8 @@
-e(start) = t(term) es(rest); { start = new Node(term, rest); }
-es(a) = PLUS t es;
-es(a) = ;
-t(a) = f ts;
-ts(a) = MUL f ts;
-ts(a) = ;
-f(a) = LEFT_PAREN e RIGHT_PAREN;
-f(a) = ID;
+e = t(term) es(rest); { v = new Node(term, rest); }
+es = PLUS t es;
+es = ;
+t = f ts;
+ts = MUL f ts;
+ts = ;
+f = LEFT_PAREN e RIGHT_PAREN;
+f = ID;
