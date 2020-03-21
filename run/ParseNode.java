@@ -18,7 +18,6 @@ final class ParseNode {
 	}
 
 	void reduce() {
-		System.out.println("Reducing action + " + actionId + ".");
 		Object v;
 		switch (actionId - 1) {
 			case 0:

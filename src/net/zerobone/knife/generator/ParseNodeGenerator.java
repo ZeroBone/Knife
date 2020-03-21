@@ -16,7 +16,7 @@ class ParseNodeGenerator {
 
         b.returns(void.class);
 
-        b.addStatement("System.out.println(\"Reducing action + \" + actionId + \".\")");
+        // b.addStatement("System.out.println(\"Reducing action + \" + actionId + \".\")");
 
         b.addStatement("Object v");
 

@@ -4,10 +4,7 @@ import net.zerobone.knife.grammar.table.CFGParsingTable;
 import net.zerobone.knife.grammar.table.CFGParsingTableBuilder;
 import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 public class CFG {
 
@@ -218,6 +215,29 @@ public class CFG {
         cachedFollowSets.put(nonTerminal, set);
 
         return set;
+
+    }
+
+    public void elliminateLeftRecursion() {
+
+        CFGEntry[] entries = new CFGEntry[productions.size()];
+
+        int i = 0;
+
+        for (HashMap.Entry<String, CFGProductions> entry : productions.entrySet()) {
+
+            CFGEntry cfgEntry = new CFGEntry();
+
+            cfgEntry.label = entry.getKey();
+            cfgEntry.productions = entry.getValue();
+
+            entries[i++] = cfgEntry;
+
+        }
+
+        CFGLeftRecursionEllimination lre = new CFGLeftRecursionEllimination(entries);
+
+        lre.elliminate();
 
     }
 
