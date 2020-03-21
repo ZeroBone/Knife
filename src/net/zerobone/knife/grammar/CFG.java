@@ -235,9 +235,9 @@ public class CFG {
 
         }
 
-        CFGLeftRecursionEllimination lre = new CFGLeftRecursionEllimination(entries);
+        CFGLeftRecursionElimination lre = new CFGLeftRecursionElimination(this, entries);
 
-        lre.elliminate();
+        lre.eliminate();
 
     }
 

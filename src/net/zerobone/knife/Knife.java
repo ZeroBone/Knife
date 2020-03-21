@@ -49,7 +49,7 @@ public class Knife {
 
             generateParser(t);
 
-            System.out.println("Parser generated succesfully.");
+            System.out.println("Parser generated successfully.");
 
             return;
 
@@ -105,7 +105,7 @@ public class Knife {
 
         System.out.println(cfg);
 
-        /*System.out.println("Building parse tables...");
+        System.out.println("Building parse tables...");
 
         CFGParsingTable table = cfg.constructParsingTable();
 
@@ -178,7 +178,7 @@ public class Knife {
         }
         catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
     }
 

@@ -23,6 +23,10 @@ public class CFGProductions {
         return productions;
     }
 
+    public void clear() {
+        productions.clear();
+    }
+
     @Override
     public String toString() {
 
