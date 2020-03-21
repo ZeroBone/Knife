@@ -12,9 +12,6 @@ class CFGLeftRecursionElimination {
     public CFGLeftRecursionElimination(CFG cfg, CFGEntry[] entries) {
         this.cfg = cfg;
         this.entries = entries;
-        CFGEntry tmp = entries[1];
-        entries[1] = entries[0];
-        entries[0] = tmp;
     }
 
     private void eliminateImmediateLeftRecursion(String label, CFGProductions productions) {
