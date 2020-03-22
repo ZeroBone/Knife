@@ -218,29 +218,6 @@ public class CFG {
 
     }
 
-    public void elliminateLeftRecursion() {
-
-        CFGEntry[] entries = new CFGEntry[productions.size()];
-
-        int i = 0;
-
-        for (HashMap.Entry<String, CFGProductions> entry : productions.entrySet()) {
-
-            CFGEntry cfgEntry = new CFGEntry();
-
-            cfgEntry.label = entry.getKey();
-            cfgEntry.productions = entry.getValue();
-
-            entries[i++] = cfgEntry;
-
-        }
-
-        CFGLeftRecursionElimination lre = new CFGLeftRecursionElimination(this, entries);
-
-        lre.eliminate();
-
-    }
-
     private CFGSymbolMapping mapSymbols() {
 
         int terminalCounter = 1;

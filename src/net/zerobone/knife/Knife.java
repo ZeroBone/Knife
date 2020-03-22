@@ -97,14 +97,6 @@ public class Knife {
             throw new RuntimeException("Could not find start symbol.");
         }
 
-        /*System.out.println(cfg);
-
-        System.out.println("Elliminating left recursion...");
-
-        cfg.elliminateLeftRecursion();
-
-        System.out.println(cfg);*/
-
         System.out.println("Building parse tables...");
 
         CFGParsingTable table = cfg.constructParsingTable();

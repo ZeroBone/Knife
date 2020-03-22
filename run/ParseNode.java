@@ -22,55 +22,39 @@ final class ParseNode {
 		switch (actionId - 1) {
 			case 0:
 				{
-					Object e = ((ParseNode)children.get(0)).payload;
-					v = e;
+					Object term = ((ParseNode)children.get(1)).payload;
+					Object rest = ((ParseNode)children.get(0)).payload;
+					v = new Node(term, rest);
 				}
 				break;
 			case 1:
 				{
-					Object e = ((ParseNode)children.get(0)).payload;
-					v = e;
+					Object term = ((ParseNode)children.get(1)).payload;
+					Object rest = ((ParseNode)children.get(0)).payload;
+					v = new Node(term, rest);
 				}
 				break;
 			case 2:
 				{
-					Object e = ((ParseNode)children.get(0)).payload;
+					Object e = ((ParseNode)children.get(1)).payload;
 					v = e;
 				}
 				break;
 			case 3:
 				{
-					Object e = ((ParseNode)children.get(0)).payload;
-					v = e;
-				}
-				break;
-			case 4:
-				{
 					Object id = ((ParseNode)children.get(0)).payload;
-					v = id;
+					v = new IdNode(id);
 				}
 				break;
-			case 5:
-				{
-					Object op1 = ((ParseNode)children.get(1)).payload;
-					Object op2 = ((ParseNode)children.get(0)).payload;
-					v = (int)op1 + (int)op2;
-				}
-				break;
-			case 6:
-				{
-					Object op1 = ((ParseNode)children.get(1)).payload;
-					Object op2 = ((ParseNode)children.get(0)).payload;
-					v = (int)op1 - (int)op2;
-				}
-				break;
-			case 7:
-				{
-					Object op1 = ((ParseNode)children.get(1)).payload;
-					Object op2 = ((ParseNode)children.get(0)).payload;
-					v = (int)op1 * (int)op2;
-				}
-				break;
+			case 4: break;
+			case 5: break;
+			case 6: break;
+			case 7: break;
+			case 8: break;
+			case 9: break;
+			case 10: break;
+			case 11: break;
+			case 12: break;
 			default:
 				throw new IllegalStateException();
 		}

@@ -24,6 +24,8 @@ public class CFGParsingTableBuilder {
 
     public void write(String nonTerminal, String terminal, CFGParsingTableProduction production) {
 
+        // TODO: compress table by reusing already existing indices
+
         final int nonTerminalIndex = mapping.nonTerminalToIndex(nonTerminal);
         final int terminalIndex = mapping.terminalToIndex(terminal);
 
