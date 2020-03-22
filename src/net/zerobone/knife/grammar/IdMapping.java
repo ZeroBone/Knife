@@ -2,7 +2,7 @@ package net.zerobone.knife.grammar;
 
 import java.util.HashMap;
 
-public class CFGSymbolMapping {
+public class IdMapping {
 
     public final int terminalCount;
 
@@ -14,7 +14,7 @@ public class CFGSymbolMapping {
 
     private final HashMap<Integer, String> idToSymbolMap;
 
-    public CFGSymbolMapping(int terminalCount, int nonTerminalCount, String startNonTerminalId, HashMap<String, Integer> symbolToIdMap, HashMap<Integer, String> idToSymbolMap) {
+    public IdMapping(int terminalCount, int nonTerminalCount, String startNonTerminalId, HashMap<String, Integer> symbolToIdMap, HashMap<Integer, String> idToSymbolMap) {
         this.terminalCount = terminalCount;
         this.nonTerminalCount = nonTerminalCount;
         this.startNonTerminalId = startNonTerminalId;
@@ -62,15 +62,6 @@ public class CFGSymbolMapping {
 
         return -value - 1;
 
-    }
-
-    @Override
-    public String toString() {
-        return "CFGMapping{" +
-            "terminalCount=" + terminalCount +
-            ", nonTerminalCount=" + nonTerminalCount +
-            ", mapping=" + symbolToIdMap +
-            '}';
     }
 
 }

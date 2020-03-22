@@ -6,10 +6,10 @@ import net.zerobone.knife.ast.statements.ProductionStatementNode;
 import net.zerobone.knife.ast.statements.StatementNode;
 import net.zerobone.knife.generator.Generator;
 import net.zerobone.knife.generator.GeneratorContext;
-import net.zerobone.knife.grammar.CFG;
-import net.zerobone.knife.grammar.table.CFGParsingTable;
-import net.zerobone.knife.grammar.CFGProduction;
-import net.zerobone.knife.grammar.CFGSymbol;
+import net.zerobone.knife.grammar.symbol.SymbolGrammar;
+import net.zerobone.knife.grammar.symbol.SymbolGrammarProduction;
+import net.zerobone.knife.grammar.symbol.SymbolGrammarSymbol;
+import net.zerobone.knife.grammar.table.ParsingTable;
 import net.zerobone.knife.parser.KnifeParser;
 import net.zerobone.knife.parser.ParseException;
 import net.zerobone.knife.parser.TokenMgrError;
@@ -49,8 +49,6 @@ public class Knife {
 
             generateParser(t);
 
-            System.out.println("Parser generated successfully.");
-
             return;
 
         }
@@ -60,12 +58,12 @@ public class Knife {
 
     }
 
-    private static CFGProduction convertProduction(ProductionStatementNode statement) {
+    private static SymbolGrammarProduction convertProduction(ProductionStatementNode statement) {
 
-        CFGProduction production = new CFGProduction(statement.code);
+        SymbolGrammarProduction production = new SymbolGrammarProduction(statement.code);
 
         for (ProductionSymbol symbol : statement.production) {
-            production.append(new CFGSymbol(symbol.id, symbol.terminal, symbol.argument));
+            production.body.add(new SymbolGrammarSymbol(symbol.id, symbol.terminal, symbol.argument));
         }
 
         return production;
@@ -74,7 +72,7 @@ public class Knife {
 
     private static void generateParser(TranslationUnitNode t) {
 
-        CFG cfg = null;
+        SymbolGrammar grammar = null;
 
         for (StatementNode stmt : t.statements) {
 
@@ -82,24 +80,24 @@ public class Knife {
 
                 ProductionStatementNode production = (ProductionStatementNode)stmt;
 
-                if (cfg == null) {
-                    cfg = new CFG(production.nonTerminal, convertProduction(production));
+                if (grammar == null) {
+                    grammar = new SymbolGrammar(production.nonTerminal, convertProduction(production));
                 }
                 else {
-                    cfg.addProduction(production.nonTerminal, convertProduction(production));
+                    grammar.addProduction(production.nonTerminal, convertProduction(production));
                 }
 
             }
 
         }
 
-        if (cfg == null) {
+        if (grammar == null) {
             throw new RuntimeException("Could not find start symbol.");
         }
 
         System.out.println("Building parse tables...");
 
-        CFGParsingTable table = cfg.constructParsingTable();
+        ParsingTable table = grammar.getGrammar().constructParsingTable();
 
         try {
 
@@ -109,7 +107,7 @@ public class Knife {
             debugLogWriter.newLine();
             debugLogWriter.newLine();
 
-            debugLogWriter.write(cfg.toString());
+            debugLogWriter.write(grammar.toString());
 
             debugLogWriter.newLine();
             debugLogWriter.newLine();
@@ -117,7 +115,7 @@ public class Knife {
             debugLogWriter.write("First sets:");
             debugLogWriter.newLine();
 
-            HashMap<String, HashSet<String>> firstSets = cfg.computeFirstSets();
+            HashMap<String, HashSet<String>> firstSets = grammar.debugConvertFirstFollowSet(grammar.getGrammar().computeFirstSets());
 
             for (HashMap.Entry<String, HashSet<String>> entry : firstSets.entrySet()) {
 
@@ -136,7 +134,7 @@ public class Knife {
             debugLogWriter.write("Follow sets:");
             debugLogWriter.newLine();
 
-            HashMap<String, HashSet<String>> followSets = cfg.computeFollowSets();
+            HashMap<String, HashSet<String>> followSets = grammar.debugConvertFirstFollowSet(grammar.getGrammar().computeFollowSets());
 
             for (HashMap.Entry<String, HashSet<String>> entry : followSets.entrySet()) {
 
@@ -161,7 +159,7 @@ public class Knife {
             e.printStackTrace();
         }
 
-        GeneratorContext context = new GeneratorContext("net.zerobone.knife.parser", table);
+        GeneratorContext context = new GeneratorContext("net.zerobone.knife.parser", grammar, table);
 
         try {
 

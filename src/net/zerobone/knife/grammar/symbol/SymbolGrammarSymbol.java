@@ -1,6 +1,6 @@
-package net.zerobone.knife.grammar;
+package net.zerobone.knife.grammar.symbol;
 
-public class CFGSymbol {
+public class SymbolGrammarSymbol {
 
     public String id;
 
@@ -8,7 +8,7 @@ public class CFGSymbol {
 
     public final String argumentName;
 
-    public CFGSymbol(String id, boolean isTerminal, String argumentName) {
+    public SymbolGrammarSymbol(String id, boolean isTerminal, String argumentName) {
         this.id = id;
         this.isTerminal = isTerminal;
         this.argumentName = argumentName;

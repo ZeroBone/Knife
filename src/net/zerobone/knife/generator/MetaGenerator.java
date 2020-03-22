@@ -2,9 +2,8 @@ package net.zerobone.knife.generator;
 
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeSpec;
-import net.zerobone.knife.grammar.CFGSymbol;
-import net.zerobone.knife.grammar.table.CFGParsingTable;
-import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
+import net.zerobone.knife.grammar.Production;
+import net.zerobone.knife.grammar.Symbol;
 
 import javax.lang.model.element.Modifier;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ class MetaGenerator {
 
     private MetaGenerator() {}
 
-    static void constructConstants(CFGParsingTable table, TypeSpec.Builder classBuilder) {
+    static void constructConstants(GeneratorContext context, TypeSpec.Builder classBuilder) {
 
         {
             // T_EOF = 0
@@ -25,7 +24,7 @@ class MetaGenerator {
             classBuilder.addField(field);
         }
 
-        for (HashMap.Entry<String, Integer> entry : table.mapping.getSymbolToIdMap().entrySet()) {
+        for (HashMap.Entry<String, Integer> entry : context.grammar.getSymbolToIdMap().entrySet()) {
 
             int id = entry.getValue();
 
@@ -48,21 +47,21 @@ class MetaGenerator {
 
             FieldSpec field = FieldSpec.builder(int.class, "terminalCount")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", table.mapping.terminalCount)
+                .initializer("$L", context.table.terminalCount)
                 .build();
 
             classBuilder.addField(field);
 
             field = FieldSpec.builder(int.class, "nonTerminalCount")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", table.mapping.nonTerminalCount)
+                .initializer("$L", context.table.nonTerminalCount)
                 .build();
 
             classBuilder.addField(field);
 
             field = FieldSpec.builder(int.class, "startSymbol")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", table.mapping.map(table.mapping.startNonTerminalId))
+                .initializer("$L", context.grammar.symbolToId(context.grammar.startSymbol)) // TODO: cleanup
                 .build();
 
             classBuilder.addField(field);
@@ -71,21 +70,21 @@ class MetaGenerator {
 
     }
 
-    static FieldSpec constructTable(CFGParsingTable table) {
+    static FieldSpec constructTable(GeneratorContext context) {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append('{');
 
-        for (int y = 0; y < table.mapping.nonTerminalCount; y++) {
+        for (int y = 0; y < context.table.nonTerminalCount; y++) {
 
             sb.append('\n');
 
-            for (int x = 0; x < table.mapping.terminalCount; x++) {
+            for (int x = 0; x < context.table.terminalCount; x++) {
 
-                sb.append(table.table[y][x]);
+                sb.append(context.table.table[y][x]);
 
-                if (x != table.mapping.terminalCount - 1 || y != table.mapping.nonTerminalCount - 1) {
+                if (x != context.table.terminalCount - 1 || y != context.table.nonTerminalCount - 1) {
                     sb.append(',');
                 }
 
@@ -102,29 +101,27 @@ class MetaGenerator {
 
     }
 
-    static FieldSpec constructActionTable(CFGParsingTable table) {
+    static FieldSpec constructActionTable(GeneratorContext context) {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append('{');
 
-        for (CFGParsingTableProduction productionAction : table.productionActions) {
+        for (Production productionAction : context.table.productionActions) {
 
             sb.append('\n');
 
             sb.append('{');
 
-            for (CFGSymbol symbol : productionAction.body) {
+            for (Symbol symbol : productionAction.getBody()) {
 
-                int id = table.mapping.map(symbol.id);
-
-                sb.append(id);
+                sb.append(symbol.id);
 
                 sb.append(',');
 
             }
 
-            if (!productionAction.body.isEmpty()) {
+            if (!productionAction.getBody().isEmpty()) {
                 sb.deleteCharAt(sb.length() - 1);
             }
 

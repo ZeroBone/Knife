@@ -1,53 +1,56 @@
 package net.zerobone.knife.grammar.table;
 
-import net.zerobone.knife.grammar.CFGSymbolMapping;
+import net.zerobone.knife.grammar.Production;
+import net.zerobone.knife.grammar.symbol.SymbolGrammar;
 
-public class CFGParsingTable {
+public class ParsingTable {
 
-    public final CFGSymbolMapping mapping;
+    public final int terminalCount;
 
-    public final CFGParsingTableProduction[] productionActions;
+    public final int nonTerminalCount;
+
+    public final Production[] productionActions;
 
     public final int[][] table;
 
-    public CFGParsingTable(CFGSymbolMapping mapping, CFGParsingTableProduction[] productionActions, int[][] table) {
-        this.mapping = mapping;
+    public ParsingTable(int terminalCount, int nonTerminalCount, Production[] productionActions, int[][] table) {
+        this.terminalCount = terminalCount;
+        this.nonTerminalCount = nonTerminalCount;
         this.productionActions = productionActions;
         this.table = table;
     }
 
-    @Override
-    public String toString() {
+    public String toString(SymbolGrammar grammar) {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append("Terminal count: ");
-        sb.append(mapping.terminalCount);
+        sb.append(terminalCount);
         sb.append('\n');
 
         sb.append("Nonterminal count: ");
-        sb.append(mapping.nonTerminalCount);
+        sb.append(nonTerminalCount);
         sb.append('\n');
         sb.append('\n');
 
         sb.append(String.format("%12s ", "LL(1) TABLE"));
 
-        for (int x = 0; x < mapping.terminalCount; x++) {
+        for (int x = 0; x < terminalCount; x++) {
 
-            sb.append(String.format("%12s", x == 0 ? "$" : mapping.idToSymbol(x)));
+            sb.append(String.format("%12s", x == 0 ? "$" : grammar.idToSymbol(x)));
             sb.append(' ');
 
         }
 
         sb.append('\n');
 
-        for (int y = 0; y < mapping.nonTerminalCount; y++) {
+        for (int y = 0; y < nonTerminalCount; y++) {
 
-            sb.append(String.format("%10s", mapping.idToSymbol(-y - 1)));
+            sb.append(String.format("%10s", grammar.idToSymbol(-y - 1)));
 
             sb.append(" | ");
 
-            for (int x = 0; x < mapping.terminalCount; x++) {
+            for (int x = 0; x < terminalCount; x++) {
 
                 sb.append(String.format("%12d", table[y][x]));
                 sb.append(' ');

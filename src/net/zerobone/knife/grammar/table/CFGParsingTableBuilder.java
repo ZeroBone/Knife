@@ -1,33 +1,34 @@
 package net.zerobone.knife.grammar.table;
 
-import net.zerobone.knife.grammar.CFGSymbolMapping;
+import net.zerobone.knife.grammar.Grammar;
+import net.zerobone.knife.grammar.Production;
 
 import java.util.ArrayList;
 
 public class CFGParsingTableBuilder {
 
-    private final CFGSymbolMapping mapping;
+    private final Grammar grammar;
 
     private int[][] table;
 
     private int productionCounter = 1;
 
-    private ArrayList<CFGParsingTableProduction> productionActions = new ArrayList<>();
+    private ArrayList<Production> productionActions = new ArrayList<>();
 
-    public CFGParsingTableBuilder(final CFGSymbolMapping mapping) {
+    public CFGParsingTableBuilder(final Grammar grammar) {
 
-        this.mapping = mapping;
+        this.grammar = grammar;
 
-        table = new int[mapping.nonTerminalCount][mapping.terminalCount];
+        table = new int[grammar.getNonTerminalCount()][grammar.getTerminalCount()];
 
     }
 
-    public void write(String nonTerminal, String terminal, CFGParsingTableProduction production) {
+    public void write(int nonTerminal, int terminal, Production production) {
 
         // TODO: compress table by reusing already existing indices
 
-        final int nonTerminalIndex = mapping.nonTerminalToIndex(nonTerminal);
-        final int terminalIndex = mapping.terminalToIndex(terminal);
+        final int nonTerminalIndex = Grammar.nonTerminalToIndex(nonTerminal);
+        final int terminalIndex = Grammar.terminalToIndex(terminal);
 
         table[nonTerminalIndex][terminalIndex] = productionCounter;
 
@@ -37,13 +38,13 @@ public class CFGParsingTableBuilder {
 
     }
 
-    public CFGParsingTable getTable() {
+    public ParsingTable getTable() {
 
-        CFGParsingTableProduction[] productionActionsArray = new CFGParsingTableProduction[productionCounter - 1];
+        Production[] productionActionsArray = new Production[productionCounter - 1];
 
         productionActions.toArray(productionActionsArray);
 
-        return new CFGParsingTable(mapping, productionActionsArray, table);
+        return new ParsingTable(grammar.getTerminalCount(), grammar.getNonTerminalCount(), productionActionsArray, table);
 
     }
 
