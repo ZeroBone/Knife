@@ -3,11 +3,11 @@ package net.zerobone.knife.grammar;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Productions {
+public class CFGProductions {
 
-    private final ArrayList<Production> productions;
+    private final ArrayList<CFGProduction> productions;
 
-    public Productions(Production initialProduction) {
+    public CFGProductions(CFGProduction initialProduction) {
 
         productions = new ArrayList<>();
 
@@ -15,11 +15,11 @@ public class Productions {
 
     }
 
-    public void addProduction(Production production) {
+    public void addProduction(CFGProduction production) {
         productions.add(production);
     }
 
-    public ArrayList<Production> getProductions() {
+    public ArrayList<CFGProduction> getProductions() {
         return productions;
     }
 
@@ -36,7 +36,7 @@ public class Productions {
 
         while (it.hasNext()) {
 
-            Production production = (Production)it.next();
+            CFGProduction production = (CFGProduction)it.next();
 
             sb.append(production);
 

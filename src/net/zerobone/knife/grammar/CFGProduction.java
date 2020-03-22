@@ -1,18 +1,28 @@
-package net.zerobone.knife.grammar.symbol;
-
-import net.zerobone.knife.grammar.Symbol;
+package net.zerobone.knife.grammar;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SymbolGrammarProduction {
+public class CFGProduction {
 
-    public final String code;
+    private final String code;
 
-    public final ArrayList<SymbolGrammarSymbol> body = new ArrayList<>();
+    private ArrayList<CFGSymbol> body = new ArrayList<>();
 
-    public SymbolGrammarProduction(String code) {
+    public CFGProduction(String code) {
         this.code = code;
+    }
+
+    public void append(CFGSymbol symbol) {
+        body.add(symbol);
+    }
+
+    public ArrayList<CFGSymbol> getBody() {
+        return body;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     @Override
@@ -24,7 +34,7 @@ public class SymbolGrammarProduction {
 
         while (it.hasNext()) {
 
-            Symbol symbol = (Symbol)it.next();
+            CFGSymbol symbol = (CFGSymbol)it.next();
 
             sb.append(symbol.id);
 

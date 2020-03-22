@@ -1,8 +1,8 @@
 package net.zerobone.knife.generator;
 
 import com.squareup.javapoet.*;
-import net.zerobone.knife.grammar.Production;
-import net.zerobone.knife.grammar.Symbol;
+import net.zerobone.knife.grammar.CFGSymbol;
+import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
 
 import javax.lang.model.element.Modifier;
 
@@ -24,9 +24,9 @@ class ParseNodeGenerator {
 
         for (int i = 0; i < context.table.productionActions.length; i++) {
 
-            final Production production = context.table.productionActions[i];
+            final CFGParsingTableProduction production = context.table.productionActions[i];
 
-            if (production.getCode() == null) {
+            if (production.code == null) {
                 b.addStatement("case $L: break", i);
                 continue;
             }
@@ -34,15 +34,15 @@ class ParseNodeGenerator {
             b.addCode("case $L:\n$>", i);
             b.addCode("{$>\n");
 
-            for (int j = 0; j < production.getBody().size(); j++) {
+            for (int j = 0; j < production.body.size(); j++) {
 
-                Symbol symbol = production.getBody().get(j);
+                CFGSymbol symbol = production.body.get(j);
 
                 if (symbol.argumentName == null) {
                     continue;
                 }
 
-                int childIndex = production.getBody().size() - 1 - j;
+                int childIndex = production.body.size() - 1 - j;
 
                 b.addStatement("Object " + symbol.argumentName + " = ((ParseNode)children.get(" + childIndex + ")).payload");
 
@@ -50,7 +50,7 @@ class ParseNodeGenerator {
 
             // b.addComment("--- user code begin ---");
 
-            b.addCode(production.getCode());
+            b.addCode(production.code);
             b.addCode("\n");
 
             // b.addComment("--- user code end ---");

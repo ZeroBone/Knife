@@ -1,34 +1,22 @@
-package net.zerobone.knife.grammar;
+package net.zerobone.knife.grammar.table;
+
+import net.zerobone.knife.grammar.CFGSymbol;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Production {
+public class CFGParsingTableProduction {
 
-    final String code;
+    public final String label;
 
-    final ArrayList<Symbol> body;
+    public final ArrayList<CFGSymbol> body;
 
-    public Production(String code, ArrayList<Symbol> body) {
-        this.code = code;
+    public final String code;
+
+    public CFGParsingTableProduction(String label, ArrayList<CFGSymbol> body, String code) {
+        this.label = label;
         this.body = body;
-    }
-
-    public Production(String code) {
         this.code = code;
-        this.body = new ArrayList<>();
-    }
-
-    public void append(Symbol symbol) {
-        body.add(symbol);
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public ArrayList<Symbol> getBody() {
-        return body;
     }
 
     @Override
@@ -36,11 +24,14 @@ public class Production {
 
         StringBuilder sb = new StringBuilder();
 
+        sb.append(label);
+        sb.append(" -> ");
+
         Iterator it = body.iterator();
 
         while (it.hasNext()) {
 
-            Symbol symbol = (Symbol)it.next();
+            CFGSymbol symbol = (CFGSymbol)it.next();
 
             sb.append(symbol.id);
 
@@ -70,7 +61,5 @@ public class Production {
         }
 
         return sb.toString();
-
     }
-
 }

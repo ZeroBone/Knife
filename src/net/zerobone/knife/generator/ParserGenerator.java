@@ -161,10 +161,10 @@ class ParserGenerator {
 
         // fields
 
-        MetaGenerator.constructConstants(context, classBuilder);
+        MetaGenerator.constructConstants(context.table, classBuilder);
 
-        classBuilder.addField(MetaGenerator.constructTable(context));
-        classBuilder.addField(MetaGenerator.constructActionTable(context));
+        classBuilder.addField(MetaGenerator.constructTable(context.table));
+        classBuilder.addField(MetaGenerator.constructActionTable(context.table));
 
         constructParserFields(context, classBuilder);
 
