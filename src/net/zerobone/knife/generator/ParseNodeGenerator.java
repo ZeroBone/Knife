@@ -1,8 +1,8 @@
 package net.zerobone.knife.generator;
 
 import com.squareup.javapoet.*;
-import net.zerobone.knife.grammar.CFGSymbol;
-import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
+import net.zerobone.knife.grammar.Symbol;
+import net.zerobone.knife.grammar.table.ParsingTableProduction;
 
 import javax.lang.model.element.Modifier;
 
@@ -24,7 +24,7 @@ class ParseNodeGenerator {
 
         for (int i = 0; i < context.table.productionActions.length; i++) {
 
-            final CFGParsingTableProduction production = context.table.productionActions[i];
+            final ParsingTableProduction production = context.table.productionActions[i];
 
             if (production.code == null) {
                 b.addStatement("case $L: break", i);
@@ -36,7 +36,7 @@ class ParseNodeGenerator {
 
             for (int j = 0; j < production.body.size(); j++) {
 
-                CFGSymbol symbol = production.body.get(j);
+                Symbol symbol = production.body.get(j);
 
                 if (symbol.argumentName == null) {
                     continue;

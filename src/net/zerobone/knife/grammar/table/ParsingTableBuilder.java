@@ -1,20 +1,20 @@
 package net.zerobone.knife.grammar.table;
 
-import net.zerobone.knife.grammar.CFGSymbolMapping;
+import net.zerobone.knife.grammar.SymbolMapping;
 
 import java.util.ArrayList;
 
-public class CFGParsingTableBuilder {
+public class ParsingTableBuilder {
 
-    private final CFGSymbolMapping mapping;
+    private final SymbolMapping mapping;
 
     private int[][] table;
 
     private int productionCounter = 1;
 
-    private ArrayList<CFGParsingTableProduction> productionActions = new ArrayList<>();
+    private ArrayList<ParsingTableProduction> productionActions = new ArrayList<>();
 
-    public CFGParsingTableBuilder(final CFGSymbolMapping mapping) {
+    public ParsingTableBuilder(final SymbolMapping mapping) {
 
         this.mapping = mapping;
 
@@ -22,7 +22,7 @@ public class CFGParsingTableBuilder {
 
     }
 
-    public void write(String nonTerminal, String terminal, CFGParsingTableProduction production) {
+    public void write(String nonTerminal, String terminal, ParsingTableProduction production) {
 
         // TODO: compress table by reusing already existing indices
 
@@ -37,13 +37,13 @@ public class CFGParsingTableBuilder {
 
     }
 
-    public CFGParsingTable getTable() {
+    public ParsingTable getTable() {
 
-        CFGParsingTableProduction[] productionActionsArray = new CFGParsingTableProduction[productionCounter - 1];
+        ParsingTableProduction[] productionActionsArray = new ParsingTableProduction[productionCounter - 1];
 
         productionActions.toArray(productionActionsArray);
 
-        return new CFGParsingTable(mapping, productionActionsArray, table);
+        return new ParsingTable(mapping, productionActionsArray, table);
 
     }
 

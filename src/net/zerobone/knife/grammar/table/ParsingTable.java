@@ -1,16 +1,16 @@
 package net.zerobone.knife.grammar.table;
 
-import net.zerobone.knife.grammar.CFGSymbolMapping;
+import net.zerobone.knife.grammar.SymbolMapping;
 
-public class CFGParsingTable {
+public class ParsingTable {
 
-    public final CFGSymbolMapping mapping;
+    public final SymbolMapping mapping;
 
-    public final CFGParsingTableProduction[] productionActions;
+    public final ParsingTableProduction[] productionActions;
 
     public final int[][] table;
 
-    public CFGParsingTable(CFGSymbolMapping mapping, CFGParsingTableProduction[] productionActions, int[][] table) {
+    public ParsingTable(SymbolMapping mapping, ParsingTableProduction[] productionActions, int[][] table) {
         this.mapping = mapping;
         this.productionActions = productionActions;
         this.table = table;

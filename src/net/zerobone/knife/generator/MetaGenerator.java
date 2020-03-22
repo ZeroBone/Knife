@@ -2,9 +2,9 @@ package net.zerobone.knife.generator;
 
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeSpec;
-import net.zerobone.knife.grammar.CFGSymbol;
-import net.zerobone.knife.grammar.table.CFGParsingTable;
-import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
+import net.zerobone.knife.grammar.Symbol;
+import net.zerobone.knife.grammar.table.ParsingTable;
+import net.zerobone.knife.grammar.table.ParsingTableProduction;
 
 import javax.lang.model.element.Modifier;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ class MetaGenerator {
 
     private MetaGenerator() {}
 
-    static void constructConstants(CFGParsingTable table, TypeSpec.Builder classBuilder) {
+    static void constructConstants(ParsingTable table, TypeSpec.Builder classBuilder) {
 
         {
             // T_EOF = 0
@@ -71,7 +71,7 @@ class MetaGenerator {
 
     }
 
-    static FieldSpec constructTable(CFGParsingTable table) {
+    static FieldSpec constructTable(ParsingTable table) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -102,19 +102,19 @@ class MetaGenerator {
 
     }
 
-    static FieldSpec constructActionTable(CFGParsingTable table) {
+    static FieldSpec constructActionTable(ParsingTable table) {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append('{');
 
-        for (CFGParsingTableProduction productionAction : table.productionActions) {
+        for (ParsingTableProduction productionAction : table.productionActions) {
 
             sb.append('\n');
 
             sb.append('{');
 
-            for (CFGSymbol symbol : productionAction.body) {
+            for (Symbol symbol : productionAction.body) {
 
                 int id = table.mapping.map(symbol.id);
 

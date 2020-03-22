@@ -1,19 +1,19 @@
 package net.zerobone.knife.grammar.table;
 
-import net.zerobone.knife.grammar.CFGSymbol;
+import net.zerobone.knife.grammar.Symbol;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class CFGParsingTableProduction {
+public class ParsingTableProduction {
 
     public final String label;
 
-    public final ArrayList<CFGSymbol> body;
+    public final ArrayList<Symbol> body;
 
     public final String code;
 
-    public CFGParsingTableProduction(String label, ArrayList<CFGSymbol> body, String code) {
+    public ParsingTableProduction(String label, ArrayList<Symbol> body, String code) {
         this.label = label;
         this.body = body;
         this.code = code;
@@ -31,7 +31,7 @@ public class CFGParsingTableProduction {
 
         while (it.hasNext()) {
 
-            CFGSymbol symbol = (CFGSymbol)it.next();
+            Symbol symbol = (Symbol)it.next();
 
             sb.append(symbol.id);
 

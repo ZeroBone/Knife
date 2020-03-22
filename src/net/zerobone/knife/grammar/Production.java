@@ -3,21 +3,21 @@ package net.zerobone.knife.grammar;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class CFGProduction {
+public class Production {
 
     private final String code;
 
-    private ArrayList<CFGSymbol> body = new ArrayList<>();
+    private ArrayList<Symbol> body = new ArrayList<>();
 
-    public CFGProduction(String code) {
+    public Production(String code) {
         this.code = code;
     }
 
-    public void append(CFGSymbol symbol) {
+    public void append(Symbol symbol) {
         body.add(symbol);
     }
 
-    public ArrayList<CFGSymbol> getBody() {
+    public ArrayList<Symbol> getBody() {
         return body;
     }
 
@@ -34,7 +34,7 @@ public class CFGProduction {
 
         while (it.hasNext()) {
 
-            CFGSymbol symbol = (CFGSymbol)it.next();
+            Symbol symbol = (Symbol)it.next();
 
             sb.append(symbol.id);
 

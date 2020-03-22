@@ -1,17 +1,17 @@
 package net.zerobone.knife.generator;
 
 import com.squareup.javapoet.ClassName;
-import net.zerobone.knife.grammar.table.CFGParsingTable;
+import net.zerobone.knife.grammar.table.ParsingTable;
 
 public class GeneratorContext {
 
     final String packageName;
 
-    final CFGParsingTable table;
+    final ParsingTable table;
 
     private ClassName tokenTypeName = null;
 
-    public GeneratorContext(String packageName, CFGParsingTable table) {
+    public GeneratorContext(String packageName, ParsingTable table) {
         this.packageName = packageName;
         this.table = table;
     }

@@ -1,35 +1,35 @@
 package net.zerobone.knife.grammar;
 
-import net.zerobone.knife.grammar.table.CFGParsingTable;
-import net.zerobone.knife.grammar.table.CFGParsingTableBuilder;
-import net.zerobone.knife.grammar.table.CFGParsingTableProduction;
+import net.zerobone.knife.grammar.table.ParsingTable;
+import net.zerobone.knife.grammar.table.ParsingTableBuilder;
+import net.zerobone.knife.grammar.table.ParsingTableProduction;
 
 import java.util.*;
 
-public class CFG {
+public class Grammar {
 
     private String startSymbol;
 
-    private HashMap<String, CFGProductions> productions;
+    private HashMap<String, Productions> productions;
 
     private HashMap<String, HashSet<String>> cachedFirstSets = new HashMap<>();
 
     private HashMap<String, HashSet<String>> cachedFollowSets = new HashMap<>();
 
-    public CFG(String startSymbol, CFGProduction startProduction) {
+    public Grammar(String startSymbol, Production startProduction) {
 
         productions = new HashMap<>(32);
 
         this.startSymbol = startSymbol;
 
-        productions.put(startSymbol, new CFGProductions(startProduction));
+        productions.put(startSymbol, new Productions(startProduction));
 
     }
 
-    public void addProduction(String symbol, CFGProduction production) {
+    public void addProduction(String symbol, Production production) {
 
         if (!productions.containsKey(symbol)) {
-            productions.put(symbol, new CFGProductions(production));
+            productions.put(symbol, new Productions(production));
             return;
         }
 
@@ -41,7 +41,7 @@ public class CFG {
 
         HashMap<String, HashSet<String>> firstSets = new HashMap<>();
 
-        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
 
             String nonTerminal = pair.getKey();
 
@@ -61,7 +61,7 @@ public class CFG {
             return cachedFirstSets.get(nonTerminal);
         }
 
-        CFGProductions nonTerminalProductions = productions.get(nonTerminal);
+        Productions nonTerminalProductions = productions.get(nonTerminal);
 
         if (nonTerminalProductions == null) {
             throw new RuntimeException("Non-terminal " + nonTerminal + " doesn't exist in the grammar.");
@@ -69,9 +69,9 @@ public class CFG {
 
         HashSet<String> set = new HashSet<>();
 
-        for (CFGProduction prod : nonTerminalProductions.getProductions()) {
+        for (Production prod : nonTerminalProductions.getProductions()) {
 
-            ArrayList<CFGSymbol> body = prod.getBody();
+            ArrayList<Symbol> body = prod.getBody();
 
             if (body.size() == 0) {
                 // epsilon production
@@ -79,7 +79,7 @@ public class CFG {
                 continue;
             }
 
-            for (CFGSymbol symbol : body) {
+            for (Symbol symbol : body) {
 
                 if (symbol.isTerminal) {
                     set.add(symbol.id);
@@ -112,7 +112,7 @@ public class CFG {
 
         HashMap<String, HashSet<String>> followSets = new HashMap<>();
 
-        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
 
             String nonTerminal = pair.getKey();
 
@@ -138,7 +138,7 @@ public class CFG {
             set.add("$");
         }
 
-        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
 
             String productionLabel = pair.getKey();
 
@@ -147,15 +147,15 @@ public class CFG {
                 continue;
             }
 
-            CFGProductions thisLabelProductions = pair.getValue();
+            Productions thisLabelProductions = pair.getValue();
 
-            for (CFGProduction production : thisLabelProductions.getProductions()) {
+            for (Production production : thisLabelProductions.getProductions()) {
 
-                ArrayList<CFGSymbol> body = production.getBody();
+                ArrayList<Symbol> body = production.getBody();
 
                 for (int i = 0; i < body.size(); i++) {
 
-                    CFGSymbol symbol = body.get(i);
+                    Symbol symbol = body.get(i);
 
                     if (symbol.isTerminal || !symbol.id.equals(nonTerminal)) {
                         continue;
@@ -174,7 +174,7 @@ public class CFG {
 
                     // we are in the alpha A beta
 
-                    CFGSymbol nextSymbol = body.get(i + 1);
+                    Symbol nextSymbol = body.get(i + 1);
 
                     if (nextSymbol.isTerminal) {
                         // FIRST(terminal) = { terminal }
@@ -218,7 +218,7 @@ public class CFG {
 
     }
 
-    private CFGSymbolMapping mapSymbols() {
+    private SymbolMapping mapSymbols() {
 
         int terminalCounter = 1;
         int nonTerminalCounter = -1;
@@ -226,11 +226,11 @@ public class CFG {
         HashMap<String, Integer> symbolToId = new HashMap<>();
         HashMap<Integer, String> idToSymbol = new HashMap<>();
 
-        for (HashMap.Entry<String, CFGProductions> entry : productions.entrySet()) {
+        for (HashMap.Entry<String, Productions> entry : productions.entrySet()) {
 
             String thisLabel = entry.getKey();
 
-            CFGProductions thisLabelProductions = entry.getValue();
+            Productions thisLabelProductions = entry.getValue();
 
             if (!symbolToId.containsKey(thisLabel)) {
 
@@ -242,11 +242,11 @@ public class CFG {
                 nonTerminalCounter--;
             }
 
-            for (CFGProduction production : thisLabelProductions.getProductions()) {
+            for (Production production : thisLabelProductions.getProductions()) {
 
-                ArrayList<CFGSymbol> body = production.getBody();
+                ArrayList<Symbol> body = production.getBody();
 
-                for (CFGSymbol symbol : body) {
+                for (Symbol symbol : body) {
 
                     if (symbolToId.containsKey(symbol.id)) {
                         continue;
@@ -275,7 +275,7 @@ public class CFG {
 
         }
 
-        return new CFGSymbolMapping(
+        return new SymbolMapping(
             terminalCounter,
             -nonTerminalCounter - 1,
             startSymbol,
@@ -285,25 +285,25 @@ public class CFG {
 
     }
 
-    public CFGParsingTable constructParsingTable() {
+    public ParsingTable constructParsingTable() {
 
         final HashMap<String, HashSet<String>> firstSets = computeFirstSets();
 
         final HashMap<String, HashSet<String>> followSets = computeFollowSets();
 
-        final CFGSymbolMapping mapping = mapSymbols();
+        final SymbolMapping mapping = mapSymbols();
 
-        final CFGParsingTableBuilder tableBuilder = new CFGParsingTableBuilder(mapping);
+        final ParsingTableBuilder tableBuilder = new ParsingTableBuilder(mapping);
 
-        for (HashMap.Entry<String, CFGProductions> pair : productions.entrySet()) {
+        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
 
             String productionLabel = pair.getKey();
 
-            CFGProductions thisLabelProductions = pair.getValue();
+            Productions thisLabelProductions = pair.getValue();
 
-            for (CFGProduction production : thisLabelProductions.getProductions()) {
+            for (Production production : thisLabelProductions.getProductions()) {
 
-                ArrayList<CFGSymbol> body = production.getBody();
+                ArrayList<Symbol> body = production.getBody();
 
                 if (body.size() == 0) {
                     // epsilon-rule
@@ -314,20 +314,20 @@ public class CFG {
 
                         // System.out.println("[1]: Row: " + productionLabel + " Col: " + follow + " Production: " + productionLabel + " -> ;");
 
-                        tableBuilder.write(productionLabel, follow, new CFGParsingTableProduction(productionLabel, new ArrayList<>(), production.getCode()));
+                        tableBuilder.write(productionLabel, follow, new ParsingTableProduction(productionLabel, new ArrayList<>(), production.getCode()));
 
                     }
 
                     continue;
                 }
 
-                CFGSymbol symbol = body.get(0);
+                Symbol symbol = body.get(0);
 
                 if (symbol.isTerminal) {
 
                     // System.out.println("[2]: Row: " + productionLabel + " Col: " + symbol.id + " Production: " + productionLabel + " -> " + production.toString());
 
-                    tableBuilder.write(productionLabel, symbol.id, new CFGParsingTableProduction(productionLabel, production.getBody(), production.getCode()));
+                    tableBuilder.write(productionLabel, symbol.id, new ParsingTableProduction(productionLabel, production.getBody(), production.getCode()));
 
                     continue;
                 }
@@ -344,7 +344,7 @@ public class CFG {
 
                     // System.out.println("[3]: Row: " + productionLabel + " Col: " + first + " Production: " + productionLabel + " -> " + production.toString());
 
-                    tableBuilder.write(productionLabel, first, new CFGParsingTableProduction(productionLabel, production.getBody(), production.getCode()));
+                    tableBuilder.write(productionLabel, first, new ParsingTableProduction(productionLabel, production.getBody(), production.getCode()));
 
                 }
 
@@ -361,11 +361,11 @@ public class CFG {
 
         StringBuilder sb = new StringBuilder();
 
-        Iterator<java.util.Map.Entry<String, CFGProductions>> it = productions.entrySet().iterator();
+        Iterator<java.util.Map.Entry<String, Productions>> it = productions.entrySet().iterator();
 
         while (it.hasNext()) {
 
-            HashMap.Entry<String, CFGProductions> pair = it.next();
+            HashMap.Entry<String, Productions> pair = it.next();
 
             sb
                 .append(pair.getKey())
