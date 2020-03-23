@@ -1,7 +1,6 @@
 package net.zerobone.knife.grammar;
 
 import net.zerobone.knife.grammar.table.ParsingTable;
-import net.zerobone.knife.grammar.table.ParsingTableProduction;
 import net.zerobone.knife.utils.BijectiveMap;
 
 import java.util.*;
@@ -10,7 +9,7 @@ public class Grammar {
 
     private BijectiveMap<String, Integer> symbolsMap = new BijectiveMap<>();
 
-    private static final int START_SYMBOL_ID = -1;
+    public static final int START_SYMBOL_ID = -1;
 
     // terminals are represented as positive integers, so this one should be negative
     public static final int FIRST_FOLLOW_SET_EPSILON = -1; // aka empty string
@@ -36,6 +35,7 @@ public class Grammar {
     }
 
     public String idToSymbol(int id) {
+        assert id != 0;
         return symbolsMap.mapValue(id);
     }
 
@@ -374,9 +374,7 @@ public class Grammar {
 
             for (InnerProduction production : thisLabelProductions) {
 
-                ArrayList<InnerSymbol> body = production.body;
-
-                if (body.size() == 0) {
+                if (production.body.size() == 0) {
                     // epsilon-rule
 
                     HashSet<Integer> followSet = followSets.get(productionLabel);
@@ -392,7 +390,7 @@ public class Grammar {
                     continue;
                 }
 
-                InnerSymbol symbol = body.get(0);
+                InnerSymbol symbol = production.body.get(0);
 
                 if (symbol.isTerminal()) {
 

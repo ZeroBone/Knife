@@ -17,6 +17,7 @@ import net.zerobone.knife.parser.TokenMgrError;
 import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class Knife {
 
@@ -123,9 +124,33 @@ public class Knife {
 
                 debugLogWriter.write("FIRST(");
                 debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
-                debugLogWriter.write(") = ");
+                debugLogWriter.write(") = {");
 
-                debugLogWriter.write(entry.getValue().toString());
+                Iterator<Integer> firstSetIterator = entry.getValue().iterator();
+
+                if (firstSetIterator.hasNext()) {
+
+                    while (true) {
+
+                        int id = firstSetIterator.next();
+
+                        if (id != Grammar.FIRST_FOLLOW_SET_EPSILON) {
+
+                            debugLogWriter.write(grammar.idToSymbol(id));
+
+                        }
+
+                        if (!firstSetIterator.hasNext()) {
+                            break;
+                        }
+
+                        debugLogWriter.write(", ");
+
+                    }
+
+                }
+
+                debugLogWriter.write('}');
 
                 debugLogWriter.newLine();
 
@@ -142,9 +167,36 @@ public class Knife {
 
                 debugLogWriter.write("FOLLOW(");
                 debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
-                debugLogWriter.write(") = ");
+                debugLogWriter.write(") = {");
 
-                debugLogWriter.write(entry.getValue().toString());
+                Iterator<Integer> followSetIterator = entry.getValue().iterator();
+
+                if (followSetIterator.hasNext()) {
+
+                    while (true) {
+
+                        int id = followSetIterator.next();
+
+                        if (id == Grammar.FOLLOW_SET_EOF) {
+                            debugLogWriter.write("$");
+                        }
+                        else if (id != Grammar.FIRST_FOLLOW_SET_EPSILON) {
+
+                            debugLogWriter.write(grammar.idToSymbol(id));
+
+                        }
+
+                        if (!followSetIterator.hasNext()) {
+                            break;
+                        }
+
+                        debugLogWriter.write(", ");
+
+                    }
+
+                }
+
+                debugLogWriter.write('}');
 
                 debugLogWriter.newLine();
 

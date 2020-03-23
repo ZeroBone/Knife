@@ -27,34 +27,23 @@ final class ParseNode {
 					v = new Node(term, rest);
 				}
 				break;
-			case 1:
-				{
-					Object term = ((ParseNode)children.get(1)).payload;
-					Object rest = ((ParseNode)children.get(0)).payload;
-					v = new Node(term, rest);
-				}
-				break;
+			case 1: break;
 			case 2: break;
 			case 3: break;
-			case 4: break;
-			case 5: break;
-			case 6: break;
-			case 7:
+			case 4:
 				{
 					Object e = ((ParseNode)children.get(1)).payload;
 					v = e;
 				}
 				break;
-			case 8:
+			case 5:
 				{
 					Object id = ((ParseNode)children.get(0)).payload;
 					v = new IdNode(id);
 				}
 				break;
-			case 9: break;
-			case 10: break;
-			case 11: break;
-			case 12: break;
+			case 6: break;
+			case 7: break;
 			default:
 				throw new IllegalStateException();
 		}

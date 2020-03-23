@@ -5,6 +5,7 @@ import net.zerobone.knife.grammar.table.ParsingTableProduction;
 import net.zerobone.knife.utils.BijectiveMap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class ParsingTableBuilder {
 
@@ -26,12 +27,15 @@ class ParsingTableBuilder {
 
     private ArrayList<ParsingTableProduction> productionActions = new ArrayList<>();
 
+    private InnerProduction lastWrittenProduction = null;
+
     public ParsingTableBuilder(final Grammar grammar) {
 
         this.grammar = grammar;
 
         this.nonTerminalCount = grammar.getNonTerminalCount();
 
+        // + 1 because the eof token is also a terminal in the table
         this.terminalCount = grammar.getTerminalCount() + 1;
 
         table = new int[nonTerminalCount][terminalCount];
@@ -94,8 +98,10 @@ class ParsingTableBuilder {
 
     public void write(int nonTerminal, int terminalOrEof, InnerProduction production) {
 
+        assert production != null;
+
         assert nonTerminal < 0;
-        assert terminalOrEof >= 0; // can be 0 aka eof
+        assert terminalOrEof > 0 || terminalOrEof == Grammar.FOLLOW_SET_EOF; // can be 0 aka eof
 
         final int nonTerminalIndex = nonTerminalToIndex(nonTerminal);
         final int terminalIndex = terminalToIndex(terminalOrEof);
@@ -103,15 +109,24 @@ class ParsingTableBuilder {
         assert nonTerminalIndex < nonTerminalCount;
         assert terminalIndex < terminalCount;
 
+        if (lastWrittenProduction == production) {
+            table[nonTerminalIndex][terminalIndex] = productionCounter - 1;
+            return;
+        }
+
         table[nonTerminalIndex][terminalIndex] = productionCounter;
 
         productionActions.add(convertProduction(nonTerminal, production));
+
+        lastWrittenProduction = production;
 
         productionCounter++;
 
     }
 
     public ParsingTable getTable() {
+
+        assert productionActions.size() == productionCounter - 1;
 
         ParsingTableProduction[] productionActionsArray = new ParsingTableProduction[productionCounter - 1];
 
@@ -123,7 +138,7 @@ class ParsingTableBuilder {
             terminalCount,
             productionActionsArray,
             table,
-            grammar.idToSymbol(-1)
+            grammar.idToSymbol(Grammar.START_SYMBOL_ID)
         );
 
     }
