@@ -1,49 +1,155 @@
 package net.zerobone.knife.grammar;
 
 import net.zerobone.knife.grammar.table.ParsingTable;
-import net.zerobone.knife.grammar.table.ParsingTableBuilder;
 import net.zerobone.knife.grammar.table.ParsingTableProduction;
+import net.zerobone.knife.utils.BijectiveMap;
 
 import java.util.*;
 
 public class Grammar {
 
-    private String startSymbol;
+    private BijectiveMap<String, Integer> symbolsMap = new BijectiveMap<>();
 
-    private HashMap<String, Productions> productions;
+    private static final int START_SYMBOL_ID = -1;
 
-    private HashMap<String, HashSet<String>> cachedFirstSets = new HashMap<>();
+    // terminals are represented as positive integers, so this one should be negative
+    public static final int FIRST_FOLLOW_SET_EPSILON = -1; // aka empty string
 
-    private HashMap<String, HashSet<String>> cachedFollowSets = new HashMap<>();
+    public static final int FOLLOW_SET_EOF = 0; // aka dollar sign
+
+    private int nonTerminalCounter = -2;
+
+    private int terminalCounter = 1;
+
+    private HashMap<Integer, ArrayList<InnerProduction>> productions = new HashMap<>();
+
+    private HashMap<Integer, HashSet<Integer>> cachedFirstSets = new HashMap<>();
+
+    private HashMap<Integer, HashSet<Integer>> cachedFollowSets = new HashMap<>();
 
     public Grammar(String startSymbol, Production startProduction) {
 
-        productions = new HashMap<>(32);
+        symbolsMap.put(startSymbol, START_SYMBOL_ID);
 
-        this.startSymbol = startSymbol;
+        createFirstProduction(START_SYMBOL_ID, convertProduction(startProduction));
 
-        productions.put(startSymbol, new Productions(startProduction));
+    }
+
+    public String idToSymbol(int id) {
+        return symbolsMap.mapValue(id);
+    }
+
+    private int symbolToId(String symbol) {
+
+        Integer symbolId = symbolsMap.mapKey(symbol);
+
+        if (symbolId == null) {
+
+            symbolsMap.put(symbol, nonTerminalCounter);
+
+            return nonTerminalCounter--;
+
+        }
+
+        return symbolId;
+
+    }
+
+    private InnerSymbol convertSymbol(Symbol symbol) {
+
+        Integer symbolId = symbolsMap.mapKey(symbol.id);
+
+        if (symbolId == null) {
+
+            if (symbol.isTerminal) {
+
+                symbolId = terminalCounter;
+
+                symbolsMap.put(symbol.id, terminalCounter);
+
+                terminalCounter++;
+
+            }
+            else {
+
+                symbolId = nonTerminalCounter;
+
+                symbolsMap.put(symbol.id, nonTerminalCounter);
+
+                nonTerminalCounter--;
+
+            }
+
+        }
+
+        return new InnerSymbol(symbolId, symbol.argumentName);
+
+    }
+
+    private InnerProduction convertProduction(Production production) {
+
+        InnerProduction innerProduction = new InnerProduction(production.getCode());
+
+        for (Symbol symbol : production.getBody()) {
+            innerProduction.body.add(convertSymbol(symbol));
+        }
+
+        return innerProduction;
+
+    }
+
+    private void createFirstProduction(int id, InnerProduction production) {
+
+        ArrayList<InnerProduction> createdProductions = new ArrayList<>();
+
+        createdProductions.add(production);
+
+        productions.put(id, createdProductions);
 
     }
 
     public void addProduction(String symbol, Production production) {
 
-        if (!productions.containsKey(symbol)) {
-            productions.put(symbol, new Productions(production));
+        Integer symbolId = symbolsMap.mapKey(symbol);
+
+        if (symbolId == null) {
+
+            // no such symbol
+
+            symbolsMap.put(symbol, nonTerminalCounter);
+
+            createFirstProduction(nonTerminalCounter, convertProduction(production));
+
+            nonTerminalCounter--;
+
             return;
+
         }
 
-        productions.get(symbol).addProduction(production);
+        // symbol already exists
+        // but it doesn't mean the production exists
+
+        ArrayList<InnerProduction> correspondingProductions = productions.get(symbolId);
+
+        if (correspondingProductions == null) {
+
+            createFirstProduction(symbolId, convertProduction(production));
+
+            return;
+
+        }
+
+        correspondingProductions.add(convertProduction(production));
 
     }
 
-    public HashMap<String, HashSet<String>> computeFirstSets() {
+    public HashMap<Integer, HashSet<Integer>> computeFirstSets() {
 
-        HashMap<String, HashSet<String>> firstSets = new HashMap<>();
+        HashMap<Integer, HashSet<Integer>> firstSets = new HashMap<>();
 
-        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
 
-            String nonTerminal = pair.getKey();
+            int nonTerminal = pair.getKey();
 
             firstSets.put(nonTerminal, firstSet(nonTerminal));
 
@@ -53,44 +159,47 @@ public class Grammar {
 
     }
 
-    private HashSet<String> firstSet(String nonTerminal) {
+    private HashSet<Integer> firstSet(int nonTerminal) {
 
-        assert nonTerminal != null;
+        assert nonTerminal < 0;
 
-        if (cachedFirstSets.containsKey(nonTerminal)) {
-            return cachedFirstSets.get(nonTerminal);
+        {
+            HashSet<Integer> cachedFirstSet = cachedFirstSets.get(nonTerminal);
+            if (cachedFirstSet != null) {
+                return cachedFirstSet;
+            }
         }
 
-        Productions nonTerminalProductions = productions.get(nonTerminal);
+        ArrayList<InnerProduction> nonTerminalProductions = productions.get(nonTerminal);
 
         if (nonTerminalProductions == null) {
-            throw new RuntimeException("Non-terminal " + nonTerminal + " doesn't exist in the grammar.");
+            throw new RuntimeException("Non-terminal " + idToSymbol(nonTerminal) + " doesn't exist in the grammar.");
         }
 
-        HashSet<String> set = new HashSet<>();
+        HashSet<Integer> set = new HashSet<>();
 
-        for (Production prod : nonTerminalProductions.getProductions()) {
+        for (InnerProduction prod : nonTerminalProductions) {
 
-            ArrayList<Symbol> body = prod.getBody();
+            ArrayList<InnerSymbol> body = prod.body;
 
             if (body.size() == 0) {
                 // epsilon production
-                set.add("");
+                set.add(FIRST_FOLLOW_SET_EPSILON);
                 continue;
             }
 
-            for (Symbol symbol : body) {
+            for (InnerSymbol symbol : body) {
 
-                if (symbol.isTerminal) {
+                if (symbol.isTerminal()) {
                     set.add(symbol.id);
                     break;
                 }
 
-                HashSet<String> firstSetOfNonTerminal = firstSet(symbol.id);
+                HashSet<Integer> firstSetOfNonTerminal = firstSet(symbol.id);
 
                 set.addAll(firstSetOfNonTerminal);
 
-                if (!firstSetOfNonTerminal.contains("")) {
+                if (!firstSetOfNonTerminal.contains(FIRST_FOLLOW_SET_EPSILON)) {
                     // the current nonterminal doesn't contain epsilon, so we don't need to move on to the next terminal
                     break;
                 }
@@ -108,13 +217,13 @@ public class Grammar {
 
     }
 
-    public HashMap<String, HashSet<String>> computeFollowSets() {
+    public HashMap<Integer, HashSet<Integer>> computeFollowSets() {
 
-        HashMap<String, HashSet<String>> followSets = new HashMap<>();
+        HashMap<Integer, HashSet<Integer>> followSets = new HashMap<>();
 
-        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
 
-            String nonTerminal = pair.getKey();
+            int nonTerminal = pair.getKey();
 
             followSets.put(nonTerminal, followSet(nonTerminal));
 
@@ -124,40 +233,40 @@ public class Grammar {
 
     }
 
-    private HashSet<String> followSet(String nonTerminal) {
+    private HashSet<Integer> followSet(int nonTerminal) {
 
-        assert nonTerminal != null;
+        assert nonTerminal < 0;
 
         if (cachedFollowSets.containsKey(nonTerminal)) {
             return cachedFollowSets.get(nonTerminal);
         }
 
-        HashSet<String> set = new HashSet<>();
+        HashSet<Integer> set = new HashSet<>();
 
-        if (nonTerminal.equals(startSymbol)) {
-            set.add("$");
+        if (nonTerminal == START_SYMBOL_ID) {
+            set.add(FOLLOW_SET_EOF);
         }
 
-        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
 
-            String productionLabel = pair.getKey();
+            int productionLabel = pair.getKey();
 
-            if (productionLabel.equals(nonTerminal)) {
+            if (productionLabel == nonTerminal) {
                 // we only look in productions with other labels
                 continue;
             }
 
-            Productions thisLabelProductions = pair.getValue();
+            ArrayList<InnerProduction> thisLabelProductions = pair.getValue();
 
-            for (Production production : thisLabelProductions.getProductions()) {
+            for (InnerProduction production : thisLabelProductions) {
 
-                ArrayList<Symbol> body = production.getBody();
+                ArrayList<InnerSymbol> body = production.body;
 
                 for (int i = 0; i < body.size(); i++) {
 
-                    Symbol symbol = body.get(i);
+                    InnerSymbol symbol = body.get(i);
 
-                    if (symbol.isTerminal || !symbol.id.equals(nonTerminal)) {
+                    if (symbol.isTerminal() || symbol.id != nonTerminal) {
                         continue;
                     }
 
@@ -174,9 +283,9 @@ public class Grammar {
 
                     // we are in the alpha A beta
 
-                    Symbol nextSymbol = body.get(i + 1);
+                    InnerSymbol nextSymbol = body.get(i + 1);
 
-                    if (nextSymbol.isTerminal) {
+                    if (nextSymbol.isTerminal()) {
                         // FIRST(terminal) = { terminal }
                         // so we just add the symbol to the set
                         set.add(nextSymbol.id);
@@ -185,13 +294,14 @@ public class Grammar {
 
                     // nextSymbol (aka beta) is a nonterminal
 
-                    HashSet<String> nextSymbolFirstSet = firstSet(nextSymbol.id);
+                    HashSet<Integer> nextSymbolFirstSet = firstSet(nextSymbol.id);
 
-                    if (nextSymbolFirstSet.contains("")) {
+                    // check if there is epsilon in the set
+                    if (nextSymbolFirstSet.contains(FIRST_FOLLOW_SET_EPSILON)) {
 
                         // union with FIRST(beta) \ epsilon
                         set.addAll(nextSymbolFirstSet);
-                        set.remove("");
+                        set.remove(FIRST_FOLLOW_SET_EPSILON);
 
                         // union with FOLLOW(A)
                         set.addAll(followSet(productionLabel));
@@ -218,55 +328,18 @@ public class Grammar {
 
     }
 
-    private SymbolMapping mapSymbols() {
+    public int getTerminalCount() {
 
-        int terminalCounter = 1;
-        int nonTerminalCounter = -1;
+        HashSet<Integer> terminals = new HashSet<>();
 
-        HashMap<String, Integer> symbolToId = new HashMap<>();
-        HashMap<Integer, String> idToSymbol = new HashMap<>();
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> entry : productions.entrySet()) {
 
-        for (HashMap.Entry<String, Productions> entry : productions.entrySet()) {
+            for (InnerProduction production : entry.getValue()) {
 
-            String thisLabel = entry.getKey();
+                for (InnerSymbol symbol : production.body) {
 
-            Productions thisLabelProductions = entry.getValue();
-
-            if (!symbolToId.containsKey(thisLabel)) {
-
-                // create entry for left-side nonterminal
-
-                symbolToId.put(thisLabel, nonTerminalCounter);
-                idToSymbol.put(nonTerminalCounter, thisLabel);
-
-                nonTerminalCounter--;
-            }
-
-            for (Production production : thisLabelProductions.getProductions()) {
-
-                ArrayList<Symbol> body = production.getBody();
-
-                for (Symbol symbol : body) {
-
-                    if (symbolToId.containsKey(symbol.id)) {
-                        continue;
-                    }
-
-                    if (symbol.isTerminal) {
-
-                        symbolToId.put(symbol.id, terminalCounter);
-                        idToSymbol.put(terminalCounter, symbol.id);
-
-                        terminalCounter++;
-
-                    }
-                    else {
-
-                        symbolToId.put(symbol.id, nonTerminalCounter);
-                        idToSymbol.put(nonTerminalCounter, symbol.id);
-
-                        nonTerminalCounter--;
-
+                    if (symbol.isTerminal()) {
+                        terminals.add(symbol.id);
                     }
 
                 }
@@ -275,76 +348,75 @@ public class Grammar {
 
         }
 
-        return new SymbolMapping(
-            terminalCounter,
-            -nonTerminalCounter - 1,
-            startSymbol,
-            symbolToId,
-            idToSymbol
-        );
+        return terminals.size();
+
+    }
+
+    public int getNonTerminalCount() {
+
+        return productions.size();
 
     }
 
     public ParsingTable constructParsingTable() {
 
-        final HashMap<String, HashSet<String>> firstSets = computeFirstSets();
+        final HashMap<Integer, HashSet<Integer>> firstSets = computeFirstSets();
 
-        final HashMap<String, HashSet<String>> followSets = computeFollowSets();
+        final HashMap<Integer, HashSet<Integer>> followSets = computeFollowSets();
 
-        final SymbolMapping mapping = mapSymbols();
+        final ParsingTableBuilder tableBuilder = new ParsingTableBuilder(this);
 
-        final ParsingTableBuilder tableBuilder = new ParsingTableBuilder(mapping);
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
 
-        for (HashMap.Entry<String, Productions> pair : productions.entrySet()) {
+            int productionLabel = pair.getKey();
 
-            String productionLabel = pair.getKey();
+            ArrayList<InnerProduction> thisLabelProductions = pair.getValue();
 
-            Productions thisLabelProductions = pair.getValue();
+            for (InnerProduction production : thisLabelProductions) {
 
-            for (Production production : thisLabelProductions.getProductions()) {
-
-                ArrayList<Symbol> body = production.getBody();
+                ArrayList<InnerSymbol> body = production.body;
 
                 if (body.size() == 0) {
                     // epsilon-rule
 
-                    HashSet<String> followSet = followSets.get(productionLabel);
+                    HashSet<Integer> followSet = followSets.get(productionLabel);
 
-                    for (String follow : followSet) {
+                    for (int follow : followSet) {
 
                         // System.out.println("[1]: Row: " + productionLabel + " Col: " + follow + " Production: " + productionLabel + " -> ;");
 
-                        tableBuilder.write(productionLabel, follow, new ParsingTableProduction(productionLabel, new ArrayList<>(), production.getCode()));
+                        tableBuilder.write(productionLabel, follow, production);
 
                     }
 
                     continue;
                 }
 
-                Symbol symbol = body.get(0);
+                InnerSymbol symbol = body.get(0);
 
-                if (symbol.isTerminal) {
+                if (symbol.isTerminal()) {
 
                     // System.out.println("[2]: Row: " + productionLabel + " Col: " + symbol.id + " Production: " + productionLabel + " -> " + production.toString());
 
-                    tableBuilder.write(productionLabel, symbol.id, new ParsingTableProduction(productionLabel, production.getBody(), production.getCode()));
+                    tableBuilder.write(productionLabel, symbol.id, production);
 
                     continue;
+
                 }
 
                 // non-terminal
 
-                HashSet<String> firstSet = firstSets.get(productionLabel);
+                HashSet<Integer> firstSet = firstSets.get(productionLabel);
 
-                for (String first : firstSet) {
+                for (int first : firstSet) {
 
-                    if (first.isEmpty()) {
+                    if (first == FIRST_FOLLOW_SET_EPSILON) {
                         continue;
                     }
 
                     // System.out.println("[3]: Row: " + productionLabel + " Col: " + first + " Production: " + productionLabel + " -> " + production.toString());
 
-                    tableBuilder.write(productionLabel, first, new ParsingTableProduction(productionLabel, production.getBody(), production.getCode()));
+                    tableBuilder.write(productionLabel, first, production);
 
                 }
 
@@ -361,17 +433,38 @@ public class Grammar {
 
         StringBuilder sb = new StringBuilder();
 
-        Iterator<java.util.Map.Entry<String, Productions>> it = productions.entrySet().iterator();
+        Iterator<Map.Entry<Integer, ArrayList<InnerProduction>>> it = productions.entrySet().iterator();
 
         while (it.hasNext()) {
 
-            HashMap.Entry<String, Productions> pair = it.next();
+            Map.Entry<Integer, ArrayList<InnerProduction>> pair = it.next();
 
-            sb
-                .append(pair.getKey())
-                .append(" -> ")
-                .append(pair.getValue())
-                .append(';');
+            String label = idToSymbol(pair.getKey());
+
+            sb.append(label);
+            sb.append(" -> ");
+
+            Iterator<InnerProduction> productionIterator = pair.getValue().iterator();
+
+            while (true) {
+
+                InnerProduction ip = productionIterator.next();
+
+                sb.append(ip.toString(this));
+
+                if (!productionIterator.hasNext()) {
+                    break;
+                }
+
+                sb.append('\n');
+                for (int i = 0; i < label.length(); i++) {
+                    sb.append(' ');
+                }
+                sb.append("  | ");
+
+            }
+
+            sb.append(';');
 
             if (it.hasNext()) {
                 sb.append('\n');

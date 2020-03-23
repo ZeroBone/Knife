@@ -25,7 +25,7 @@ class MetaGenerator {
             classBuilder.addField(field);
         }
 
-        for (HashMap.Entry<String, Integer> entry : table.mapping.getSymbolToIdMap().entrySet()) {
+        for (HashMap.Entry<String, Integer> entry : table.mapping.keyValueEntrySet()) {
 
             int id = entry.getValue();
 
@@ -48,21 +48,21 @@ class MetaGenerator {
 
             FieldSpec field = FieldSpec.builder(int.class, "terminalCount")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", table.mapping.terminalCount)
+                .initializer("$L", table.terminalCount)
                 .build();
 
             classBuilder.addField(field);
 
             field = FieldSpec.builder(int.class, "nonTerminalCount")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", table.mapping.nonTerminalCount)
+                .initializer("$L", table.nonTerminalCount)
                 .build();
 
             classBuilder.addField(field);
 
             field = FieldSpec.builder(int.class, "startSymbol")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("$L", table.mapping.map(table.mapping.startNonTerminalId))
+                .initializer("$L", table.mapping.mapKey(table.startSymbol))
                 .build();
 
             classBuilder.addField(field);
@@ -77,15 +77,15 @@ class MetaGenerator {
 
         sb.append('{');
 
-        for (int y = 0; y < table.mapping.nonTerminalCount; y++) {
+        for (int y = 0; y < table.nonTerminalCount; y++) {
 
             sb.append('\n');
 
-            for (int x = 0; x < table.mapping.terminalCount; x++) {
+            for (int x = 0; x < table.terminalCount; x++) {
 
                 sb.append(table.table[y][x]);
 
-                if (x != table.mapping.terminalCount - 1 || y != table.mapping.nonTerminalCount - 1) {
+                if (x != table.terminalCount - 1 || y != table.nonTerminalCount - 1) {
                     sb.append(',');
                 }
 
@@ -116,7 +116,7 @@ class MetaGenerator {
 
             for (Symbol symbol : productionAction.body) {
 
-                int id = table.mapping.map(symbol.id);
+                int id = table.mapping.mapKey(symbol.id);
 
                 sb.append(id);
 

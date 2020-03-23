@@ -117,12 +117,12 @@ public class Knife {
             debugLogWriter.write("First sets:");
             debugLogWriter.newLine();
 
-            HashMap<String, HashSet<String>> firstSets = grammar.computeFirstSets();
+            HashMap<Integer, HashSet<Integer>> firstSets = grammar.computeFirstSets();
 
-            for (HashMap.Entry<String, HashSet<String>> entry : firstSets.entrySet()) {
+            for (HashMap.Entry<Integer, HashSet<Integer>> entry : firstSets.entrySet()) {
 
                 debugLogWriter.write("FIRST(");
-                debugLogWriter.write(entry.getKey());
+                debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
                 debugLogWriter.write(") = ");
 
                 debugLogWriter.write(entry.getValue().toString());
@@ -136,12 +136,12 @@ public class Knife {
             debugLogWriter.write("Follow sets:");
             debugLogWriter.newLine();
 
-            HashMap<String, HashSet<String>> followSets = grammar.computeFollowSets();
+            HashMap<Integer, HashSet<Integer>> followSets = grammar.computeFollowSets();
 
-            for (HashMap.Entry<String, HashSet<String>> entry : followSets.entrySet()) {
+            for (HashMap.Entry<Integer, HashSet<Integer>> entry : followSets.entrySet()) {
 
                 debugLogWriter.write("FOLLOW(");
-                debugLogWriter.write(entry.getKey());
+                debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
                 debugLogWriter.write(") = ");
 
                 debugLogWriter.write(entry.getValue().toString());

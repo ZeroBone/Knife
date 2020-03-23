@@ -34,23 +34,23 @@ final class ParseNode {
 					v = new Node(term, rest);
 				}
 				break;
-			case 2:
+			case 2: break;
+			case 3: break;
+			case 4: break;
+			case 5: break;
+			case 6: break;
+			case 7:
 				{
 					Object e = ((ParseNode)children.get(1)).payload;
 					v = e;
 				}
 				break;
-			case 3:
+			case 8:
 				{
 					Object id = ((ParseNode)children.get(0)).payload;
 					v = new IdNode(id);
 				}
 				break;
-			case 4: break;
-			case 5: break;
-			case 6: break;
-			case 7: break;
-			case 8: break;
 			case 9: break;
 			case 10: break;
 			case 11: break;

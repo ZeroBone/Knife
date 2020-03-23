@@ -8,13 +8,13 @@ public final class Parser {
 
 	public static final int T_MUL = 5;
 
-	public static final int T_RIGHT_PAREN = 2;
+	public static final int T_RIGHT_PAREN = 4;
 
-	public static final int T_ID = 3;
+	public static final int T_ID = 2;
 
 	public static final int T_LEFT_PAREN = 1;
 
-	public static final int T_PLUS = 4;
+	public static final int T_PLUS = 3;
 
 	private static final int terminalCount = 6;
 
@@ -23,22 +23,22 @@ public final class Parser {
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	0,2,0,1,0,0,
-	0,9,0,8,0,0,
-	6,0,7,0,5,0,
-	0,3,0,4,0,0,
-	11,0,12,0,13,10};
+	0,1,2,0,0,0,
+	0,3,4,0,0,0,
+	6,0,0,5,7,0,
+	0,8,9,0,0,0,
+	11,0,0,12,13,10};
 
 	private static final int[][] actionTable = {
 	{-2,-3},
 	{-2,-3},
-	{1,-1,2},
-	{3},
-	{4,-2,-3},
-	{},
-	{},
 	{-4,-5},
 	{-4,-5},
+	{3,-2,-3},
+	{},
+	{},
+	{1,-1,4},
+	{2},
 	{5,-4,-5},
 	{},
 	{},
