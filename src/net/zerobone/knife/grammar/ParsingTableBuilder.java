@@ -14,10 +14,6 @@ class ParsingTableBuilder {
 
     public final int terminalCount;
 
-    private int terminalCounter = 1;
-
-    private int nonTerminalCounter = -1;
-
     private final BijectiveMap<String, Integer> mapping = new BijectiveMap<>();
 
     private int[][] table;
@@ -39,6 +35,24 @@ class ParsingTableBuilder {
 
         table = new int[nonTerminalCount][terminalCount];
 
+        for (int t = 1; t < terminalCount; t++) {
+
+            // we can use the same indexes because the
+            // terminal set of a grammar cannot change
+            this.mapping.put(grammar.idToSymbol(t), t);
+
+        }
+
+        int nonTerminalCounter = -1;
+
+        for (int nt : grammar.productions.keySet()) {
+
+            this.mapping.put(grammar.idToSymbol(nt), nonTerminalCounter);
+
+            nonTerminalCounter--;
+
+        }
+
     }
 
     private int terminalToIndex(int terminalOrEof) {
@@ -51,13 +65,7 @@ class ParsingTableBuilder {
 
         Integer terminalIndex = mapping.mapKey(terminalName);
 
-        if (terminalIndex == null) {
-
-            mapping.put(terminalName, terminalCounter);
-
-            return terminalCounter++;
-
-        }
+        assert terminalIndex != null;
 
         return terminalIndex;
 
@@ -69,13 +77,7 @@ class ParsingTableBuilder {
 
         Integer nonTerminalIndex = mapping.mapKey(nonTerminalName);
 
-        if (nonTerminalIndex == null) {
-
-            mapping.put(nonTerminalName, nonTerminalCounter);
-
-            return -nonTerminalCounter-- - 1;
-
-        }
+        assert nonTerminalIndex != null;
 
         return -nonTerminalIndex - 1;
 

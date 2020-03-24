@@ -5,6 +5,13 @@ import net.zerobone.knife.utils.BijectiveMap;
 
 import java.util.*;
 
+/**
+ * Grammar class.
+ *
+ * Invariants:
+ * 1) The set of terminals cannot change.
+ * 2) The set of non-terminals may change.
+ */
 public class Grammar {
 
     private BijectiveMap<String, Integer> symbolsMap = new BijectiveMap<>();
@@ -36,6 +43,7 @@ public class Grammar {
 
     public String idToSymbol(int id) {
         assert id != 0;
+        assert symbolsMap.mapValue(id) != null;
         return symbolsMap.mapValue(id);
     }
 
@@ -367,25 +375,7 @@ public class Grammar {
 
     public int getTerminalCount() {
 
-        HashSet<Integer> terminals = new HashSet<>();
-
-        for (Map.Entry<Integer, ArrayList<InnerProduction>> entry : productions.entrySet()) {
-
-            for (InnerProduction production : entry.getValue()) {
-
-                for (InnerSymbol symbol : production.body) {
-
-                    if (symbol.isTerminal()) {
-                        terminals.add(symbol.id);
-                    }
-
-                }
-
-            }
-
-        }
-
-        return terminals.size();
+        return terminalCounter - 1;
 
     }
 
