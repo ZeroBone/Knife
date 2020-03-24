@@ -109,11 +109,107 @@ class LeftRecursionElimination {
 
     }
 
+    private void eliminateDirectLeftRecursion(int nonTerminal) {
+
+
+
+    }
+
+    private void substituteAjintoAi(int ai, int aj, InnerProduction ajAlphaProduction) {
+
+        // for each production of the form A_j -> beta
+
+        ArrayList<InnerProduction> ajProductions = grammar.productions.get(aj);
+
+        assert ajProductions != null;
+
+        for (InnerProduction ajProduction : ajProductions) {
+
+            ArrayList<InnerSymbol> beta = ajProduction.body;
+
+            InnerProduction newAiProduction = new InnerProduction(null);
+
+            // add beta
+
+            for (InnerSymbol betaSymbol : beta) {
+
+                newAiProduction.body.add(new InnerSymbol(betaSymbol.id, betaSymbol.argumentName));
+
+            }
+
+            // add alpha
+
+            for (int i = 1; i < ajAlphaProduction.body.size(); i++) {
+
+                InnerSymbol alphaSymbol = ajAlphaProduction.body.get(i);
+
+                newAiProduction.body.add(new InnerSymbol(alphaSymbol.id, alphaSymbol.argumentName));
+
+            }
+
+            grammar.productions.get(ai).add(newAiProduction);
+
+        }
+
+    }
+
     public void eliminate() {
 
-        int[] order = orderNonTerminals();
+        // Paull's algorithm
 
-        System.out.println(Arrays.toString(order));
+        int[] nonTerminals = orderNonTerminals();
+
+        for (int i = 0; i < nonTerminals.length; i++) {
+
+            for (int j = 0; j < i; j++) {
+
+                // for every production of the form A_i -> A_j alpha
+
+                int ai = nonTerminals[i];
+
+                int aj = nonTerminals[j];
+
+                ArrayList<InnerProduction> aiProductions = grammar.productions.get(ai);
+
+                assert aiProductions != null;
+
+                int aiProductionsSize = aiProductions.size();
+
+                for (int k = 0; k < aiProductionsSize; k++) {
+
+                    InnerProduction aiProduction = aiProductions.get(k);
+
+                    if (aiProduction.body.isEmpty()) {
+                        continue;
+                    }
+
+                    InnerSymbol firstSymbol = aiProduction.body.get(0);
+
+                    if (firstSymbol.id != aj) {
+
+                        continue;
+
+                    }
+
+                    // if the first symbol is not a terminal and is aj
+
+                    assert !firstSymbol.isTerminal();
+
+                    // we have a production of the form A_i -> A_j alpha
+                    // remove A_i -> A_j alpha from the grammar
+
+                    aiProductions.remove(k);
+                    k++;
+
+                    substituteAjintoAi(ai, aj, aiProduction);
+
+                }
+
+            }
+
+            eliminateDirectLeftRecursion(nonTerminals[i]);
+
+        }
 
     }
 
