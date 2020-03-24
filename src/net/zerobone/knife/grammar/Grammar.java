@@ -143,6 +143,43 @@ public class Grammar {
 
     }
 
+    int createNonTerminal(int analogyNonTerminal) {
+
+        String newSymbol = idToSymbol(analogyNonTerminal) + "'";
+
+        if (symbolsMap.containsKey(newSymbol)) {
+
+            StringBuilder sb = new StringBuilder(newSymbol);
+
+            do {
+                sb.append('\'');
+                newSymbol = sb.toString();
+            } while (symbolsMap.containsKey(newSymbol));
+
+        }
+
+        symbolsMap.put(newSymbol, nonTerminalCounter);
+
+        return nonTerminalCounter--;
+
+    }
+
+    void addProduction(int symbolId, InnerProduction production) {
+
+        ArrayList<InnerProduction> correspondingProductions = productions.get(symbolId);
+
+        if (correspondingProductions == null) {
+
+            createFirstProduction(symbolId, production);
+
+            return;
+
+        }
+
+        correspondingProductions.add(production);
+
+    }
+
     public HashMap<Integer, HashSet<Integer>> computeFirstSets() {
 
         HashMap<Integer, HashSet<Integer>> firstSets = new HashMap<>();
@@ -451,6 +488,8 @@ public class Grammar {
             sb.append(" -> ");
 
             Iterator<InnerProduction> productionIterator = pair.getValue().iterator();
+
+            assert productionIterator.hasNext();
 
             while (true) {
 

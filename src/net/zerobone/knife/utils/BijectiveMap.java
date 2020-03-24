@@ -62,6 +62,14 @@ public class BijectiveMap<K, V> {
         return valueToKey.get(value);
     }
 
+    public boolean containsKey(K key) {
+        return keyToValue.containsKey(key);
+    }
+
+    public boolean containsValue(V value) {
+        return valueToKey.containsKey(value);
+    }
+
     public Collection<V> values() {
         return keyToValue.values();
     }

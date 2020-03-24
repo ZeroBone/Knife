@@ -111,7 +111,70 @@ class LeftRecursionElimination {
 
     private void eliminateDirectLeftRecursion(int nonTerminal) {
 
+        System.out.println("Eliminating direct left recursion for " + nonTerminal + "...");
 
+        ArrayList<InnerProduction> alphaProductions = new ArrayList<>();
+        ArrayList<InnerProduction> betaProductions = new ArrayList<>();
+
+        ArrayList<InnerProduction> productions = grammar.productions.get(nonTerminal);
+
+        assert productions != null;
+
+        for (InnerProduction production : productions) {
+
+            if (production.body.isEmpty()) {
+                betaProductions.add(production);
+                continue;
+            }
+
+            InnerSymbol firstSymbol = production.body.get(0);
+
+            if (firstSymbol.id != nonTerminal) {
+                betaProductions.add(production);
+                continue;
+            }
+
+            // first symbol is the non-terminal itself
+            // so we found direct left recursion
+
+            assert !firstSymbol.isTerminal();
+
+            alphaProductions.add(production);
+
+        }
+
+        if (alphaProductions.isEmpty()) {
+            // no left recursion found
+            return;
+        }
+
+        productions.clear();
+
+        int newSymbol = grammar.createNonTerminal(nonTerminal);
+
+        for (InnerProduction alphaProduction : alphaProductions) {
+
+            InnerProduction newProduction = new InnerProduction(null);
+
+            for (int i = 1; i < alphaProduction.body.size(); i++) {
+
+                newProduction.body.add(alphaProduction.body.get(i));
+
+            }
+
+            newProduction.body.add(new InnerSymbol(newSymbol, null));
+
+            grammar.addProduction(newSymbol, newProduction);
+
+        }
+
+        for (InnerProduction betaProduction : betaProductions) {
+
+            betaProduction.body.add(new InnerSymbol(newSymbol, null));
+
+            productions.add(betaProduction);
+
+        }
 
     }
 
