@@ -20,7 +20,7 @@ public class Grammar {
 
     private int terminalCounter = 1;
 
-    private HashMap<Integer, ArrayList<InnerProduction>> productions = new HashMap<>();
+    HashMap<Integer, ArrayList<InnerProduction>> productions = new HashMap<>();
 
     private HashMap<Integer, HashSet<Integer>> cachedFirstSets = new HashMap<>();
 
@@ -426,6 +426,14 @@ public class Grammar {
 
     }
 
+    public void eliminateLeftRecursion() {
+
+        LeftRecursionElimination lre = new LeftRecursionElimination(this);
+
+        lre.eliminate();
+
+    }
+
     @Override
     public String toString() {
 
@@ -437,7 +445,7 @@ public class Grammar {
 
             Map.Entry<Integer, ArrayList<InnerProduction>> pair = it.next();
 
-            String label = idToSymbol(pair.getKey());
+            String label = "(" + pair.getKey() + ") " + idToSymbol(pair.getKey());
 
             sb.append(label);
             sb.append(" -> ");

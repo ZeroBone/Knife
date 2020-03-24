@@ -98,6 +98,8 @@ public class Knife {
             throw new RuntimeException("Could not find start symbol.");
         }
 
+        grammar.eliminateLeftRecursion();
+
         System.out.println("Building parse tables...");
 
         ParsingTable table = grammar.constructParsingTable();
