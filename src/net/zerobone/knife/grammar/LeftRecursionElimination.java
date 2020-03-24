@@ -111,7 +111,7 @@ class LeftRecursionElimination {
 
     private void eliminateDirectLeftRecursion(int nonTerminal) {
 
-        System.out.println("Eliminating direct left recursion for " + nonTerminal + "...");
+        System.out.println("Searching for direct left recursion for " + nonTerminal + "...");
 
         ArrayList<InnerProduction> alphaProductions = new ArrayList<>();
         ArrayList<InnerProduction> betaProductions = new ArrayList<>();
@@ -148,6 +148,8 @@ class LeftRecursionElimination {
             return;
         }
 
+        System.out.println("Eliminating direct left recursion for " + nonTerminal + "...");
+
         productions.clear();
 
         int newSymbol = grammar.createNonTerminal(nonTerminal);
@@ -155,6 +157,8 @@ class LeftRecursionElimination {
         for (InnerProduction alphaProduction : alphaProductions) {
 
             InnerProduction newProduction = new InnerProduction(null);
+
+            assert alphaProduction.body.size() >= 2; // protection against cycles in the grammar
 
             for (int i = 1; i < alphaProduction.body.size(); i++) {
 
@@ -167,6 +171,9 @@ class LeftRecursionElimination {
             grammar.addProduction(newSymbol, newProduction);
 
         }
+
+        // add epsilon-production
+        grammar.addProduction(newSymbol, new InnerProduction(null));
 
         for (InnerProduction betaProduction : betaProductions) {
 
