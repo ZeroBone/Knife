@@ -20,13 +20,52 @@ final class ParseNode {
 	void reduce() {
 		Object v;
 		switch (actionId - 1) {
-			case 0: break;
-			case 1: break;
-			case 2: break;
-			case 3: break;
-			case 4: break;
-			case 5: break;
-			case 6: break;
+			case 0:
+				{
+					Object t = ((ParseNode)children.get(1)).payload;
+					v = t;
+				}
+				break;
+			case 1:
+				{
+					Object factor = ((ParseNode)children.get(1)).payload;
+					v = factor;
+				}
+				break;
+			case 2:
+				{
+					Object expr = ((ParseNode)children.get(1)).payload;
+					v = expr;
+				}
+				break;
+			case 3:
+				{
+					Object id = ((ParseNode)children.get(0)).payload;
+					v = id;
+				}
+				break;
+			case 4:
+				{
+					Object right = ((ParseNode)children.get(1)).payload;
+
+				}
+				break;
+			case 5:
+				{
+
+				}
+				break;
+			case 6:
+				{
+					Object r = ((ParseNode)children.get(1)).payload;
+
+				}
+				break;
+			case 7:
+				{
+
+				}
+				break;
 			default:
 				throw new IllegalStateException();
 		}

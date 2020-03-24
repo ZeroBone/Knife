@@ -5,11 +5,11 @@ import java.util.Iterator;
 
 class InnerProduction {
 
-    final String code;
+    final InnerProductionCode code;
 
     ArrayList<InnerSymbol> body = new ArrayList<>();
 
-    public InnerProduction(String code) {
+    public InnerProduction(InnerProductionCode code) {
         this.code = code;
     }
 

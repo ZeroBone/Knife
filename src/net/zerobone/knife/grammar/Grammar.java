@@ -96,7 +96,7 @@ public class Grammar {
 
     private InnerProduction convertProduction(Production production) {
 
-        InnerProduction innerProduction = new InnerProduction(production.getCode());
+        InnerProduction innerProduction = new InnerProduction(new InnerProductionCode(production.getCode()));
 
         for (Symbol symbol : production.getBody()) {
             innerProduction.body.add(convertSymbol(symbol));

@@ -93,7 +93,11 @@ class ParsingTableBuilder {
 
         }
 
-        return new ParsingTableProduction(grammar.idToSymbol(nonTerminal), body, production.code);
+        return new ParsingTableProduction(
+            grammar.idToSymbol(nonTerminal),
+            body,
+            production.code == null ? "" : production.code.toString()
+        );
 
     }
 

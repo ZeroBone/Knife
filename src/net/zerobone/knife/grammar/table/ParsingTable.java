@@ -43,11 +43,12 @@ public class ParsingTable {
         sb.append('\n');
         sb.append('\n');
 
-        sb.append(String.format("%12s ", "LL(1) TABLE"));
+        sb.append(String.format("%11s   ", "LL(1) TABLE"));
 
         for (int x = 0; x < terminalCount; x++) {
 
-            sb.append(String.format("%12s", x == 0 ? "$" : idToSymbol(x)));
+            sb.append(String.format("%11s", x == 0 ? "$" : idToSymbol(x)));
+            sb.append(' ');
             sb.append(' ');
 
         }

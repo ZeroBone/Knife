@@ -1,6 +1,6 @@
-e = e PLUS t;
-e = t;
-t = t MUL f;
-t = f;
-f = LEFT_PAREN e RIGHT_PAREN;
-f = ID;
+e = e(left) PLUS t(right); { v = left + right; }
+e = t(t); { v = t; }
+t = t(l) MUL f(r); { v = l * r; }
+t = f(factor); { v = factor; }
+f = LEFT_PAREN e(expr) RIGHT_PAREN; { v = expr; }
+f = ID(id); { v = id; }
