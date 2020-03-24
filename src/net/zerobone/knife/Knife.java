@@ -98,16 +98,15 @@ public class Knife {
             throw new RuntimeException("Could not find start symbol.");
         }
 
-        System.out.println("BEFORE:");
+        System.out.println("Before eliminating left recursion:");
         System.out.println(grammar);
-        System.out.println("Eliminating left recursion:");
 
         grammar.eliminateLeftRecursion();
 
-        System.out.println("AFTER:");
+        System.out.println("Eliminated left recursion:");
         System.out.println(grammar);
 
-        /*System.out.println("Building parse tables...");
+        System.out.println("Building parse tables...");
 
         ParsingTable table = grammar.constructParsingTable();
 
@@ -231,7 +230,7 @@ public class Knife {
         }
         catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
     }
 

@@ -5,7 +5,6 @@ import net.zerobone.knife.grammar.table.ParsingTableProduction;
 import net.zerobone.knife.utils.BijectiveMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 class ParsingTableBuilder {
 

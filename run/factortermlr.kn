@@ -1,0 +1,6 @@
+e = e PLUS t;
+e = t;
+t = t MUL f;
+t = f;
+f = LEFT_PAREN e RIGHT_PAREN;
+f = ID;
