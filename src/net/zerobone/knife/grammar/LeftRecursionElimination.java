@@ -111,7 +111,7 @@ class LeftRecursionElimination {
 
     private void eliminateDirectLeftRecursion(int nonTerminal) {
 
-        System.out.println("Searching for direct left recursion for " + nonTerminal + "...");
+        // System.out.println("Searching for direct left recursion for " + nonTerminal + "...");
 
         ArrayList<InnerProduction> alphaProductions = new ArrayList<>();
         ArrayList<InnerProduction> betaProductions = new ArrayList<>();
@@ -148,17 +148,47 @@ class LeftRecursionElimination {
             return;
         }
 
-        System.out.println("Eliminating direct left recursion for " + nonTerminal + "...");
+        // System.out.println("Eliminating direct left recursion for " + nonTerminal + "...");
 
         productions.clear();
 
         int newSymbol = grammar.createNonTerminal(nonTerminal);
 
+        final String newSymbolArgumentName = "_knife_lre_" + (-newSymbol);
+
         for (InnerProduction alphaProduction : alphaProductions) {
 
-            InnerProduction newProduction = new InnerProduction(null);
+            InnerProduction newProduction;
 
-            assert alphaProduction.body.size() >= 2; // protection against cycles in the grammar
+            {
+                // build code
+                StringBuilder csb = new StringBuilder();
+                csb.append(newSymbolArgumentName);
+                csb.append(".push(new Object[] {");
+
+                int bodySize = alphaProduction.body.size();
+                for (int i = 1;;i++) {
+                    InnerSymbol symbol = alphaProduction.body.get(i);
+                    if (symbol.argumentName == null) {
+                        continue;
+                    }
+                    csb.append(symbol.argumentName);
+                    if (i == bodySize - 1) {
+                        break;
+                    }
+                    csb.append(',');
+                }
+
+                csb.append("});");
+                // csb.append('\n');
+                csb.append("v = ");
+                csb.append(newSymbolArgumentName);
+                csb.append(";");
+
+                newProduction = new InnerProduction(csb.toString());
+            }
+
+            assert alphaProduction.body.size() >= 2; // there should be no cycles in the grammar
 
             for (int i = 1; i < alphaProduction.body.size(); i++) {
 
@@ -166,18 +196,26 @@ class LeftRecursionElimination {
 
             }
 
-            newProduction.body.add(new InnerSymbol(newSymbol, null));
+            newProduction.body.add(new InnerSymbol(newSymbol, newSymbolArgumentName));
 
             grammar.addProduction(newSymbol, newProduction);
 
         }
 
         // add epsilon-production
-        grammar.addProduction(newSymbol, new InnerProduction(null));
+        grammar.addProduction(newSymbol, new InnerProduction("v = new Stack<Object>();"));
 
         for (InnerProduction betaProduction : betaProductions) {
 
-            betaProduction.body.add(new InnerSymbol(newSymbol, null));
+            {
+                StringBuilder csb = new StringBuilder();
+                csb.append(newSymbolArgumentName);
+                csb.append(".push(new Object[] {");
+                csb.append("});");
+                betaProduction.code = csb.toString();
+            }
+
+            betaProduction.body.add(new InnerSymbol(newSymbol, newSymbolArgumentName));
 
             productions.add(betaProduction);
 

@@ -23,13 +23,15 @@ final class ParseNode {
 			case 0:
 				{
 					Object t = ((ParseNode)children.get(1)).payload;
-					v = t;
+					Object _knife_lre_4 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_4.push(new Object[] {});
 				}
 				break;
 			case 1:
 				{
 					Object factor = ((ParseNode)children.get(1)).payload;
-					v = factor;
+					Object _knife_lre_5 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_5.push(new Object[] {});
 				}
 				break;
 			case 2:
@@ -47,23 +49,25 @@ final class ParseNode {
 			case 4:
 				{
 					Object right = ((ParseNode)children.get(1)).payload;
-
+					Object _knife_lre_4 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_4.push(new Object[] {right});v = _knife_lre_4;
 				}
 				break;
 			case 5:
 				{
-
+					v = new Stack<Object>();
 				}
 				break;
 			case 6:
 				{
 					Object r = ((ParseNode)children.get(1)).payload;
-
+					Object _knife_lre_5 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_5.push(new Object[] {r});v = _knife_lre_5;
 				}
 				break;
 			case 7:
 				{
-
+					v = new Stack<Object>();
 				}
 				break;
 			default:
