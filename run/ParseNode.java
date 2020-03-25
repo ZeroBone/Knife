@@ -22,50 +22,39 @@ final class ParseNode {
 		switch (actionId - 1) {
 			case 0:
 				{
-					Object t = ((ParseNode)children.get(1)).payload;
-					Object _knife_lre_4 = ((ParseNode)children.get(0)).payload;
-					_knife_lre_4.push(new Object[] {});
+
 				}
 				break;
 			case 1:
 				{
-					Object factor = ((ParseNode)children.get(1)).payload;
-					Object _knife_lre_5 = ((ParseNode)children.get(0)).payload;
-					_knife_lre_5.push(new Object[] {});
+
 				}
 				break;
 			case 2:
 				{
-					Object expr = ((ParseNode)children.get(1)).payload;
-					v = expr;
+					Object _knife_lre_3 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_3.push(new Object[] {});
 				}
 				break;
 			case 3:
 				{
-					Object id = ((ParseNode)children.get(0)).payload;
-					v = id;
+					Object _knife_lre_3 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_3.push(new Object[] {});
 				}
 				break;
 			case 4:
 				{
-					Object right = ((ParseNode)children.get(1)).payload;
-					Object _knife_lre_4 = ((ParseNode)children.get(0)).payload;
-					_knife_lre_4.push(new Object[] {right});v = _knife_lre_4;
+					Object _knife_lre_3 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_3.push(new Object[] {});v = _knife_lre_3;
 				}
 				break;
 			case 5:
 				{
-					v = new Stack<Object>();
+					Object _knife_lre_3 = ((ParseNode)children.get(0)).payload;
+					_knife_lre_3.push(new Object[] {});v = _knife_lre_3;
 				}
 				break;
 			case 6:
-				{
-					Object r = ((ParseNode)children.get(1)).payload;
-					Object _knife_lre_5 = ((ParseNode)children.get(0)).payload;
-					_knife_lre_5.push(new Object[] {r});v = _knife_lre_5;
-				}
-				break;
-			case 7:
 				{
 					v = new Stack<Object>();
 				}

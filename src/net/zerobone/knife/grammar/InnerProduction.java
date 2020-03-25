@@ -25,6 +25,14 @@ class InnerProduction {
 
             sb.append(grammar.idToSymbol(symbol.id));
 
+            if (symbol.argumentName != null) {
+
+                sb.append('(');
+                sb.append(symbol.argumentName);
+                sb.append(')');
+
+            }
+
             if (it.hasNext()) {
                 sb.append(' ');
             }

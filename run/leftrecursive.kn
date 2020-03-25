@@ -1,5 +1,5 @@
-s = a A;
-s = B;
-a = a C;
-a = s D;
-a = ;
+s = a(sa) A(at); { v = SNode(sa, at); }
+s = B(b); { v = SNode(b); }
+a = a(a) C(c); { v = ANode(a, c, A_AC); }
+a = s(s) D(d); { v = ANode(s, d, A_SD); }
+a = ; { v = ANode(); }

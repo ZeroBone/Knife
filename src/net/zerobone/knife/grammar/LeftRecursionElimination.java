@@ -4,7 +4,6 @@ import net.zerobone.knife.utils.BijectiveMap;
 import net.zerobone.knife.utils.MatrixOrientedGraph;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 class LeftRecursionElimination {
@@ -167,7 +166,7 @@ class LeftRecursionElimination {
                 csb.append(".push(new Object[] {");
 
                 int bodySize = alphaProduction.body.size();
-                for (int i = 1;;i++) {
+                for (int i = 1; i < bodySize; i++) {
                     InnerSymbol symbol = alphaProduction.body.get(i);
                     if (symbol.argumentName == null) {
                         continue;
@@ -223,23 +222,42 @@ class LeftRecursionElimination {
 
     }
 
-    private void substituteAjintoAi(int ai, int aj, InnerProduction ajAlphaProduction) {
+    private void addBetaIntoAlphaSubstitutingProductions(int alpha, int beta, InnerProduction alphaProduction) {
 
         // for each production of the form A_j -> beta
 
-        ArrayList<InnerProduction> ajProductions = grammar.productions.get(aj);
+        ArrayList<InnerProduction> betaProductions = grammar.productions.get(beta);
 
-        assert ajProductions != null;
+        assert betaProductions != null;
 
-        for (InnerProduction ajProduction : ajProductions) {
+        for (InnerProduction betaProduction : betaProductions) {
 
-            ArrayList<InnerSymbol> beta = ajProduction.body;
+            String code;
 
-            InnerProduction newAiProduction = new InnerProduction(null);
+            {
+                String alphaProductionArgument = alphaProduction.body.get(0).argumentName;
+
+                if (alphaProductionArgument == null) {
+                    code = alphaProduction.code;
+                }
+                else {
+                    code =
+                        "Object " + alphaProductionArgument + ";" +
+                        "{ Object v;" +
+                        betaProduction.code +
+                        alphaProductionArgument +
+                        " = v;" +
+                        " } " +
+                        alphaProduction.code;
+                }
+
+            }
+
+            InnerProduction newAiProduction = new InnerProduction(code);
 
             // add beta
 
-            for (InnerSymbol betaSymbol : beta) {
+            for (InnerSymbol betaSymbol : betaProduction.body) {
 
                 newAiProduction.body.add(new InnerSymbol(betaSymbol.id, betaSymbol.argumentName));
 
@@ -247,15 +265,54 @@ class LeftRecursionElimination {
 
             // add alpha
 
-            for (int i = 1; i < ajAlphaProduction.body.size(); i++) {
+            for (int i = 1; i < alphaProduction.body.size(); i++) {
 
-                InnerSymbol alphaSymbol = ajAlphaProduction.body.get(i);
+                InnerSymbol alphaSymbol = alphaProduction.body.get(i);
 
                 newAiProduction.body.add(new InnerSymbol(alphaSymbol.id, alphaSymbol.argumentName));
 
             }
 
-            grammar.productions.get(ai).add(newAiProduction);
+            grammar.productions.get(alpha).add(newAiProduction);
+
+        }
+
+    }
+
+    private void substituteAlphaIntoBeta(int alpha, int beta) {
+
+        ArrayList<InnerProduction> alphaProductions = grammar.productions.get(alpha);
+
+        assert alphaProductions != null;
+
+        int alphaProductionsSize = alphaProductions.size();
+
+        for (int i = 0; i < alphaProductionsSize;) {
+
+            InnerProduction alphaProduction = alphaProductions.get(i);
+
+            if (alphaProduction.body.isEmpty()) {
+                i++;
+                continue;
+            }
+
+            InnerSymbol alphaFirstSymbol = alphaProduction.body.get(0);
+
+            if (alphaFirstSymbol.id != beta) {
+                i++;
+                continue;
+            }
+
+            // if the first symbol is not a terminal and is aj
+            assert !alphaFirstSymbol.isTerminal();
+
+            // we have a production of the form A_i -> A_j alpha
+            // remove A_i -> A_j alpha from the grammar
+
+            alphaProductions.remove(i);
+            alphaProductionsSize--;
+
+            addBetaIntoAlphaSubstitutingProductions(alpha, beta, alphaProduction);
 
         }
 
@@ -277,45 +334,11 @@ class LeftRecursionElimination {
 
                 int aj = nonTerminals[j];
 
-                ArrayList<InnerProduction> aiProductions = grammar.productions.get(ai);
-
-                assert aiProductions != null;
-
-                int aiProductionsSize = aiProductions.size();
-
-                for (int k = 0; k < aiProductionsSize; k++) {
-
-                    InnerProduction aiProduction = aiProductions.get(k);
-
-                    if (aiProduction.body.isEmpty()) {
-                        continue;
-                    }
-
-                    InnerSymbol firstSymbol = aiProduction.body.get(0);
-
-                    if (firstSymbol.id != aj) {
-
-                        continue;
-
-                    }
-
-                    // if the first symbol is not a terminal and is aj
-
-                    assert !firstSymbol.isTerminal();
-
-                    // we have a production of the form A_i -> A_j alpha
-                    // remove A_i -> A_j alpha from the grammar
-
-                    aiProductions.remove(k);
-                    k++;
-
-                    substituteAjintoAi(ai, aj, aiProduction);
-
-                }
+                substituteAlphaIntoBeta(ai, aj);
 
             }
 
-            eliminateDirectLeftRecursion(nonTerminals[i]);
+            // eliminateDirectLeftRecursion(nonTerminals[i]);
 
         }
 
