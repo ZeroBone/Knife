@@ -153,39 +153,9 @@ class LeftRecursionElimination {
 
         int newSymbol = grammar.createNonTerminal(nonTerminal);
 
-        final String newSymbolArgumentName = "_knife_lre_" + (-newSymbol);
-
         for (InnerProduction alphaProduction : alphaProductions) {
 
-            InnerProduction newProduction;
-
-            {
-                // build code
-                StringBuilder csb = new StringBuilder();
-                csb.append(newSymbolArgumentName);
-                csb.append(".push(new Object[] {\n");
-
-                int bodySize = alphaProduction.body.size();
-                for (int i = 1; i < bodySize; i++) {
-                    InnerSymbol symbol = alphaProduction.body.get(i);
-                    if (symbol.argumentName == null) {
-                        continue;
-                    }
-                    csb.append(symbol.argumentName);
-                    if (i == bodySize - 1) {
-                        break;
-                    }
-                    csb.append(",\n");
-                }
-
-                csb.append("});\n");
-                // csb.append('\n');
-                csb.append("v = ");
-                csb.append(newSymbolArgumentName);
-                csb.append(";");
-
-                newProduction = new InnerProduction(csb.toString());
-            }
+            InnerProduction newProduction = new InnerProduction(null);
 
             assert alphaProduction.body.size() >= 2; // there should be no cycles in the grammar
 
@@ -195,33 +165,19 @@ class LeftRecursionElimination {
 
             }
 
-            newProduction.body.add(new InnerSymbol(newSymbol, newSymbolArgumentName));
+            newProduction.body.add(new InnerSymbol(newSymbol, null));
 
             grammar.addProduction(newSymbol, newProduction);
 
         }
 
         // add epsilon-production
-        grammar.addProduction(newSymbol, new InnerProduction("v = new Stack<Object>();"));
+        grammar.addProduction(newSymbol, new InnerProduction(null));
 
         for (InnerProduction betaProduction : betaProductions) {
 
-            {
-                StringBuilder csb = new StringBuilder();
-                csb.append(newSymbolArgumentName);
-                csb.append(".push(new Object[] {");
-                for (InnerSymbol symbol : betaProduction.body) {
-                    if (symbol.argumentName == null) {
-                        continue;
-                    }
-                    csb.append(symbol.argumentName);
-                    csb.append(",\n");
-                }
-                csb.append("});");
-                betaProduction.code = csb.toString();
-            }
-
-            betaProduction.body.add(new InnerSymbol(newSymbol, newSymbolArgumentName));
+            betaProduction.code = null;
+            betaProduction.body.add(new InnerSymbol(newSymbol, null));
 
             productions.add(betaProduction);
 
@@ -325,7 +281,7 @@ class LeftRecursionElimination {
 
     }
 
-    public void eliminate() {
+    void eliminate() {
 
         // Paull's algorithm
 

@@ -98,6 +98,11 @@ public class Knife {
             throw new RuntimeException("Could not find start symbol.");
         }
 
+        System.out.println("Before eliminating epsilon productions:");
+        System.out.println(grammar.toString());
+
+        grammar.eliminateEpsilonProductions();
+
         System.out.println("Before eliminating left recursion:");
         System.out.println(grammar.toString());
 

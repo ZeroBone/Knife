@@ -453,6 +453,14 @@ public class Grammar {
 
     }
 
+    public void eliminateEpsilonProductions() {
+
+        EpsilonProductionElimination epe = new EpsilonProductionElimination(this);
+
+        epe.eliminate();
+
+    }
+
     public void eliminateLeftRecursion() {
 
         LeftRecursionElimination lre = new LeftRecursionElimination(this);
