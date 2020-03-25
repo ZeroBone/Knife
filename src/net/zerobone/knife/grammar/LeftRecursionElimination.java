@@ -163,7 +163,7 @@ class LeftRecursionElimination {
                 // build code
                 StringBuilder csb = new StringBuilder();
                 csb.append(newSymbolArgumentName);
-                csb.append(".push(new Object[] {");
+                csb.append(".push(new Object[] {\n");
 
                 int bodySize = alphaProduction.body.size();
                 for (int i = 1; i < bodySize; i++) {
@@ -175,10 +175,10 @@ class LeftRecursionElimination {
                     if (i == bodySize - 1) {
                         break;
                     }
-                    csb.append(',');
+                    csb.append(",\n");
                 }
 
-                csb.append("});");
+                csb.append("});\n");
                 // csb.append('\n');
                 csb.append("v = ");
                 csb.append(newSymbolArgumentName);
@@ -210,6 +210,13 @@ class LeftRecursionElimination {
                 StringBuilder csb = new StringBuilder();
                 csb.append(newSymbolArgumentName);
                 csb.append(".push(new Object[] {");
+                for (InnerSymbol symbol : betaProduction.body) {
+                    if (symbol.argumentName == null) {
+                        continue;
+                    }
+                    csb.append(symbol.argumentName);
+                    csb.append(",\n");
+                }
                 csb.append("});");
                 betaProduction.code = csb.toString();
             }
@@ -242,12 +249,12 @@ class LeftRecursionElimination {
                 }
                 else {
                     code =
-                        "Object " + alphaProductionArgument + ";" +
-                        "{ Object v;" +
-                        betaProduction.code +
-                        alphaProductionArgument +
-                        " = v;" +
-                        " } " +
+                        "Object " + alphaProductionArgument + ";" + "\n" +
+                        "{" +
+                            "Object v;\n" +
+                            betaProduction.code + "\n" +
+                            alphaProductionArgument + " = v;\n" +
+                        " }\n" +
                         alphaProduction.code;
                 }
 
@@ -338,7 +345,7 @@ class LeftRecursionElimination {
 
             }
 
-            // eliminateDirectLeftRecursion(nonTerminals[i]);
+            eliminateDirectLeftRecursion(nonTerminals[i]);
 
         }
 

@@ -43,7 +43,7 @@ class InnerProduction {
 
             sb.append("    ");
             sb.append("{ ");
-            sb.append(code);
+            sb.append(code.replace('\n', ' '));
             sb.append(" }");
 
         }
