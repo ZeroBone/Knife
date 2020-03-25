@@ -55,6 +55,10 @@ class EpsilonProductionElimination {
 
             assert !symbol.isTerminal();
 
+            if (parts.get(parts.size() - 1).isEmpty()) {
+                continue;
+            }
+
             parts.add(new ArrayList<>());
 
         }
@@ -86,6 +90,8 @@ class EpsilonProductionElimination {
         ArrayList<InnerProduction> newProductions = new ArrayList<>();
 
         int combinations = 1 << (parts.size() - 1);
+
+        // System.out.println("Combinations: " + combinations);
 
         for (int mask = 1; mask < combinations; mask++) {
 
@@ -132,7 +138,9 @@ class EpsilonProductionElimination {
 
             for (ArrayList<InnerProduction> productions : grammar.productions.values()) {
 
-                for (int i = 0; i < productions.size(); i++) {
+                final int productionsCount = productions.size();
+
+                for (int i = 0; i < productionsCount; i++) {
 
                     InnerProduction production = productions.get(i);
 
