@@ -1,5 +1,5 @@
-// b = b B;
-// b = ;
-s = s A s B s;
+// s = s A s B s;
 // s = s B s A s;
-s = ;
+// s = ;
+b = b B;
+b = ;

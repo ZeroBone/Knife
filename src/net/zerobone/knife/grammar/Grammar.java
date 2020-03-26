@@ -31,7 +31,7 @@ public class Grammar {
 
     private HashMap<Integer, HashSet<Integer>> cachedFirstSets = new HashMap<>();
 
-    private HashMap<Integer, HashSet<Integer>> cachedFollowSets = new HashMap<>();
+    private HashMap<Integer, HashSet<Integer>> followSets = new HashMap<>();
 
     public Grammar(String startSymbol, Production startProduction) {
 
@@ -264,17 +264,171 @@ public class Grammar {
 
     public HashMap<Integer, HashSet<Integer>> computeFollowSets() {
 
-        HashMap<Integer, HashSet<Integer>> followSets = new HashMap<>();
+        followSets = new HashMap<>();
 
         for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
 
             int nonTerminal = pair.getKey();
 
-            followSets.put(nonTerminal, followSet(nonTerminal));
+            followSets.put(nonTerminal, initializeFollowSet(nonTerminal));
 
         }
 
+        followSets
+            .get(START_SYMBOL_ID)
+            .add(FOLLOW_SET_EOF);
+
+        boolean updated;
+
+        // TODO: try to optimize the number of iterations
+        do {
+            updated = updateFollowSets();
+        } while (updated);
+
         return followSets;
+
+    }
+
+    private HashSet<Integer> initializeFollowSet(int nonTerminal) {
+
+        HashSet<Integer> set = new HashSet<>();
+
+        for (ArrayList<InnerProduction> currentProductions : productions.values()) {
+
+            for (InnerProduction production : currentProductions) {
+
+                for (int i = 0; i < production.body.size();) {
+
+                    InnerSymbol symbol = production.body.get(i);
+
+                    if (symbol.id != nonTerminal) {
+                        i++;
+                        continue;
+                    }
+
+                    assert !symbol.isTerminal();
+
+                    if (i == production.body.size() - 1) {
+                        // epsilon tokens are never present in follow sets
+                        break;
+                    }
+
+                    InnerSymbol nextSymbol = production.body.get(i + 1);
+
+                    if (nextSymbol.isTerminal()) {
+                        set.add(nextSymbol.id);
+                    }
+
+                    i += 2;
+
+                }
+
+            }
+
+        }
+
+        return set;
+
+    }
+
+    private boolean updateFollowSets() {
+
+        boolean modified = false;
+
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
+
+            int productionLabel = pair.getKey();
+
+            ArrayList<InnerProduction> thisLabelProductions = pair.getValue();
+
+            for (InnerProduction production : thisLabelProductions) {
+
+                ArrayList<InnerSymbol> body = production.body;
+
+                for (int i = 0; i < body.size();) {
+
+                    InnerSymbol symbol = body.get(i);
+
+                    if (symbol.isTerminal()) {
+                        i++;
+                        continue;
+                    }
+
+                    if (symbol.id == productionLabel) {
+                        i++;
+                        continue;
+                    }
+
+                    // we found a production either of the form alpha A beta
+                    // or alpha A
+                    // examine the next symbol to find out
+
+                    if (i == body.size() - 1) {
+                        // beta = epsilon
+                        // so we are in the alpha A situation
+
+                        HashSet<Integer> followSet = followSets.get(symbol.id);
+
+                        int oldSize = followSet.size();
+
+                        // System.out.println("Adding followset for " + productionLabel + " -> " + production.toString(this));
+                        followSet.addAll(followSets.get(productionLabel));
+
+                        if (followSet.size() > oldSize) {
+                            modified = true;
+                        }
+
+                        break;
+                    }
+
+                    // we are in the alpha A beta
+
+                    InnerSymbol nextSymbol = body.get(i + 1);
+
+                    if (nextSymbol.isTerminal()) {
+                        i += 2;
+                        continue;
+                    }
+
+                    // nextSymbol (aka beta) is a nonterminal
+
+                    HashSet<Integer> nextSymbolFirstSet = firstSet(nextSymbol.id);
+
+                    HashSet<Integer> followSet = followSets.get(symbol.id);
+
+                    int oldSize = followSet.size();
+
+                    // check if there is epsilon in the set
+                    if (nextSymbolFirstSet.contains(FIRST_FOLLOW_SET_EPSILON)) {
+
+                        // union with FIRST(beta) \ epsilon
+                        followSet.addAll(nextSymbolFirstSet);
+                        followSet.remove(FIRST_FOLLOW_SET_EPSILON);
+
+                        // union with FOLLOW(A)
+                        followSet.addAll(followSets.get(productionLabel));
+
+                    }
+                    else {
+
+                        followSet.addAll(nextSymbolFirstSet);
+                        // we don't need to remove epsilon as we already handled this case
+
+                    }
+
+                    if (followSet.size() > oldSize) {
+                        modified = true;
+                    }
+
+                    i++;
+
+                }
+
+            }
+
+        }
+
+        return modified;
 
     }
 
@@ -282,8 +436,8 @@ public class Grammar {
 
         assert nonTerminal < 0;
 
-        if (cachedFollowSets.containsKey(nonTerminal)) {
-            return cachedFollowSets.get(nonTerminal);
+        if (followSets.containsKey(nonTerminal)) {
+            return followSets.get(nonTerminal);
         }
 
         HashSet<Integer> set = new HashSet<>();
@@ -370,7 +524,7 @@ public class Grammar {
 
         }
 
-        cachedFollowSets.put(nonTerminal, set);
+        followSets.put(nonTerminal, set);
 
         return set;
 

@@ -6,24 +6,22 @@ import java.util.Stack;
 public final class Parser {
 	public static final int T_EOF = 0;
 
-	public static final int T_A = 1;
+	public static final int T_B = 1;
 
-	public static final int T_B = 2;
+	private static final int terminalCount = 2;
 
-	private static final int terminalCount = 3;
-
-	private static final int nonTerminalCount = 1;
+	private static final int nonTerminalCount = 2;
 
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	0,4,0};
+	0,1,
+	3,2};
 
 	private static final int[][] actionTable = {
-	{1,-1,2,-1},
-	{1,-1,2},
-	{1,2,-1},
-	{1,2}};
+	{1,-2},
+	{1,-2},
+	{}};
 
 	private Stack<ParseNode> stack;
 

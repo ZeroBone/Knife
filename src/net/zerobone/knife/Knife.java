@@ -108,15 +108,8 @@ public class Knife {
 
         grammar.eliminateLeftRecursion();
 
-        System.out.println("Eliminated left recursion (before eliminating epsilon productions the second time):");
+        System.out.println("Eliminated left recursion:");
         System.out.println(grammar.toString());
-
-        grammar.eliminateEpsilonProductions();
-
-        System.out.println("=========================");
-        System.out.println("New grammar:");
-        System.out.println(grammar.toString());
-        System.out.println("=========================");
 
         System.out.println("Building parse tables...");
 

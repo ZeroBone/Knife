@@ -35,11 +35,6 @@ final class ParseNode {
 
 				}
 				break;
-			case 3:
-				{
-
-				}
-				break;
 			default:
 				throw new IllegalStateException();
 		}
