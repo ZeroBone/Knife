@@ -10,29 +10,20 @@ public final class Parser {
 
 	public static final int T_B = 2;
 
-	public static final int T_C = 3;
+	private static final int terminalCount = 3;
 
-	public static final int T_D = 4;
-
-	private static final int terminalCount = 5;
-
-	private static final int nonTerminalCount = 3;
+	private static final int nonTerminalCount = 1;
 
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	0,1,2,1,0,
-	0,3,4,3,0,
-	0,7,0,5,0};
+	0,4,0};
 
 	private static final int[][] actionTable = {
-	{-2,1},
-	{2},
-	{-3},
-	{2,4,-3},
-	{3,-3},
-	{1,4,-3},
-	{}};
+	{1,-1,2,-1},
+	{1,-1,2},
+	{1,2,-1},
+	{1,2}};
 
 	private Stack<ParseNode> stack;
 

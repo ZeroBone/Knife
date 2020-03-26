@@ -1,3 +1,5 @@
-s = A s B s;
-s = B s A s;
+// b = b B;
+// b = ;
+s = s A s B s;
+// s = s B s A s;
 s = ;

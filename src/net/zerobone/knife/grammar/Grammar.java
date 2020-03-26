@@ -311,17 +311,20 @@ public class Grammar {
 
                     InnerSymbol symbol = body.get(i);
 
-                    if (symbol.isTerminal() || symbol.id != nonTerminal) {
+                    if (symbol.id != nonTerminal) {
                         continue;
                     }
 
+                    assert !symbol.isTerminal();
+
                     // we found a production either of the form alpha A beta
-                    // or alpha a
+                    // or alpha A
                     // examine the next symbol to find out
 
                     if (i == body.size() - 1) {
                         // beta = epsilon
                         // so we are in the alpha A situation
+                        System.out.println("Adding followset for " + productionLabel + " -> " + production.toString(this));
                         set.addAll(followSet(productionLabel));
                         break;
                     }
@@ -487,24 +490,26 @@ public class Grammar {
 
             Iterator<InnerProduction> productionIterator = pair.getValue().iterator();
 
-            assert productionIterator.hasNext();
+            // assert productionIterator.hasNext();
 
-            while (true) {
+            if (productionIterator.hasNext()) {
+                while (true) {
 
-                InnerProduction ip = productionIterator.next();
+                    InnerProduction ip = productionIterator.next();
 
-                sb.append(ip.toString(this));
+                    sb.append(ip.toString(this));
 
-                if (!productionIterator.hasNext()) {
-                    break;
+                    if (!productionIterator.hasNext()) {
+                        break;
+                    }
+
+                    sb.append('\n');
+                    for (int i = 0; i < label.length(); i++) {
+                        sb.append(' ');
+                    }
+                    sb.append("  | ");
+
                 }
-
-                sb.append('\n');
-                for (int i = 0; i < label.length(); i++) {
-                    sb.append(' ');
-                }
-                sb.append("  | ");
-
             }
 
             sb.append(';');

@@ -55,7 +55,7 @@ class EpsilonProductionElimination {
 
             assert !symbol.isTerminal();
 
-            if (parts.get(parts.size() - 1).isEmpty()) {
+            if (parts.size() != 1 && parts.get(parts.size() - 1).isEmpty()) {
                 continue;
             }
 
