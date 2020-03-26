@@ -1,5 +1,6 @@
 package net.zerobone.knife.grammar;
 
+import net.zerobone.knife.grammar.verification.VerificationError;
 import net.zerobone.knife.grammar.table.ParsingTable;
 import net.zerobone.knife.utils.BijectiveMap;
 
@@ -618,11 +619,13 @@ public class Grammar {
 
     }
 
-    public LinkedList<Integer> detectLeftRecursion() {
+    public ArrayList<VerificationError> verify() {
 
-        LeftRecursionDetection lrd = new LeftRecursionDetection(this);
+        GrammarVerification lrd = new GrammarVerification(this);
 
-        return lrd.detect();
+        lrd.verify();
+
+        return lrd.getExceptions();
 
     }
 

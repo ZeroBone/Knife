@@ -1,16 +1,23 @@
 package net.zerobone.knife.grammar;
 
+import net.zerobone.knife.grammar.verification.LeftRecursiveCycleError;
+import net.zerobone.knife.grammar.verification.NonTerminalNotDefinedError;
+import net.zerobone.knife.grammar.verification.UnreachableNonTerminalError;
+import net.zerobone.knife.grammar.verification.VerificationError;
+
 import java.util.*;
 
-class LeftRecursionDetection {
+class GrammarVerification {
 
     private final Grammar grammar;
 
-    public LeftRecursionDetection(Grammar grammar) {
+    private ArrayList<VerificationError> exceptions = new ArrayList<>();
+
+    public GrammarVerification(Grammar grammar) {
         this.grammar = grammar;
     }
 
-    public LinkedList<Integer> detect() {
+    public void verifyLeftRecursionAndUnreachableProductions() {
 
         HashSet<Integer> unvisitedSet = new HashSet<>(grammar.productions.keySet());
 
@@ -72,7 +79,18 @@ class LeftRecursionDetection {
                         cycle.addFirst(currentNode);
                     }
 
-                    return cycle;
+                    exceptions.add(new LeftRecursiveCycleError(cycle));
+
+                    // cycle ready
+                    // make sure there are no nodes that were not visited
+
+                    if (unvisitedSet.isEmpty()) {
+                        return;
+                    }
+
+                    exceptions.add(new UnreachableNonTerminalError(unvisitedSet));
+
+                    return;
 
                 }
 
@@ -103,8 +121,54 @@ class LeftRecursionDetection {
 
         }
 
-        return null;
+        // make sure there are no nodes that were not visited
 
+        if (unvisitedSet.isEmpty()) {
+            return;
+        }
+
+        exceptions.add(new UnreachableNonTerminalError(unvisitedSet));
+
+    }
+
+    private void verifyAllNonterminalsDefined() {
+
+        for (ArrayList<InnerProduction> productions : grammar.productions.values()) {
+
+            for (InnerProduction production : productions) {
+
+                for (InnerSymbol symbol : production.body) {
+
+                    if (symbol.isTerminal()) {
+                        continue;
+                    }
+
+                    if (!grammar.productions.containsKey(symbol.id)) {
+                        exceptions.add(new NonTerminalNotDefinedError(symbol.id));
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    public void verify() {
+
+        verifyAllNonterminalsDefined();
+
+        if (!exceptions.isEmpty()) {
+            return;
+        }
+
+        verifyLeftRecursionAndUnreachableProductions();
+
+    }
+
+    public ArrayList<VerificationError> getExceptions() {
+        return exceptions;
     }
 
 }
