@@ -618,6 +618,14 @@ public class Grammar {
 
     }
 
+    public LinkedList<Integer> detectLeftRecursion() {
+
+        LeftRecursionDetection lrd = new LeftRecursionDetection(this);
+
+        return lrd.detect();
+
+    }
+
     public void eliminateLeftRecursion() {
 
         LeftRecursionElimination lre = new LeftRecursionElimination(this);
