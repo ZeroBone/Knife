@@ -22,7 +22,9 @@ final class ParseNode {
 		switch (actionId - 1) {
 			case 0:
 				{
-
+					Object term = ((ParseNode)children.get(1)).payload;
+					Object rest = ((ParseNode)children.get(0)).payload;
+					v = new Node(term, rest);
 				}
 				break;
 			case 1:
@@ -42,12 +44,14 @@ final class ParseNode {
 				break;
 			case 4:
 				{
-
+					Object e = ((ParseNode)children.get(1)).payload;
+					v = e;
 				}
 				break;
 			case 5:
 				{
-
+					Object id = ((ParseNode)children.get(0)).payload;
+					v = new IdNode(id);
 				}
 				break;
 			case 6:
@@ -56,21 +60,6 @@ final class ParseNode {
 				}
 				break;
 			case 7:
-				{
-
-				}
-				break;
-			case 8:
-				{
-
-				}
-				break;
-			case 9:
-				{
-
-				}
-				break;
-			case 10:
 				{
 
 				}

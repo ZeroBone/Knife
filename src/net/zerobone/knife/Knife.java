@@ -67,20 +67,7 @@ public class Knife {
 
     }
 
-    private void run() {
-
-        System.out.println("Knife v" + VERSION + " by Alexander Mayorov (https://github.com/ZeroBone/Knife).");
-
-        ArrayList<VerificationError> verificationErrors = grammar.verify();
-
-        if (!verificationErrors.isEmpty()) {
-            handleErrors(verificationErrors);
-            return;
-        }
-
-        System.out.println("Building parse tables...");
-
-        ParsingTable table = grammar.constructParsingTable();
+    private void exportDebugInfo(ParsingTable table) {
 
         try {
 
@@ -193,18 +180,35 @@ public class Knife {
             e.printStackTrace();
         }
 
+    }
+
+    private void run() {
+
+        System.out.println("Knife v" + VERSION + " by Alexander Mayorov (https://github.com/ZeroBone/Knife).");
+
+        ArrayList<VerificationError> verificationErrors = grammar.verify();
+
+        if (!verificationErrors.isEmpty()) {
+            handleErrors(verificationErrors);
+            return;
+        }
+
+        ParsingTable table = grammar.constructParsingTable();
+
+        exportDebugInfo(table);
+
         GeneratorContext context = new GeneratorContext("net.zerobone.knife.parser", table);
 
         try {
 
             Generator.generate(context);
 
+            System.out.println("Parser generated successfully.");
+
         }
         catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("IO error: " + e.getMessage());
         }
-
-        System.out.println("Parser generated successfully.");
 
     }
 

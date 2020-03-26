@@ -5,11 +5,11 @@ import net.zerobone.knife.grammar.Grammar;
 import java.util.Iterator;
 import java.util.Set;
 
-public class UnreachableNonTerminalError extends VerificationError {
+public class UnreachableNonTerminalsError extends VerificationError {
 
     private final Set<Integer> unreachableNonTerminals;
 
-    public UnreachableNonTerminalError(Set<Integer> unreachableNonTerminals) {
+    public UnreachableNonTerminalsError(Set<Integer> unreachableNonTerminals) {
         super(false);
         this.unreachableNonTerminals = unreachableNonTerminals;
     }
@@ -19,7 +19,7 @@ public class UnreachableNonTerminalError extends VerificationError {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Non-terminals ");
+        sb.append("Non-terminal(s) ");
 
         Iterator<Integer> nonTerminalIterator = unreachableNonTerminals.iterator();
 

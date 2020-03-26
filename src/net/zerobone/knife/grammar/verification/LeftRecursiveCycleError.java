@@ -19,7 +19,7 @@ public class LeftRecursiveCycleError extends VerificationError {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Non-terminals ");
+        sb.append("Non-terminal(s) ");
 
         Iterator<Integer> cycleIterator = cycle.iterator();
 

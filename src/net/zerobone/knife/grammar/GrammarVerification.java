@@ -2,7 +2,7 @@ package net.zerobone.knife.grammar;
 
 import net.zerobone.knife.grammar.verification.LeftRecursiveCycleError;
 import net.zerobone.knife.grammar.verification.NonTerminalNotDefinedError;
-import net.zerobone.knife.grammar.verification.UnreachableNonTerminalError;
+import net.zerobone.knife.grammar.verification.UnreachableNonTerminalsError;
 import net.zerobone.knife.grammar.verification.VerificationError;
 
 import java.util.*;
@@ -17,7 +17,7 @@ class GrammarVerification {
         this.grammar = grammar;
     }
 
-    public void verifyLeftRecursionAndUnreachableProductions() {
+    public void verifyNoLeftRecursion() {
 
         HashSet<Integer> unvisitedSet = new HashSet<>(grammar.productions.keySet());
 
@@ -29,105 +29,96 @@ class GrammarVerification {
 
         Stack<Integer> stack = new Stack<>();
 
-        // start from the start symbol
+        while (!unvisitedSet.isEmpty()) {
 
-        stack.push(Grammar.START_SYMBOL_ID);
-        visitedAndOnTheStackSet.add(Grammar.START_SYMBOL_ID);
-        unvisitedSet.remove(Grammar.START_SYMBOL_ID);
-        parentMap.put(Grammar.START_SYMBOL_ID, null);
+            int start = unvisitedSet.iterator().next();
 
-        // dfs
+            stack.clear();
+            visitedAndOnTheStackSet.clear();
+            parentMap.clear(); // actually this is not needed
 
-        while (!stack.isEmpty()) {
+            stack.push(start);
+            visitedAndOnTheStackSet.add(start);
+            unvisitedSet.remove(start);
+            parentMap.put(start, null);
 
-            int currentNonTerminal = stack.peek();
+            // dfs
 
-            // find adjacent non-terminal
+            while (!stack.isEmpty()) {
 
-            int adjacentNonTerminal = 0;
+                int currentNonTerminal = stack.peek();
 
-            for (InnerProduction production : grammar.productions.get(currentNonTerminal)) {
+                // find adjacent non-terminal
 
-                if (production.body.isEmpty()) {
-                    continue;
-                }
+                int adjacentNonTerminal = 0;
 
-                InnerSymbol firstSymbol = production.body.get(0);
+                for (InnerProduction production : grammar.productions.get(currentNonTerminal)) {
 
-                if (firstSymbol.isTerminal()) {
-                    continue;
-                }
+                    if (production.body.isEmpty()) {
+                        continue;
+                    }
 
-                if (visitedAndPoppedOutOfStackSet.contains(firstSymbol.id)) {
-                    continue;
-                }
+                    InnerSymbol firstSymbol = production.body.get(0);
 
-                if (visitedAndOnTheStackSet.contains(firstSymbol.id)) {
-                    // we found a cycle
+                    if (firstSymbol.isTerminal()) {
+                        continue;
+                    }
 
-                    int cycleEnd = firstSymbol.id;
+                    if (visitedAndPoppedOutOfStackSet.contains(firstSymbol.id)) {
+                        continue;
+                    }
 
-                    int currentNode = currentNonTerminal;
+                    if (visitedAndOnTheStackSet.contains(firstSymbol.id)) {
+                        // we found a cycle
 
-                    LinkedList<Integer> cycle = new LinkedList<>();
+                        int cycleEnd = firstSymbol.id;
 
-                    cycle.addFirst(cycleEnd);
-                    cycle.addFirst(currentNode);
+                        int currentNode = currentNonTerminal;
 
-                    while (currentNode != cycleEnd) {
-                        currentNode = parentMap.get(currentNode);
+                        LinkedList<Integer> cycle = new LinkedList<>();
+
+                        cycle.addFirst(cycleEnd);
                         cycle.addFirst(currentNode);
-                    }
 
-                    exceptions.add(new LeftRecursiveCycleError(cycle));
+                        while (currentNode != cycleEnd) {
+                            currentNode = parentMap.get(currentNode);
+                            cycle.addFirst(currentNode);
+                        }
 
-                    // cycle ready
-                    // make sure there are no nodes that were not visited
+                        exceptions.add(new LeftRecursiveCycleError(cycle));
 
-                    if (unvisitedSet.isEmpty()) {
                         return;
+
                     }
 
-                    exceptions.add(new UnreachableNonTerminalError(unvisitedSet));
-
-                    return;
+                    adjacentNonTerminal = firstSymbol.id;
 
                 }
 
-                adjacentNonTerminal = firstSymbol.id;
+                if (adjacentNonTerminal == 0) {
+
+                    // didn't find any other node
+
+                    visitedAndOnTheStackSet.remove(currentNonTerminal);
+
+                    visitedAndPoppedOutOfStackSet.add(currentNonTerminal);
+
+                    stack.pop();
+
+                    continue;
+                }
+
+                stack.push(adjacentNonTerminal);
+
+                unvisitedSet.remove(adjacentNonTerminal);
+
+                visitedAndOnTheStackSet.add(adjacentNonTerminal);
+
+                parentMap.put(adjacentNonTerminal, currentNonTerminal);
 
             }
 
-            if (adjacentNonTerminal == 0) {
-
-                // didn't find any other node
-
-                visitedAndOnTheStackSet.remove(currentNonTerminal);
-
-                visitedAndPoppedOutOfStackSet.add(currentNonTerminal);
-
-                stack.pop();
-
-                continue;
-            }
-
-            stack.push(adjacentNonTerminal);
-
-            unvisitedSet.remove(adjacentNonTerminal);
-
-            visitedAndOnTheStackSet.add(adjacentNonTerminal);
-
-            parentMap.put(adjacentNonTerminal, currentNonTerminal);
-
         }
-
-        // make sure there are no nodes that were not visited
-
-        if (unvisitedSet.isEmpty()) {
-            return;
-        }
-
-        exceptions.add(new UnreachableNonTerminalError(unvisitedSet));
 
     }
 
@@ -155,6 +146,48 @@ class GrammarVerification {
 
     }
 
+    private void verifyNoUnreachableProduction() {
+
+        HashSet<Integer> unreachableProductions = new HashSet<>(grammar.productions.keySet());
+
+        Stack<Integer> stack = new Stack<>();
+
+        stack.push(Grammar.START_SYMBOL_ID);
+
+        do {
+
+            int nonTerminal = stack.pop();
+
+            unreachableProductions.remove(nonTerminal);
+
+            for (InnerProduction production : grammar.productions.get(nonTerminal)) {
+
+                for (InnerSymbol symbol : production.body) {
+
+                    if (symbol.isTerminal()) {
+                        continue;
+                    }
+
+                    if (!unreachableProductions.contains(symbol.id)) {
+                        continue;
+                    }
+
+                    stack.push(symbol.id);
+
+                }
+
+            }
+
+        } while (!stack.isEmpty());
+
+        if (unreachableProductions.isEmpty()) {
+            return;
+        }
+
+        exceptions.add(new UnreachableNonTerminalsError(unreachableProductions));
+
+    }
+
     public void verify() {
 
         verifyAllNonterminalsDefined();
@@ -163,7 +196,13 @@ class GrammarVerification {
             return;
         }
 
-        verifyLeftRecursionAndUnreachableProductions();
+        verifyNoUnreachableProduction();
+
+        if (!exceptions.isEmpty()) {
+            return;
+        }
+
+        verifyNoLeftRecursion();
 
     }
 

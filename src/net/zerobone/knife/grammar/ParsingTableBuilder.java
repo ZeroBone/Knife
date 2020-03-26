@@ -101,6 +101,18 @@ class ParsingTableBuilder {
 
     }
 
+    private void write(int nonTerminalIndex, int terminalIndex, int productionId) {
+
+        if (table[nonTerminalIndex][terminalIndex] != 0) {
+
+            System.out.println("CONFLICT!!!!");
+
+        }
+
+        table[nonTerminalIndex][terminalIndex] = productionId;
+
+    }
+
     public void write(int nonTerminal, int terminalOrEof, InnerProduction production) {
 
         assert production != null;
@@ -115,11 +127,11 @@ class ParsingTableBuilder {
         assert terminalIndex < terminalCount;
 
         if (lastWrittenProduction == production) {
-            table[nonTerminalIndex][terminalIndex] = productionCounter - 1;
+            write(nonTerminalIndex, terminalIndex, productionCounter - 1);
             return;
         }
 
-        table[nonTerminalIndex][terminalIndex] = productionCounter;
+        write(nonTerminalIndex, terminalIndex, productionCounter);
 
         productionActions.add(convertProduction(nonTerminal, production));
 
