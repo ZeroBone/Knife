@@ -9,8 +9,8 @@ public class LeftRecursiveCycleError extends VerificationError {
 
     public final LinkedList<Integer> cycle;
 
-    public LeftRecursiveCycleError(LinkedList<Integer> cycle) {
-        super(true);
+    public LeftRecursiveCycleError(boolean canBeAutoFixed, LinkedList<Integer> cycle) {
+        super(canBeAutoFixed);
         this.cycle = cycle;
     }
 

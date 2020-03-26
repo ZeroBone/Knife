@@ -72,8 +72,10 @@ class GrammarVerification {
                         // we found a cycle
 
                         int cycleEnd = firstSymbol.id;
-
                         int currentNode = currentNonTerminal;
+
+                        // visitedAndOnTheStackSet.remove(cycleEnd);
+                        // visitedAndOnTheStackSet.remove(currentNode);
 
                         LinkedList<Integer> cycle = new LinkedList<>();
 
@@ -82,12 +84,17 @@ class GrammarVerification {
 
                         while (currentNode != cycleEnd) {
                             currentNode = parentMap.get(currentNode);
+                            // visitedAndOnTheStackSet.remove(currentNode);
                             cycle.addFirst(currentNode);
                         }
 
-                        exceptions.add(new LeftRecursiveCycleError(cycle));
+                        exceptions.add(
+                            // when production.body.size() != 1 it means there are no unit productions
+                            new LeftRecursiveCycleError(production.body.size() != 1, cycle)
+                        );
 
-                        return;
+                        // return;
+                        continue;
 
                     }
 

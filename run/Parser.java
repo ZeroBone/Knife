@@ -6,37 +6,19 @@ import java.util.Stack;
 public final class Parser {
 	public static final int T_EOF = 0;
 
-	public static final int T_MUL = 2;
+	public static final int T_B = 1;
 
-	public static final int T_RIGHT_PAREN = 4;
+	private static final int terminalCount = 2;
 
-	public static final int T_ID = 5;
-
-	public static final int T_LEFT_PAREN = 3;
-
-	public static final int T_PLUS = 1;
-
-	private static final int terminalCount = 6;
-
-	private static final int nonTerminalCount = 5;
+	private static final int nonTerminalCount = 1;
 
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	0,0,0,1,0,1,
-	0,0,0,2,0,2,
-	4,3,0,0,4,0,
-	0,0,0,5,0,6,
-	8,8,7,0,8,0};
+	2,1};
 
 	private static final int[][] actionTable = {
-	{-2,-3},
-	{-4,-5},
-	{1,-2,-3},
-	{},
-	{3,-1,4},
-	{5},
-	{2,-4,-5},
+	{1,-1},
 	{}};
 
 	private Stack<ParseNode> stack;

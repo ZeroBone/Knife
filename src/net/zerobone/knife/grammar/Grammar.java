@@ -48,22 +48,6 @@ public class Grammar {
         return symbolsMap.mapValue(id);
     }
 
-    private int symbolToId(String symbol) {
-
-        Integer symbolId = symbolsMap.mapKey(symbol);
-
-        if (symbolId == null) {
-
-            symbolsMap.put(symbol, nonTerminalCounter);
-
-            return nonTerminalCounter--;
-
-        }
-
-        return symbolId;
-
-    }
-
     private InnerSymbol convertSymbol(Symbol symbol) {
 
         Integer symbolId = symbolsMap.mapKey(symbol.id);

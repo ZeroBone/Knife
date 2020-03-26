@@ -1,5 +1,5 @@
 // s = s A s B s;
 // s = s B s A s;
 // s = ;
-b = b B;
-b = ;
+b = B b;
+b = b;
