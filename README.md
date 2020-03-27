@@ -3,21 +3,25 @@ Knife is a tool that reads input grammar in BNF format and converts it to a few 
 
 Knife doesn't require any external libraries or dependencies. All generation is done ahead-of-time. After generating the parsing classes you can just copy them into your project.
 
+Also, as any other good parsing generation tool, knife uses knife to read it's input grammar.
+
 ## Features
 
-* No runtime dependencies, knife generates pure Java code that can easily be ported on other JVM-based languages.
+* No runtime dependencies, knife generates pure Java code that can easily be ported to other JVM-based languages.
 * Parsing is done using push-down automata without recursion.
 * Knife uses an explicit API for accepting the token stream. It allows you to easily use knife with any (including your own) lexer. You can pause and resume parsing at any point. Parsing multiple token streams simultaneously is also possible.
 * No complete parse-trees are being built during parsing. Reduction of the tree is done on-the-fly for performance.
-* Knife uses Knife to read it's input grammar.
+* If your grammar is left-recursive without `A =>+ A` derivations (aka without cycles), knife will generate an equivalent grammar without left recursion for you.
 
 ## Limitations
 
-* Knife generates only **top-down** parsers for **LL(1)** grammars. In some cases knife can help you disambiguate your grammar to make it LL(1).
+* Knife generates only **top-down** parsers for **LL(1)** grammars. Please note that many grammars can be converted to LL(1) grammars by eliminating left recursion and left factoring.
 
 ## Getting Started
 
-TODO
+1. Download the latest `.jar` file from the [releases](https://github.com/ZeroBone/Knife/releases) page.
+2. Run `java -jar knife.jar grammar.kn` where `grammar.kn` is your grammar file.
+3. Knife will generate the parsing classes in the same directory.
 
 ## Support
 
