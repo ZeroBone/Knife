@@ -6,8 +6,8 @@ public class CodeToken extends Token {
 
     public final String code;
 
-    public CodeToken(String code) {
-        super(Parser.T_CODE);
+    public CodeToken(int line, String code) {
+        super(line, Parser.T_CODE);
         this.code = code;
     }
 

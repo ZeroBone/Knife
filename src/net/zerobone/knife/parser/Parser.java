@@ -79,7 +79,7 @@ public final class Parser {
 			}
 			int actionId = table[(-prevRoot.symbolId - 1) * terminalCount + tokenId];
 			if (actionId == 0) {
-				throw new RuntimeException("Syntax error. Token: " + token);
+				throw new RuntimeException("Syntax error. Non-terminal: " + (-prevRoot.symbolId - 1) + " Token: " + token);
 			}
 			int[] action = actionTable[actionId - 1];
 			prevRoot.actionId = actionId;

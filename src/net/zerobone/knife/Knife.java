@@ -281,31 +281,28 @@ public class Knife {
             }
 
             Lexer lexer = new Lexer(is);
+            Parser parser = new Parser();
 
             try {
+
                 Token currentToken;
+
                 do {
                     currentToken = lexer.lex();
-                    if (currentToken.id == Parser.T_EOF) {
-                        break;
-                    }
-                    System.out.println(currentToken.id);
-                } while (true);
+                    parser.parse(currentToken.id, currentToken);
+                } while (currentToken.id != Parser.T_EOF);
+
             }
             catch (LexerException | IOException e) {
                 e.printStackTrace();
             }
 
-            KnifeParser lang = new KnifeParser(is);
-            TranslationUnitNode t;
-
-            try {
-                t = lang.translationUnit();
-            }
-            catch (ParseException | TokenMgrError e) {
-                System.out.println(e.toString());
+            if (!parser.successfullyParsed()) {
+                // TODO: print errors
                 return;
             }
+
+            TranslationUnitNode t = (TranslationUnitNode)parser.getValue();
 
             Grammar grammar = null;
 

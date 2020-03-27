@@ -41,7 +41,7 @@ public class Lexer {
 
     private void peekChar() throws IOException {
 
-        assert !peeking;
+        // assert !peeking;
 
         peeking = true;
 
@@ -58,6 +58,10 @@ public class Lexer {
         peeking = false;
     }
 
+    private Token constructPrimitiveToken(int type) {
+        return new Token(line, type);
+    }
+
     public Token lex() throws IOException, LexerException {
 
         for (;;) {
@@ -65,7 +69,7 @@ public class Lexer {
             readChar();
 
             if (current == -1) {
-                return new Token(Parser.T_EOF);
+                return constructPrimitiveToken(Parser.T_EOF);
             }
 
             if (current == ' ' || current == '\n' || current == '\t' || current == '\r') {
@@ -98,16 +102,16 @@ public class Lexer {
         switch (current) {
 
             case '=':
-                return new Token(Parser.T_ASSIGN);
+                return constructPrimitiveToken(Parser.T_ASSIGN);
 
             case ';':
-                return new Token(Parser.T_SEMICOLON);
+                return constructPrimitiveToken(Parser.T_SEMICOLON);
 
             case '(':
-                return new Token(Parser.T_LEFT_PAREN);
+                return constructPrimitiveToken(Parser.T_LEFT_PAREN);
 
             case ')':
-                return new Token(Parser.T_RIGHT_PAREN);
+                return constructPrimitiveToken(Parser.T_RIGHT_PAREN);
 
             case '{': {
                 // code block
@@ -130,7 +134,7 @@ public class Lexer {
                     else if (current == '}') {
 
                         if (nestingLevel == 0) {
-                            return new CodeToken(sb.toString());
+                            return new CodeToken(line, sb.toString());
                         }
 
                         nestingLevel--;
@@ -158,15 +162,15 @@ public class Lexer {
 
                 sb.append((char)current);
 
-                readChar();
+                peekChar();
 
                 if (current == EOF) {
                     break;
                 }
 
-            } while (Character.isLetterOrDigit((char)current));
+            } while (Character.isLetterOrDigit((char)current) || current == '_');
 
-            return new IdToken(sb.toString());
+            return new IdToken(line, sb.toString());
 
         }
 
@@ -174,7 +178,4 @@ public class Lexer {
 
     }
 
-    public int getLine() {
-        return line;
-    }
 }
