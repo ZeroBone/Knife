@@ -1,5 +1,10 @@
 package net.zerobone.knife.parser;
 
+import net.zerobone.knife.ast.TranslationUnitNode;
+import net.zerobone.knife.ast.entities.ProductionStatementBody;
+import net.zerobone.knife.ast.statements.ProductionStatementNode;
+import net.zerobone.knife.ast.statements.StatementNode;
+
 import java.lang.Object;
 import java.util.ArrayList;
 
@@ -27,8 +32,8 @@ final class ParseNode {
 				break;
 			case 1:
 				{
-					Object s = ((ParseNode)children.get(1)).payload;
-					Object t = ((ParseNode)children.get(0)).payload;
+					StatementNode s = (StatementNode) ((ParseNode)children.get(1)).payload;
+					TranslationUnitNode t = (TranslationUnitNode) ((ParseNode)children.get(0)).payload;
 					t.addStatement(s); v = t;
 				}
 				break;
@@ -40,22 +45,22 @@ final class ParseNode {
 				break;
 			case 3:
 				{
-					Object nonTerminal = ((ParseNode)children.get(2)).payload;
-					Object body = ((ParseNode)children.get(0)).payload;
+					String nonTerminal = (String) ((ParseNode)children.get(2)).payload;
+					ProductionStatementBody body = (ProductionStatementBody) ((ParseNode)children.get(0)).payload;
 					v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode());
 				}
 				break;
 			case 4:
 				{
-					Object code = ((ParseNode)children.get(0)).payload;
+					String code = (String) ((ParseNode)children.get(0)).payload;
 					v = new ProductionStatementBody(code);
 				}
 				break;
 			case 5:
 				{
-					Object s = ((ParseNode)children.get(2)).payload;
-					Object arg = ((ParseNode)children.get(1)).payload;
-					Object b = ((ParseNode)children.get(0)).payload;
+					String s = (String) ((ParseNode)children.get(2)).payload;
+					String arg = (String) ((ParseNode)children.get(1)).payload;
+					ProductionStatementBody b = (ProductionStatementBody) ((ParseNode)children.get(0)).payload;
 					char firstChar = s.charAt(0);
 					    if (Character.isUpperCase(firstChar))
 					        if (arg == null) b.addTerminal(s);

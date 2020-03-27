@@ -7,7 +7,20 @@ statement = productionStatement(s); { v = s; }
 
 productionStatement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); }
 
-productionStatementBody = SEMICOLON epsilonProductionCode(code); { v = new ProductionStatementBody(code); }
+productionStatementBody = SEMICOLON productionStatementCode(code); { v = new ProductionStatementBody(code); }
+productionStatementBody = ID(s) productionStatementArgument(arg) productionStatementBody(b); {
+    char firstChar = s.charAt(0);
+    if (Character.isUpperCase(firstChar))
+        if (arg == null) b.addTerminal(s);
+        else b.addTerminal(s, arg);
+    else
+        if (arg == null) b.addNonTerminal(s);
+        else b.addNonTerminal(s, arg);
+    v = b;
+}
 
-epsilonProductionCode = ; { v = null; }
-epsilonProductionCode = CODE(c); { v = c; }
+productionStatementCode = ; { v = null; }
+productionStatementCode = CODE(c); { v = c; }
+
+productionStatementArgument = ; { v = null; }
+productionStatementArgument = LEFT_PAREN ID(arg) RIGHT_PAREN; { v = arg; }

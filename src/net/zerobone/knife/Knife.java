@@ -12,6 +12,9 @@ import net.zerobone.knife.grammar.verification.VerificationError;
 import net.zerobone.knife.grammar.table.ParsingTable;
 import net.zerobone.knife.grammar.Production;
 import net.zerobone.knife.grammar.Symbol;
+import net.zerobone.knife.lexer.Lexer;
+import net.zerobone.knife.lexer.LexerException;
+import net.zerobone.knife.lexer.tokens.Token;
 import net.zerobone.knife.parser.KnifeParser;
 import net.zerobone.knife.parser.ParseException;
 import net.zerobone.knife.parser.TokenMgrError;
@@ -274,6 +277,22 @@ public class Knife {
             catch (FileNotFoundException e) {
                 System.out.println("Error: File '" + args[0] + "' was not found!");
                 return;
+            }
+
+            Lexer lexer = new Lexer(is);
+
+            try {
+                Token currentToken;
+                do {
+                    currentToken = lexer.lex();
+                    if (currentToken == null) {
+                        break;
+                    }
+                    System.out.println(currentToken.id);
+                } while (true);
+            }
+            catch (LexerException | IOException e) {
+                e.printStackTrace();
             }
 
             KnifeParser lang = new KnifeParser(is);
