@@ -25,15 +25,14 @@ public final class Parser {
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	1,2,0,0,0,0,0,
+	0,1,0,0,0,0,0,
+	0,2,0,0,0,0,0,
 	0,3,0,0,0,0,0,
-	0,4,0,0,0,0,0,
-	0,6,0,5,0,0,0,
-	7,7,0,0,8,0,0,
-	0,9,0,9,0,10,0};
+	0,5,0,4,0,0,0,
+	0,6,0,0,7,0,0,
+	0,8,0,8,0,9,0};
 
 	private static final int[][] actionTable = {
-	{},
 	{-2,-1},
 	{-3},
 	{1,2,-4},

@@ -17,6 +17,7 @@ import net.zerobone.knife.lexer.LexerException;
 import net.zerobone.knife.lexer.tokens.Token;
 import net.zerobone.knife.parser.KnifeParser;
 import net.zerobone.knife.parser.ParseException;
+import net.zerobone.knife.parser.Parser;
 import net.zerobone.knife.parser.TokenMgrError;
 
 import java.io.*;
@@ -285,7 +286,7 @@ public class Knife {
                 Token currentToken;
                 do {
                     currentToken = lexer.lex();
-                    if (currentToken == null) {
+                    if (currentToken.id == Parser.T_EOF) {
                         break;
                     }
                     System.out.println(currentToken.id);

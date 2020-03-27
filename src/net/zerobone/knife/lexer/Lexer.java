@@ -1,5 +1,7 @@
 package net.zerobone.knife.lexer;
 
+import net.zerobone.knife.lexer.tokens.CodeToken;
+import net.zerobone.knife.lexer.tokens.IdToken;
 import net.zerobone.knife.lexer.tokens.Token;
 import net.zerobone.knife.parser.Parser;
 
@@ -8,43 +10,92 @@ import java.io.InputStream;
 
 public class Lexer {
 
+    private static final int EOF = -1;
+
     private final InputStream stream;
 
     private int line = 1;
 
-    private int peek;
+    private int current;
+
+    private boolean peeking = false;
 
     public Lexer(InputStream stream) {
         this.stream = stream;
     }
 
-    private boolean readChar(char expected) throws IOException {
-        return stream.read() == expected;
+    private void readChar() throws IOException {
+
+        if (peeking) {
+            peeking = false;
+            return;
+        }
+
+        current = stream.read();
+
+        if (current == '\n') {
+            line++;
+        }
+
+    }
+
+    private void peekChar() throws IOException {
+
+        assert !peeking;
+
+        peeking = true;
+
+        current = stream.read();
+
+        if (current == '\n') {
+            line++;
+        }
+
+    }
+
+    private void advancePeek() {
+        assert peeking;
+        peeking = false;
     }
 
     public Token lex() throws IOException, LexerException {
 
-        while (true) {
+        for (;;) {
 
-            if (peek == -1) {
+            readChar();
+
+            if (current == -1) {
                 return new Token(Parser.T_EOF);
             }
 
-            if (peek == ' ' || peek == '\t') {
-                peek = stream.read();
+            if (current == ' ' || current == '\n' || current == '\t' || current == '\r') {
                 continue;
             }
-            else if (peek == '\n') {
-                line++;
-                peek = stream.read();
+            else if (current == '/') {
+
+                peekChar();
+
+                if (current == '/') {
+
+                    advancePeek();
+
+                    // single-line comment start
+
+                    do {
+                        readChar();
+                    } while (current != '\n' && current != EOF);
+
+                }
+
                 continue;
+
             }
 
             break;
 
         }
 
-        switch (peek) {
+        switch (current) {
 
             case '=':
                 return new Token(Parser.T_ASSIGN);
@@ -58,27 +109,68 @@ public class Lexer {
             case ')':
                 return new Token(Parser.T_RIGHT_PAREN);
 
-            case '/':
+            case '{': {
+                // code block
 
-                if (readChar('/')) {
+                int nestingLevel = 0;
 
-                    // comment start
-                    do {
-                        peek = stream.read();
-                    } while (peek != -1 && peek != '\n');
+                StringBuilder sb = new StringBuilder();
 
-                    if (peek == '\n') {
-                        line++;
+                for (;;) {
+
+                    readChar();
+
+                    if (current == EOF) {
+                        break;
                     }
 
+                    if (current == '{') {
+                        nestingLevel++;
+                    }
+                    else if (current == '}') {
+
+                        if (nestingLevel == 0) {
+                            return new CodeToken(sb.toString());
+                        }
+
+                        nestingLevel--;
+
+                    }
+
+                    sb.append((char)current);
+
                 }
+
+                throw new LexerException("Invalid code block at line " + line);
+
+            }
 
             default:
                 break;
 
         }
 
-        throw new LexerException("Invalid lexeme at line " + line);
+        if (Character.isLetter(current)) {
+
+            StringBuilder sb = new StringBuilder();
+
+            do {
+
+                sb.append((char)current);
+
+                readChar();
+
+                if (current == EOF) {
+                    break;
+                }
+
+            } while (Character.isLetterOrDigit((char)current));
+
+            return new IdToken(sb.toString());
+
+        }
+
+        throw new LexerException("Invalid start of lexeme '" + (char)current + "' at line " + line);
 
     }
 
