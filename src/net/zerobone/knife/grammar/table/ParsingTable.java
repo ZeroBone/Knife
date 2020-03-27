@@ -46,7 +46,22 @@ public class ParsingTable {
         sb.append('\n');
         sb.append('\n');
 
-        sb.append(String.format("%11s   ", "LL(1) TABLE"));
+        // calculate width
+        int width = 10;
+
+        for (int y = 0; y < nonTerminalCount; y++) {
+
+            String nonTerminalSymbol = idToSymbol(-y - 1);
+
+            if (nonTerminalSymbol.length() > width) {
+                width = nonTerminalSymbol.length();
+            }
+
+        }
+
+        // write header
+
+        sb.append(String.format("%"+(width + 1)+"s   ", "LL(1) TABLE"));
 
         for (int x = 0; x < terminalCount; x++) {
 
@@ -58,9 +73,11 @@ public class ParsingTable {
 
         sb.append('\n');
 
+        // write table body
+
         for (int y = 0; y < nonTerminalCount; y++) {
 
-            sb.append(String.format("%10s", idToSymbol(-y - 1)));
+            sb.append(String.format("%"+width+"s", idToSymbol(-y - 1)));
 
             sb.append(" | ");
 

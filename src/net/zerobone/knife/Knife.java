@@ -53,6 +53,8 @@ public class Knife {
 
         System.out.println("Attempting to resolve grammar issues...");
 
+        // TODO: write this information to file
+
         System.out.println("Before eliminating epsilon productions:");
         System.out.println(grammar.toString());
 

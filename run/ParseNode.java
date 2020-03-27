@@ -22,35 +22,44 @@ final class ParseNode {
 		switch (actionId - 1) {
 			case 0:
 				{
-					Object e = ((ParseNode)children.get(0)).payload;
-					v = e;
+					v = new TranslationUnitNode();
 				}
 				break;
 			case 1:
 				{
-					Object id = ((ParseNode)children.get(0)).payload;
-					v = id;
+					Object s = ((ParseNode)children.get(1)).payload;
+					Object t = ((ParseNode)children.get(0)).payload;
+					t.addStatement(s); v = t;
 				}
 				break;
 			case 2:
 				{
-					Object op1 = ((ParseNode)children.get(1)).payload;
-					Object op2 = ((ParseNode)children.get(0)).payload;
-					v = (int)op1 + (int)op2;
+					Object s = ((ParseNode)children.get(0)).payload;
+					v = s;
 				}
 				break;
 			case 3:
 				{
-					Object op1 = ((ParseNode)children.get(1)).payload;
-					Object op2 = ((ParseNode)children.get(0)).payload;
-					v = (int)op1 - (int)op2;
+					Object nonTerminal = ((ParseNode)children.get(2)).payload;
+					Object body = ((ParseNode)children.get(0)).payload;
+					v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode());
 				}
 				break;
 			case 4:
 				{
-					Object op1 = ((ParseNode)children.get(1)).payload;
-					Object op2 = ((ParseNode)children.get(0)).payload;
-					v = (int)op1 * (int)op2;
+					Object code = ((ParseNode)children.get(0)).payload;
+					v = new ProductionStatementBody(code);
+				}
+				break;
+			case 5:
+				{
+					v = null;
+				}
+				break;
+			case 6:
+				{
+					Object c = ((ParseNode)children.get(0)).payload;
+					v = c;
 				}
 				break;
 			default:

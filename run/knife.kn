@@ -1,0 +1,13 @@
+// translation unit
+translationUnit = ; { v = new TranslationUnitNode(); }
+translationUnit = statement(s) translationUnit(t); { t.addStatement(s); v = t; }
+
+// statements
+statement = productionStatement(s); { v = s; }
+
+productionStatement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); }
+
+productionStatementBody = SEMICOLON epsilonProductionCode(code); { v = new ProductionStatementBody(code); }
+
+epsilonProductionCode = ; { v = null; }
+epsilonProductionCode = CODE(c); { v = c; }
