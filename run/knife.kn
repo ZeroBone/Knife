@@ -5,6 +5,7 @@ translationUnit = statement(s) translationUnit(t); { t.addStatement(s); v = t; }
 // statements
 statement = productionStatement(s); { v = s; }
 
+// production statement
 productionStatement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); }
 
 productionStatementBody = SEMICOLON productionStatementCode(code); { v = new ProductionStatementBody(code); }
