@@ -22,12 +22,35 @@ final class ParseNode {
 		switch (actionId - 1) {
 			case 0:
 				{
-
+					Object e = ((ParseNode)children.get(0)).payload;
+					v = e;
 				}
 				break;
 			case 1:
 				{
-
+					Object id = ((ParseNode)children.get(0)).payload;
+					v = id;
+				}
+				break;
+			case 2:
+				{
+					Object op1 = ((ParseNode)children.get(1)).payload;
+					Object op2 = ((ParseNode)children.get(0)).payload;
+					v = (int)op1 + (int)op2;
+				}
+				break;
+			case 3:
+				{
+					Object op1 = ((ParseNode)children.get(1)).payload;
+					Object op2 = ((ParseNode)children.get(0)).payload;
+					v = (int)op1 - (int)op2;
+				}
+				break;
+			case 4:
+				{
+					Object op1 = ((ParseNode)children.get(1)).payload;
+					Object op2 = ((ParseNode)children.get(0)).payload;
+					v = (int)op1 * (int)op2;
 				}
 				break;
 			default:

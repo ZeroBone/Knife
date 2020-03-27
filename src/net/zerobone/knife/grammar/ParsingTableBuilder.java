@@ -1,6 +1,7 @@
 package net.zerobone.knife.grammar;
 
 import net.zerobone.knife.grammar.table.ParsingTable;
+import net.zerobone.knife.grammar.table.ParsingTableConflict;
 import net.zerobone.knife.grammar.table.ParsingTableProduction;
 import net.zerobone.knife.utils.BijectiveMap;
 
@@ -21,6 +22,8 @@ class ParsingTableBuilder {
     private int productionCounter = 1;
 
     private ArrayList<ParsingTableProduction> productionActions = new ArrayList<>();
+
+    private ArrayList<ParsingTableConflict> conflicts = new ArrayList<>();
 
     private InnerProduction lastWrittenProduction = null;
 
@@ -101,18 +104,6 @@ class ParsingTableBuilder {
 
     }
 
-    private void write(int nonTerminalIndex, int terminalIndex, int productionId) {
-
-        if (table[nonTerminalIndex][terminalIndex] != 0) {
-
-            System.out.println("CONFLICT!!!!");
-
-        }
-
-        table[nonTerminalIndex][terminalIndex] = productionId;
-
-    }
-
     public void write(int nonTerminal, int terminalOrEof, InnerProduction production) {
 
         assert production != null;
@@ -127,11 +118,22 @@ class ParsingTableBuilder {
         assert terminalIndex < terminalCount;
 
         if (lastWrittenProduction == production) {
-            write(nonTerminalIndex, terminalIndex, productionCounter - 1);
+
+            if (table[nonTerminalIndex][terminalIndex] != 0) {
+                conflicts.add(new ParsingTableConflict(nonTerminal, terminalOrEof, grammar));
+            }
+
+            table[nonTerminalIndex][terminalIndex] = productionCounter - 1;
+
             return;
+
         }
 
-        write(nonTerminalIndex, terminalIndex, productionCounter);
+        if (table[nonTerminalIndex][terminalIndex] != 0) {
+            conflicts.add(new ParsingTableConflict(nonTerminal, terminalOrEof, grammar));
+        }
+
+        table[nonTerminalIndex][terminalIndex] = productionCounter;
 
         productionActions.add(convertProduction(nonTerminal, production));
 
@@ -149,13 +151,18 @@ class ParsingTableBuilder {
 
         productionActions.toArray(productionActionsArray);
 
+        ParsingTableConflict[] conflictsArray = new ParsingTableConflict[conflicts.size()];
+
+        conflicts.toArray(conflictsArray);
+
         return new ParsingTable(
             mapping,
             nonTerminalCount,
             terminalCount,
             productionActionsArray,
             table,
-            grammar.idToSymbol(Grammar.START_SYMBOL_ID)
+            grammar.idToSymbol(Grammar.START_SYMBOL_ID),
+            conflictsArray
         );
 
     }

@@ -16,13 +16,16 @@ public class ParsingTable {
 
     public final String startSymbol;
 
-    public ParsingTable(BijectiveMap<String, Integer> mapping, int nonTerminalCount, int terminalCount, ParsingTableProduction[] productionActions, int[][] table, String startSymbol) {
+    public final ParsingTableConflict[] conflicts;
+
+    public ParsingTable(BijectiveMap<String, Integer> mapping, int nonTerminalCount, int terminalCount, ParsingTableProduction[] productionActions, int[][] table, String startSymbol, ParsingTableConflict[] conflicts) {
         this.mapping = mapping;
         this.nonTerminalCount = nonTerminalCount;
         this.terminalCount = terminalCount;
         this.productionActions = productionActions;
         this.table = table;
         this.startSymbol = startSymbol;
+        this.conflicts = conflicts;
     }
 
     public String idToSymbol(int id) {

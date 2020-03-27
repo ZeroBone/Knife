@@ -7,6 +7,7 @@ import net.zerobone.knife.ast.statements.StatementNode;
 import net.zerobone.knife.generator.Generator;
 import net.zerobone.knife.generator.GeneratorContext;
 import net.zerobone.knife.grammar.Grammar;
+import net.zerobone.knife.grammar.table.ParsingTableConflict;
 import net.zerobone.knife.grammar.verification.VerificationError;
 import net.zerobone.knife.grammar.table.ParsingTable;
 import net.zerobone.knife.grammar.Production;
@@ -50,7 +51,7 @@ public class Knife {
             return;
         }
 
-        System.out.println("Attempting to resolve issues...");
+        System.out.println("Attempting to resolve grammar issues...");
 
         System.out.println("Before eliminating epsilon productions:");
         System.out.println(grammar.toString());
@@ -67,118 +68,144 @@ public class Knife {
 
     }
 
-    private void exportDebugInfo(ParsingTable table) {
+    private boolean tableHasErrors(ParsingTable table) {
+        return table.conflicts.length != 0;
+    }
 
-        try {
+    private void handleTableErrors(ParsingTable table) {
 
-            BufferedWriter debugLogWriter = new BufferedWriter(new FileWriter("debug.log"));
+        for (ParsingTableConflict conflict : table.conflicts) {
 
-            debugLogWriter.write("Grammar:");
-            debugLogWriter.newLine();
-            debugLogWriter.newLine();
+            System.err.print("Conflict: ");
+            System.err.println(conflict.getMessage());
 
-            debugLogWriter.write(grammar.toString());
+        }
 
-            debugLogWriter.newLine();
-            debugLogWriter.newLine();
+    }
 
-            debugLogWriter.write("First sets:");
-            debugLogWriter.newLine();
+    private void exportDebugInfo(ParsingTable table) throws IOException {
 
-            HashMap<Integer, HashSet<Integer>> firstSets = grammar.computeFirstSets();
+        BufferedWriter debugLogWriter = new BufferedWriter(new FileWriter("debug.log"));
 
-            for (HashMap.Entry<Integer, HashSet<Integer>> entry : firstSets.entrySet()) {
+        debugLogWriter.write("Grammar:");
+        debugLogWriter.newLine();
+        debugLogWriter.newLine();
 
-                debugLogWriter.write("FIRST(");
-                debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
-                debugLogWriter.write(") = {");
+        debugLogWriter.write(grammar.toString());
 
-                Iterator<Integer> firstSetIterator = entry.getValue().iterator();
+        debugLogWriter.newLine();
+        debugLogWriter.newLine();
 
-                if (firstSetIterator.hasNext()) {
+        debugLogWriter.write("First sets:");
+        debugLogWriter.newLine();
 
-                    while (true) {
+        HashMap<Integer, HashSet<Integer>> firstSets = grammar.computeFirstSets();
 
-                        int id = firstSetIterator.next();
+        for (HashMap.Entry<Integer, HashSet<Integer>> entry : firstSets.entrySet()) {
 
-                        if (id != Grammar.FIRST_FOLLOW_SET_EPSILON) {
+            debugLogWriter.write("FIRST(");
+            debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
+            debugLogWriter.write(") = {");
 
-                            debugLogWriter.write(grammar.idToSymbol(id));
+            Iterator<Integer> firstSetIterator = entry.getValue().iterator();
 
-                        }
+            if (firstSetIterator.hasNext()) {
 
-                        if (!firstSetIterator.hasNext()) {
-                            break;
-                        }
+                while (true) {
 
-                        debugLogWriter.write(", ");
+                    int id = firstSetIterator.next();
+
+                    if (id != Grammar.FIRST_FOLLOW_SET_EPSILON) {
+
+                        debugLogWriter.write(grammar.idToSymbol(id));
 
                     }
 
+                    if (!firstSetIterator.hasNext()) {
+                        break;
+                    }
+
+                    debugLogWriter.write(", ");
+
                 }
 
-                debugLogWriter.write('}');
+            }
 
+            debugLogWriter.write('}');
+
+            debugLogWriter.newLine();
+
+        }
+
+        debugLogWriter.newLine();
+
+        debugLogWriter.write("Follow sets:");
+        debugLogWriter.newLine();
+
+        HashMap<Integer, HashSet<Integer>> followSets = grammar.computeFollowSets();
+
+        for (HashMap.Entry<Integer, HashSet<Integer>> entry : followSets.entrySet()) {
+
+            debugLogWriter.write("FOLLOW(");
+            debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
+            debugLogWriter.write(") = {");
+
+            Iterator<Integer> followSetIterator = entry.getValue().iterator();
+
+            if (followSetIterator.hasNext()) {
+
+                while (true) {
+
+                    int id = followSetIterator.next();
+
+                    if (id == Grammar.FOLLOW_SET_EOF) {
+                        debugLogWriter.write("$");
+                    }
+                    else if (id != Grammar.FIRST_FOLLOW_SET_EPSILON) {
+
+                        debugLogWriter.write(grammar.idToSymbol(id));
+
+                    }
+
+                    if (!followSetIterator.hasNext()) {
+                        break;
+                    }
+
+                    debugLogWriter.write(", ");
+
+                }
+
+            }
+
+            debugLogWriter.write('}');
+
+            debugLogWriter.newLine();
+
+        }
+
+        if (table.conflicts.length != 0) {
+
+            debugLogWriter.newLine();
+
+            // write conflicts
+            debugLogWriter.write("Conflicts");
+            debugLogWriter.newLine();
+
+            for (ParsingTableConflict conflict : table.conflicts) {
+
+                debugLogWriter.write(conflict.getMessage());
                 debugLogWriter.newLine();
 
             }
 
-            debugLogWriter.newLine();
-
-            debugLogWriter.write("Follow sets:");
-            debugLogWriter.newLine();
-
-            HashMap<Integer, HashSet<Integer>> followSets = grammar.computeFollowSets();
-
-            for (HashMap.Entry<Integer, HashSet<Integer>> entry : followSets.entrySet()) {
-
-                debugLogWriter.write("FOLLOW(");
-                debugLogWriter.write(grammar.idToSymbol(entry.getKey()));
-                debugLogWriter.write(") = {");
-
-                Iterator<Integer> followSetIterator = entry.getValue().iterator();
-
-                if (followSetIterator.hasNext()) {
-
-                    while (true) {
-
-                        int id = followSetIterator.next();
-
-                        if (id == Grammar.FOLLOW_SET_EOF) {
-                            debugLogWriter.write("$");
-                        }
-                        else if (id != Grammar.FIRST_FOLLOW_SET_EPSILON) {
-
-                            debugLogWriter.write(grammar.idToSymbol(id));
-
-                        }
-
-                        if (!followSetIterator.hasNext()) {
-                            break;
-                        }
-
-                        debugLogWriter.write(", ");
-
-                    }
-
-                }
-
-                debugLogWriter.write('}');
-
-                debugLogWriter.newLine();
-
-            }
-
-            debugLogWriter.newLine();
-
-            debugLogWriter.write(table.toString());
-
-            debugLogWriter.close();
-
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        // table
+        debugLogWriter.newLine();
+
+        debugLogWriter.write(table.toString());
+
+        debugLogWriter.close();
 
     }
 
@@ -195,20 +222,29 @@ public class Knife {
 
         ParsingTable table = grammar.constructParsingTable();
 
-        exportDebugInfo(table);
+        if (tableHasErrors(table)) {
+            handleTableErrors(table);
+            return;
+        }
+
+        try {
+            exportDebugInfo(table);
+        }
+        catch (IOException e) {
+            System.err.println("I/O error: " + e.getMessage());
+        }
 
         GeneratorContext context = new GeneratorContext("net.zerobone.knife.parser", table);
 
         try {
-
             Generator.generate(context);
-
-            System.out.println("Parser generated successfully.");
-
         }
         catch (IOException e) {
-            System.err.println("IO error: " + e.getMessage());
+            System.err.println("I/O error: " + e.getMessage());
+            return;
         }
+
+        System.out.println("Parser generated successfully.");
 
     }
 
