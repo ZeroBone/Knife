@@ -621,8 +621,7 @@ public class Grammar {
 
     }
 
-    @Override
-    public String toString() {
+    public String toString(boolean debug) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -632,7 +631,7 @@ public class Grammar {
 
             Map.Entry<Integer, ArrayList<InnerProduction>> pair = it.next();
 
-            String label = "(" + pair.getKey() + ") " + idToSymbol(pair.getKey());
+            String label = (debug ? "(" + pair.getKey() + ") " : "") + idToSymbol(pair.getKey());
 
             sb.append(label);
             sb.append(" -> ");
@@ -671,6 +670,11 @@ public class Grammar {
 
         return sb.toString();
 
+    }
+
+    @Override
+    public String toString() {
+        return toString(false);
     }
 
 }

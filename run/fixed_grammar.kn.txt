@@ -1,0 +1,9 @@
+s -> a A
+   | B
+   | A;
+a -> C a'
+   | B D a'
+   | A D a';
+a' -> C a'
+    | A D a'
+    | ;

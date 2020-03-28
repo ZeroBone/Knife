@@ -56,22 +56,36 @@ public class Knife {
             return;
         }
 
-        System.out.println("Attempting to resolve grammar issues...");
+        System.out.println("Resolving grammar issues...");
 
-        // TODO: write this information to file
-
-        System.out.println("Before eliminating epsilon productions:");
-        System.out.println(grammar.toString());
+        // System.out.println("Before eliminating epsilon productions:");
+        // System.out.println(grammar.toString());
 
         grammar.eliminateEpsilonProductions();
 
-        System.out.println("Before eliminating left recursion:");
-        System.out.println(grammar.toString());
+        // System.out.println("Before eliminating left recursion:");
+        // System.out.println(grammar.toString());
 
         grammar.eliminateLeftRecursion();
 
-        System.out.println("Eliminated left recursion:");
-        System.out.println(grammar.toString());
+        // System.out.println("Eliminated left recursion:");
+        // System.out.println(grammar.toString());
+
+        try {
+
+            BufferedWriter grammarWriter = new BufferedWriter(new FileWriter("fixed_grammar.kn.txt"));
+
+            grammarWriter.write(grammar.toString());
+
+            grammarWriter.close();
+
+        }
+        catch (IOException e) {
+            System.err.println("I/O error: " + e.getMessage());
+            return;
+        }
+
+        System.out.println("Alternative grammar exported to 'fixed_grammar.kn.txt'.");
 
     }
 
@@ -98,7 +112,7 @@ public class Knife {
         debugLogWriter.newLine();
         debugLogWriter.newLine();
 
-        debugLogWriter.write(grammar.toString());
+        debugLogWriter.write(grammar.toString(true));
 
         debugLogWriter.newLine();
         debugLogWriter.newLine();
