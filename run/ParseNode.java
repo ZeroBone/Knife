@@ -36,20 +36,20 @@ final class ParseNode {
 				{
 					IdToken nonTerminal = (IdToken)((ParseNode)children.get(2)).payload;
 					ProductionStatementBody body = (ProductionStatementBody)((ParseNode)children.get(0)).payload;
-					 v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); 
+					 v = new ProductionStatementNode(nonTerminal.id, body.getProduction(), body.getCode()); 
 				}
 				break;
 			case 3:
 				{
 					IdToken symbol = (IdToken)((ParseNode)children.get(1)).payload;
 					IdToken type = (IdToken)((ParseNode)children.get(0)).payload;
-					 v = new TypeStatementNode(symbol, type); 
+					 v = new TypeStatementNode(symbol.id, type.id); 
 				}
 				break;
 			case 4:
 				{
-					IdToken code = (IdToken)((ParseNode)children.get(0)).payload;
-					 v = new ProductionStatementBody(code); 
+					CodeToken code = (CodeToken)((ParseNode)children.get(0)).payload;
+					 v = new ProductionStatementBody(code == null ? null : code.code); 
 				}
 				break;
 			case 5:

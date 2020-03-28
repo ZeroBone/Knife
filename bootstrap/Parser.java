@@ -1,5 +1,6 @@
 package net.zerobone.knife.parser;
 
+import java.lang.Object;
 import java.util.Stack;
 
 public final class Parser {
@@ -17,27 +18,28 @@ public final class Parser {
 
 	public static final int T_LEFT_PAREN = 5;
 
-	private static final int terminalCount = 7;
+	public static final int T_TYPE = 7;
 
-	private static final int nonTerminalCount = 6;
+	private static final int terminalCount = 8;
+
+	private static final int nonTerminalCount = 5;
 
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	1,2,0,0,0,0,0,
-	0,3,0,0,0,0,0,
-	0,4,0,0,0,0,0,
-	0,6,0,5,0,0,0,
-	7,7,0,0,8,0,0,
-	0,9,0,9,0,10,0};
+	1,2,0,0,0,0,0,2,
+	0,3,0,0,0,0,0,4,
+	0,6,0,5,0,0,0,0,
+	7,7,0,0,8,0,0,7,
+	0,9,0,9,0,10,0,0};
 
 	private static final int[][] actionTable = {
 	{},
 	{-2,-1},
-	{-3},
-	{1,2,-4},
-	{3,-5},
-	{1,-6,-4},
+	{1,2,-3},
+	{7,1,1},
+	{3,-4},
+	{1,-5,-3},
 	{},
 	{4},
 	{},
@@ -78,7 +80,7 @@ public final class Parser {
 			}
 			int actionId = table[(-prevRoot.symbolId - 1) * terminalCount + tokenId];
 			if (actionId == 0) {
-				throw new RuntimeException("Syntax error. Non-terminal: " + (-prevRoot.symbolId - 1) + " Token: " + token);
+				throw new RuntimeException("Syntax error. Token: " + token);
 			}
 			int[] action = actionTable[actionId - 1];
 			prevRoot.actionId = actionId;

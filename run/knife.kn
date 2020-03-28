@@ -11,10 +11,10 @@ translationUnit = statement(s) translationUnit(t); { t.addStatement(s); v = t; }
 %type statement StatementNode
 
 // production statement
-statement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); }
+statement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal.id, body.getProduction(), body.getCode()); }
 
 %type productionStatementBody ProductionStatementBody
-productionStatementBody = SEMICOLON productionStatementCode(code); { v = new ProductionStatementBody(code); }
+productionStatementBody = SEMICOLON productionStatementCode(code); { v = new ProductionStatementBody(code == null ? null : code.code); }
 productionStatementBody = ID(s) productionStatementArgument(arg) productionStatementBody(b); {
     if (StringUtils.isTerminal(s.id)) {
         if (arg == null) {
@@ -35,7 +35,7 @@ productionStatementBody = ID(s) productionStatementArgument(arg) productionState
     v = b;
 }
 
-%type productionStatementCode IdToken
+%type productionStatementCode CodeToken
 productionStatementCode = ; { v = null; }
 productionStatementCode = CODE(c); { v = c; }
 
@@ -44,4 +44,4 @@ productionStatementArgument = ; { v = null; }
 productionStatementArgument = LEFT_PAREN ID(arg) RIGHT_PAREN; { v = arg; }
 
 // type statement
-statement = TYPE ID(symbol) ID(type); { v = new TypeStatementNode(symbol, type); }
+statement = TYPE ID(symbol) ID(type); { v = new TypeStatementNode(symbol.id, type.id); }
