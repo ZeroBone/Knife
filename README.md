@@ -23,7 +23,43 @@ Also, as other good parser generation tools, knife uses itself to read the input
 2. Run `java -jar knife.jar grammar.kn` where `grammar.kn` is your grammar file.
 3. Knife will generate the parsing classes in the same directory.
 
-**Note**: in the grammar file the first non-terminal to be declared is the start symbol. Further ordering doesn't matter.
+### Grammar file syntax
+
+Knife accepts grammar files in BNF (Backus-Naur-Form) format with productions in the following syntax:
+
+#### Terminals and non-terminals
+
+```
+non_terminal = TERMINAL non_terminal TERMINAL_WITH_ARG(argument); { java code }
+```
+
+The way knife distinguished between terminals and non-terminals is by looking at the first character. If it is a capital letter, the identifier identifies a terminal symbol, otherwise a non-terminal.
+
+The first non-terminals declared in the grammar file will be the starting symbol of the grammar. Further ordering doesn't matter.
+
+#### Arguments
+
+Arguments can be attached to any grammar symbols (terminals and non-terminals) if you need to access their payload in the code attached to the production.
+
+The production label cannot have an argument. In order to assign a value to it, assign it to `v`.
+
+For example:
+
+```
+if_stmt = IF LPAREN expr(e) RPAREN stmt(ifbody) ELSE stmt(elsebody); {
+	v = new IfStatement(e, ifbody, elseBody);
+}
+```
+
+#### Type statements
+
+By default the type associated to all grammar symbols is `java.lang.Object`. In order to avoid a lot of type casting in the production code blocks you can use following syntax to assign a type to a symbol:
+
+```
+%type if_stmt IfStatement
+```
+
+Everywhere where the typed symbol will be used, the corresponding argument name will have the specified type.
 
 ### Example
 
@@ -56,7 +92,7 @@ public class Main {
 
         Parser parser = new Parser();
 
-		// parsing expression + * 5 3 * 4 6
+        // parsing expression + * 5 3 * 4 6
         // in infix notation: 5 * 3 + 4 * 6 = 39
         parser.parse(Parser.T_PLUS, "+");
         parser.parse(Parser.T_MUL, "*");
