@@ -145,7 +145,31 @@ public class Lexer {
 
                 }
 
-                throw new LexerException("Invalid code block at line " + line);
+                throw new LexerException("Reached end of input while scanning code block.", line);
+
+            }
+
+            case '%': {
+
+                readChar();
+
+                if (current == EOF) {
+                    throw new LexerException("Unexpected end of file while reading directive header.", line);
+                }
+
+                if (!Character.isLetter(current)) {
+                    throw new LexerException("Expected identifier after directive begin.", line);
+                }
+
+                // return new IdToken(line, readIndentifier());
+                String id = readIndentifier();
+
+                if (id.equals("type")) {
+                    return constructPrimitiveToken(Parser.T_TYPE);
+                }
+                else {
+                    throw new LexerException("Unknown directive '" + id + "'", line);
+                }
 
             }
 
@@ -156,25 +180,31 @@ public class Lexer {
 
         if (Character.isLetter(current)) {
 
-            StringBuilder sb = new StringBuilder();
-
-            do {
-
-                sb.append((char)current);
-
-                peekChar();
-
-                if (current == EOF) {
-                    break;
-                }
-
-            } while (Character.isLetterOrDigit((char)current) || current == '_');
-
-            return new IdToken(line, sb.toString());
+            return new IdToken(line, readIndentifier());
 
         }
 
-        throw new LexerException("Invalid start of lexeme '" + (char)current + "' at line " + line);
+        throw new LexerException("Invalid start of lexeme '" + (char)current + "'", line);
+
+    }
+
+    private String readIndentifier() throws IOException {
+
+        StringBuilder sb = new StringBuilder();
+
+        do {
+
+            sb.append((char)current);
+
+            peekChar();
+
+            if (current == EOF) {
+                break;
+            }
+
+        } while (Character.isLetterOrDigit((char)current) || current == '_');
+
+        return sb.toString();
 
     }
 

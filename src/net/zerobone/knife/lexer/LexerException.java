@@ -2,8 +2,11 @@ package net.zerobone.knife.lexer;
 
 public class LexerException extends Exception {
 
-    public LexerException(String message) {
+    public final int line;
+
+    public LexerException(String message, int line) {
         super(message);
+        this.line = line;
     }
 
 }

@@ -1,22 +1,33 @@
 // translation unit
+%type translationUnit TranslationUnitNode
 translationUnit = ; { v = new TranslationUnitNode(); }
 translationUnit = statement(s) translationUnit(t); { t.addStatement(s); v = t; }
 
-// statements
-statement = productionStatement(s); { v = s; }
-
 // production statement
-productionStatement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); }
+statement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); }
+
+// type statement
+statement = TYPE ID(nonTerminal) ID(type); { v = new TypeStatementNode(nonTerminal, type); }
 
 productionStatementBody = SEMICOLON productionStatementCode(code); { v = new ProductionStatementBody(code); }
 productionStatementBody = ID(s) productionStatementArgument(arg) productionStatementBody(b); {
     char firstChar = s.charAt(0);
-    if (Character.isUpperCase(firstChar))
-        if (arg == null) b.addTerminal(s);
-        else b.addTerminal(s, arg);
-    else
-        if (arg == null) b.addNonTerminal(s);
-        else b.addNonTerminal(s, arg);
+    if (Character.isUpperCase(firstChar)) {
+        if (arg == null) {
+            b.addTerminal(s);
+        }
+        else {
+            b.addTerminal(s, arg);
+        }
+    }
+    else {
+        if (arg == null) {
+            b.addNonTerminal(s);
+        }
+        else {
+            b.addNonTerminal(s, arg);
+        }
+    }
     v = b;
 }
 

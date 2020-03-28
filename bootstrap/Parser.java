@@ -1,49 +1,47 @@
 package net.zerobone.knife.parser;
 
-import java.lang.Object;
 import java.util.Stack;
 
 public final class Parser {
 	public static final int T_EOF = 0;
 
-	public static final int T_CODE = 5;
+	public static final int T_CODE = 4;
 
-	public static final int T_SEMICOLON = 4;
+	public static final int T_SEMICOLON = 3;
 
-	public static final int T_RIGHT_PAREN = 7;
+	public static final int T_RIGHT_PAREN = 6;
 
 	public static final int T_ID = 1;
 
 	public static final int T_ASSIGN = 2;
 
-	public static final int T_TYPE = 3;
+	public static final int T_LEFT_PAREN = 5;
 
-	public static final int T_LEFT_PAREN = 6;
+	private static final int terminalCount = 7;
 
-	private static final int terminalCount = 8;
-
-	private static final int nonTerminalCount = 5;
+	private static final int nonTerminalCount = 6;
 
 	private static final int startSymbol = -1;
 
 	private static final int[] table = {
-	1,2,0,2,0,0,0,0,
-	0,3,0,4,0,0,0,0,
-	0,6,0,0,5,0,0,0,
-	7,7,0,7,0,8,0,0,
-	0,9,0,0,9,0,10,0};
+	1,2,0,0,0,0,0,
+	0,3,0,0,0,0,0,
+	0,4,0,0,0,0,0,
+	0,6,0,5,0,0,0,
+	7,7,0,0,8,0,0,
+	0,9,0,9,0,10,0};
 
 	private static final int[][] actionTable = {
 	{},
 	{-2,-1},
-	{1,2,-3},
-	{3,1,1},
-	{4,-4},
-	{1,-5,-3},
+	{-3},
+	{1,2,-4},
+	{3,-5},
+	{1,-6,-4},
 	{},
-	{5},
+	{4},
 	{},
-	{6,1,7}};
+	{5,1,6}};
 
 	private Stack<ParseNode> stack;
 
@@ -80,7 +78,7 @@ public final class Parser {
 			}
 			int actionId = table[(-prevRoot.symbolId - 1) * terminalCount + tokenId];
 			if (actionId == 0) {
-				throw new RuntimeException("Syntax error. Token: " + token);
+				throw new RuntimeException("Syntax error. Non-terminal: " + (-prevRoot.symbolId - 1) + " Token: " + token);
 			}
 			int[] action = actionTable[actionId - 1];
 			prevRoot.actionId = actionId;
