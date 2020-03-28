@@ -308,7 +308,7 @@ public class Knife {
                 } while (currentToken.type != Parser.T_EOF);
 
             }
-            catch (LexerException e) {
+            catch (LexerException | RuntimeException e) {
                 System.err.println("Syntax error: " + e.getMessage());
                 return;
             }
@@ -322,15 +322,15 @@ public class Knife {
                 return;
             }
 
-            TranslationUnitNode t = (TranslationUnitNode)parser.getValue();
+            TranslationUnitNode translationUnit = (TranslationUnitNode)parser.getValue();
+
+            assert translationUnit != null;
 
             Grammar grammar = null;
 
             HashMap<String, String> typeMap = new HashMap<>();
 
-            assert t != null;
-
-            for (StatementNode stmt : t.statements) {
+            for (StatementNode stmt : translationUnit.statements) {
 
                 if (stmt instanceof ProductionStatementNode) {
 
@@ -366,7 +366,7 @@ public class Knife {
                 return;
             }
 
-            // TODO: check that all symbols in the type map exist
+            // TODO: verify that all symbols in the type map exist in the grammar
 
             Knife knife = new Knife(grammar, typeMap);
 
