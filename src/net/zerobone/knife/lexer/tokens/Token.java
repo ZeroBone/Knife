@@ -4,18 +4,18 @@ public class Token {
 
     public final int line;
 
-    public final int id;
+    public final int type;
 
-    public Token(int line, int id) {
+    public Token(int line, int type) {
         this.line = line;
-        this.id = id;
+        this.type = type;
     }
 
     @Override
     public String toString() {
         return "Token{" +
             "line=" + line +
-            ", id=" + id +
+            ", type=" + type +
             '}';
     }
 

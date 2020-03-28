@@ -4,6 +4,7 @@ import net.zerobone.knife.ast.TranslationUnitNode;
 import net.zerobone.knife.ast.entities.ProductionSymbol;
 import net.zerobone.knife.ast.statements.ProductionStatementNode;
 import net.zerobone.knife.ast.statements.StatementNode;
+import net.zerobone.knife.ast.statements.TypeStatementNode;
 import net.zerobone.knife.generator.Generator;
 import net.zerobone.knife.generator.GeneratorContext;
 import net.zerobone.knife.grammar.Grammar;
@@ -25,12 +26,15 @@ import java.util.Iterator;
 
 public class Knife {
 
-    public static final String VERSION = "1.0.0-beta";
+    private static final String VERSION = "1.0.0-beta";
 
     private Grammar grammar;
 
-    private Knife(Grammar grammar) {
+    private final HashMap<String, String> typeMap;
+
+    private Knife(Grammar grammar, HashMap<String, String> typeMap) {
         this.grammar = grammar;
+        this.typeMap = typeMap;
     }
 
     private void handleErrors(ArrayList<VerificationError> errors) {
@@ -237,7 +241,7 @@ public class Knife {
             System.err.println("I/O error: " + e.getMessage());
         }
 
-        GeneratorContext context = new GeneratorContext("net.zerobone.knife.parser", table);
+        GeneratorContext context = new GeneratorContext("net.zerobone.knife.parser", table, typeMap);
 
         try {
             Generator.generate(context);
@@ -273,7 +277,7 @@ public class Knife {
                 is = new FileInputStream(args[0]);
             }
             catch (FileNotFoundException e) {
-                System.out.println("Error: File '" + args[0] + "' was not found!");
+                System.out.println("I/O error: File '" + args[0] + "' was not found!");
                 return;
             }
 
@@ -286,12 +290,17 @@ public class Knife {
 
                 do {
                     currentToken = lexer.lex();
-                    parser.parse(currentToken.id, currentToken);
-                } while (currentToken.id != Parser.T_EOF);
+                    parser.parse(currentToken.type, currentToken);
+                } while (currentToken.type != Parser.T_EOF);
 
             }
-            catch (LexerException | IOException e) {
-                e.printStackTrace();
+            catch (LexerException e) {
+                System.err.println("Syntax error: " + e.getMessage());
+                return;
+            }
+            catch (IOException e) {
+                System.err.println("I/O error: " + e.getMessage());
+                return;
             }
 
             if (!parser.successfullyParsed()) {
@@ -302,6 +311,10 @@ public class Knife {
             TranslationUnitNode t = (TranslationUnitNode)parser.getValue();
 
             Grammar grammar = null;
+
+            HashMap<String, String> typeMap = new HashMap<>();
+
+            assert t != null;
 
             for (StatementNode stmt : t.statements) {
 
@@ -317,6 +330,20 @@ public class Knife {
                     }
 
                 }
+                else if (stmt instanceof TypeStatementNode) {
+
+                    String symbol = ((TypeStatementNode)stmt).symbol;
+
+                    String type = ((TypeStatementNode)stmt).type;
+
+                    if (typeMap.containsKey(symbol)) {
+                        System.err.println("Error: Duplicate type declaration for symbol '" + symbol + "'.");
+                        return;
+                    }
+
+                    typeMap.put(symbol, type);
+
+                }
 
             }
 
@@ -325,7 +352,9 @@ public class Knife {
                 return;
             }
 
-            Knife knife = new Knife(grammar);
+            // TODO: check that all symbols in the type map exist
+
+            Knife knife = new Knife(grammar, typeMap);
 
             knife.run();
 

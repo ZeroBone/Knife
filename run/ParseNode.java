@@ -27,52 +27,51 @@ final class ParseNode {
 				break;
 			case 1:
 				{
-					Object s = ((ParseNode)children.get(1)).payload;
-					Object t = ((ParseNode)children.get(0)).payload;
+					StatementNode s = (StatementNode)((ParseNode)children.get(1)).payload;
+					TranslationUnitNode t = (TranslationUnitNode)((ParseNode)children.get(0)).payload;
 					 t.addStatement(s); v = t; 
 				}
 				break;
 			case 2:
 				{
-					Object nonTerminal = ((ParseNode)children.get(2)).payload;
-					Object body = ((ParseNode)children.get(0)).payload;
+					IdToken nonTerminal = (IdToken)((ParseNode)children.get(2)).payload;
+					ProductionStatementBody body = (ProductionStatementBody)((ParseNode)children.get(0)).payload;
 					 v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); 
 				}
 				break;
 			case 3:
 				{
-					Object nonTerminal = ((ParseNode)children.get(1)).payload;
-					Object type = ((ParseNode)children.get(0)).payload;
-					 v = new TypeStatementNode(nonTerminal, type); 
+					IdToken symbol = (IdToken)((ParseNode)children.get(1)).payload;
+					IdToken type = (IdToken)((ParseNode)children.get(0)).payload;
+					 v = new TypeStatementNode(symbol, type); 
 				}
 				break;
 			case 4:
 				{
-					Object code = ((ParseNode)children.get(0)).payload;
+					IdToken code = (IdToken)((ParseNode)children.get(0)).payload;
 					 v = new ProductionStatementBody(code); 
 				}
 				break;
 			case 5:
 				{
-					Object s = ((ParseNode)children.get(2)).payload;
-					Object arg = ((ParseNode)children.get(1)).payload;
-					Object b = ((ParseNode)children.get(0)).payload;
+					IdToken s = (IdToken)((ParseNode)children.get(2)).payload;
+					IdToken arg = (IdToken)((ParseNode)children.get(1)).payload;
+					ProductionStatementBody b = (ProductionStatementBody)((ParseNode)children.get(0)).payload;
 
-					    char firstChar = s.charAt(0);
-					    if (Character.isUpperCase(firstChar)) {
+					    if (StringUtils.isTerminal(s.id)) {
 					        if (arg == null) {
-					            b.addTerminal(s);
+					            b.addTerminal(s.id);
 					        }
 					        else {
-					            b.addTerminal(s, arg);
+					            b.addTerminal(s.id, arg.id);
 					        }
 					    }
 					    else {
 					        if (arg == null) {
-					            b.addNonTerminal(s);
+					            b.addNonTerminal(s.id);
 					        }
 					        else {
-					            b.addNonTerminal(s, arg);
+					            b.addNonTerminal(s.id, arg.id);
 					        }
 					    }
 					    v = b;
@@ -86,7 +85,7 @@ final class ParseNode {
 				break;
 			case 7:
 				{
-					Object c = ((ParseNode)children.get(0)).payload;
+					Object c = (Object)((ParseNode)children.get(0)).payload;
 					 v = c; 
 				}
 				break;
@@ -97,7 +96,7 @@ final class ParseNode {
 				break;
 			case 9:
 				{
-					Object arg = ((ParseNode)children.get(1)).payload;
+					IdToken arg = (IdToken)((ParseNode)children.get(1)).payload;
 					 v = arg; 
 				}
 				break;

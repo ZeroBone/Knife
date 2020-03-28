@@ -42,9 +42,15 @@ class ParseNodeGenerator {
                     continue;
                 }
 
+                String symbolType = context.typeMap.get(symbol.id);
+
+                if (symbolType == null) {
+                    symbolType = "Object";
+                }
+
                 int childIndex = production.body.size() - 1 - j;
 
-                b.addStatement("Object " + symbol.argumentName + " = ((ParseNode)children.get(" + childIndex + ")).payload");
+                b.addStatement(symbolType + " " + symbol.argumentName + " = (" + symbolType + ")((ParseNode)children.get(" + childIndex + ")).payload");
 
             }
 

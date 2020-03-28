@@ -3,36 +3,45 @@
 translationUnit = ; { v = new TranslationUnitNode(); }
 translationUnit = statement(s) translationUnit(t); { t.addStatement(s); v = t; }
 
+// token types
+
+%type ID IdToken
+
+// statements
+%type statement StatementNode
+
 // production statement
 statement = ID(nonTerminal) ASSIGN productionStatementBody(body); { v = new ProductionStatementNode(nonTerminal, body.getProduction(), body.getCode()); }
 
-// type statement
-statement = TYPE ID(nonTerminal) ID(type); { v = new TypeStatementNode(nonTerminal, type); }
-
+%type productionStatementBody ProductionStatementBody
 productionStatementBody = SEMICOLON productionStatementCode(code); { v = new ProductionStatementBody(code); }
 productionStatementBody = ID(s) productionStatementArgument(arg) productionStatementBody(b); {
-    char firstChar = s.charAt(0);
-    if (Character.isUpperCase(firstChar)) {
+    if (StringUtils.isTerminal(s.id)) {
         if (arg == null) {
-            b.addTerminal(s);
+            b.addTerminal(s.id);
         }
         else {
-            b.addTerminal(s, arg);
+            b.addTerminal(s.id, arg.id);
         }
     }
     else {
         if (arg == null) {
-            b.addNonTerminal(s);
+            b.addNonTerminal(s.id);
         }
         else {
-            b.addNonTerminal(s, arg);
+            b.addNonTerminal(s.id, arg.id);
         }
     }
     v = b;
 }
 
+%type productionStatementCode IdToken
 productionStatementCode = ; { v = null; }
 productionStatementCode = CODE(c); { v = c; }
 
+%type productionStatementArgument IdToken
 productionStatementArgument = ; { v = null; }
 productionStatementArgument = LEFT_PAREN ID(arg) RIGHT_PAREN; { v = arg; }
+
+// type statement
+statement = TYPE ID(symbol) ID(type); { v = new TypeStatementNode(symbol, type); }

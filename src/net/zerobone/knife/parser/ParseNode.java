@@ -42,14 +42,14 @@ final class ParseNode {
 				{
 					IdToken nonTerminal = (IdToken)((ParseNode)children.get(2)).payload;
 					ProductionStatementBody body = (ProductionStatementBody)((ParseNode)children.get(0)).payload;
-					 v = new ProductionStatementNode(nonTerminal.identifier, body.getProduction(), body.getCode());
+					 v = new ProductionStatementNode(nonTerminal.id, body.getProduction(), body.getCode());
 				}
 				break;
 			case 3:
 				{
 					IdToken nonTerminal = (IdToken)((ParseNode)children.get(1)).payload;
 					IdToken type = (IdToken)((ParseNode)children.get(0)).payload;
-					 v = new TypeStatementNode(nonTerminal.identifier, type.identifier);
+					 v = new TypeStatementNode(nonTerminal.id, type.id);
 				}
 				break;
 			case 4:
@@ -64,21 +64,21 @@ final class ParseNode {
 					IdToken arg = (IdToken)((ParseNode)children.get(1)).payload;
 					ProductionStatementBody b = (ProductionStatementBody)((ParseNode)children.get(0)).payload;
 
-					    char firstChar = s.identifier.charAt(0);
+					    char firstChar = s.id.charAt(0);
 					    if (Character.isUpperCase(firstChar)) {
 					        if (arg == null) {
-					            b.addTerminal(s.identifier);
+					            b.addTerminal(s.id);
 					        }
 					        else {
-					            b.addTerminal(s.identifier, arg.identifier);
+					            b.addTerminal(s.id, arg.id);
 					        }
 					    }
 					    else {
 					        if (arg == null) {
-					            b.addNonTerminal(s.identifier);
+					            b.addNonTerminal(s.id);
 					        }
 					        else {
-					            b.addNonTerminal(s.identifier, arg.identifier);
+					            b.addNonTerminal(s.id, arg.id);
 					        }
 					    }
 					    v = b;

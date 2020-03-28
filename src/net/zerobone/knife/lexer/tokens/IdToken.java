@@ -4,11 +4,11 @@ import net.zerobone.knife.parser.Parser;
 
 public class IdToken extends Token{
 
-    public final String identifier;
+    public final String id;
 
-    public IdToken(int line, String identifier) {
+    public IdToken(int line, String id) {
         super(line, Parser.T_ID);
-        this.identifier = identifier;
+        this.id = id;
     }
 
 }
