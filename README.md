@@ -35,15 +35,13 @@ non_terminal = TERMINAL non_terminal TERMINAL_WITH_ARG(argument); { java code }
 
 The way knife distinguished between terminals and non-terminals is by looking at the first character. If it is a capital letter, the identifier identifies a terminal symbol, otherwise a non-terminal.
 
-The first non-terminals declared in the grammar file will be the starting symbol of the grammar. Further ordering doesn't matter.
+The first non-terminal declared in the grammar file will be the starting symbol of the grammar. Further ordering doesn't matter. It is important, that all declared non-terminals are being used in some production and that they are derivable from the start symbol.
 
 #### Arguments
 
-Arguments can be attached to any grammar symbols (terminals and non-terminals) if you need to access their payload in the code attached to the production.
+Argument can be attached to any gramma symbol (terminal or non-terminal) if you need to access it's payload in the code attached to the production.
 
-The production label cannot have an argument. In order to assign a value to it, assign it to `v`.
-
-For example:
+The production label cannot have an argument. In order to assign a value to it, assign it to `v`. For example:
 
 ```
 if_stmt = IF LPAREN expr(e) RPAREN stmt(ifbody) ELSE stmt(elsebody); {
@@ -53,7 +51,7 @@ if_stmt = IF LPAREN expr(e) RPAREN stmt(ifbody) ELSE stmt(elsebody); {
 
 #### Type statements
 
-By default the type associated to all grammar symbols is `java.lang.Object`. In order to avoid a lot of type casting in the production code blocks you can use following syntax to assign a type to a symbol:
+By default the type associated to all grammar symbols is `java.lang.Object`. In order to avoid a lot of unsafe type castings in the production code blocks you can use following syntax to assign a type to a symbol:
 
 ```
 %type if_stmt IfStatement
