@@ -23,6 +23,58 @@ Also, as other good parser generation tools, knife uses itself to read the input
 2. Run `java -jar knife.jar grammar.kn` where `grammar.kn` is your grammar file.
 3. Knife will generate the parsing classes in the same directory.
 
+**Note**: in the grammar file the first non-terminal to be declared is the start symbol. Further ordering doesn't matter.
+
+### Example
+
+This example parses prefix arithmetic expression with operations `+`, `-` and `*`.
+
+Grammar (file `prefix.kn`):
+
+```
+%type expr Integer
+%type NUM Integer
+
+expr = NUM(n); { v = n; }
+expr = PLUS expr(op1) expr(op2); { v = op1 + op2; }
+expr = MINUS expr(op1) expr(op2); { v = op1 - op2; }
+expr = MUL expr(op1) expr(op2); { v = op1 * op2; }
+```
+
+After `java -jar knife.jar prefix.kn` 2 files will be generated - `Parser.java` and `ParseNode.java`.
+
+Example usage:
+
+```java
+package net.zerobone.knifeexample;
+
+import net.zerobone.knifeexample.parser.Parser;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Parser parser = new Parser();
+
+		// parsing expression + * 5 3 * 4 6
+        // in infix notation: 5 * 3 + 4 * 6 = 39
+        parser.parse(Parser.T_PLUS, "+");
+        parser.parse(Parser.T_MUL, "*");
+        parser.parse(Parser.T_NUM, 5);
+        parser.parse(Parser.T_NUM, 3);
+        parser.parse(Parser.T_MUL, "*");
+        parser.parse(Parser.T_NUM, 4);
+        parser.parse(Parser.T_NUM, 6);
+        parser.parse(Parser.T_EOF, null);
+
+        if (parser.successfullyParsed()) {
+            System.out.println((int)parser.getValue()); // Output: 39
+        }
+
+    }
+}
+```
+
 ## Support
 
 Please [open an issue](https://github.com/ZeroBone/Knife/issues) if you found a bug in Knife.
