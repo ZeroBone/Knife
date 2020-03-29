@@ -85,7 +85,6 @@ package net.zerobone.knifeexample;
 import net.zerobone.knifeexample.parser.Parser;
 
 public class Main {
-
     public static void main(String[] args) {
 
         Parser parser = new Parser();
@@ -100,10 +99,16 @@ public class Main {
         parser.parse(Parser.T_NUM, 4);
         parser.parse(Parser.T_NUM, 6);
         parser.parse(Parser.T_EOF, null);
-
-        if (parser.successfullyParsed()) {
-            System.out.println((int)parser.getValue()); // Output: 39
+        
+        if (!parser.successfullyParsed()) {
+            for (ParseError error : parser.getErrors()) {
+                System.err.println("Syntax Error: Expected " + error.expected + ", got " + error.got +
+                    " at line " + ((Token)error.token).line);
+            }
+            return;
         }
+
+        System.out.println((int)parser.getValue()); // Output: 39
 
     }
 }

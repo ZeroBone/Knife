@@ -17,6 +17,7 @@ import net.zerobone.knife.lexer.Lexer;
 import net.zerobone.knife.lexer.LexerException;
 import net.zerobone.knife.lexer.tokens.Token;
 import net.zerobone.knife.parser.ParseError;
+import net.zerobone.knife.parser.ParseUtils;
 import net.zerobone.knife.parser.Parser;
 
 import java.io.*;
@@ -322,8 +323,19 @@ public class Knife {
 
                 for (ParseError error : parser.getErrors()) {
 
-                    System.err.println("Syntax Error: Expected " + error.expected + ", got " + error.got +
-                        " at line " + ((Token)error.token).line);
+                    if (error.expected != ParseError.ANY) {
+                        System.err.println(
+                            "Syntax Error: Expected '" + ParseUtils.convertTerminal(error.expected) +
+                                "', got '" + ParseUtils.convertTerminal(error.got) +
+                                "' at line " + ((Token)error.token).line
+                        );
+                    }
+                    else {
+                        System.err.println(
+                            "Syntax Error: Unexpected '" + ParseUtils.convertTerminal(error.got) +
+                                "' at line " + ((Token)error.token).line
+                        );
+                    }
 
                 }
 

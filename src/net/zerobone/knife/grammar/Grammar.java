@@ -191,6 +191,8 @@ public class Grammar {
 
     private HashSet<Integer> firstSet(int nonTerminal) {
 
+        // TODO: implement incremental first set computation
+
         assert nonTerminal < 0;
 
         {
