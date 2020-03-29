@@ -102,8 +102,7 @@ public class Main {
         
         if (!parser.successfullyParsed()) {
             for (ParseError error : parser.getErrors()) {
-                System.err.println("Syntax Error: Expected " + error.expected + ", got " + error.got +
-                    " at line " + ((Token)error.token).line);
+                System.err.println("Syntax Error: Expected " + error.expected + ", got " + error.got);
             }
             return;
         }
