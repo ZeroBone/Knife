@@ -28,7 +28,7 @@ import java.util.Iterator;
 
 public class Knife {
 
-    private static final String VERSION = "1.0.0-beta";
+    private static final String VERSION = "1.0.1-beta";
 
     private Grammar grammar;
 

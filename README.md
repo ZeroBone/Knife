@@ -12,6 +12,7 @@ Also, as other good parser generation tools, knife uses itself to read the input
 * Knife uses an explicit API for accepting the token stream. It allows you to easily use knife with any (including your own) lexer. You can pause and resume parsing at any point. Parsing multiple token streams simultaneously is also possible.
 * No complete parse-trees are being built during parsing. Reduction of the tree is done on-the-fly for performance. Optimized AST's can be built during parsing with minimal overhead.
 * If your grammar is left-recursive without `A =>* A` derivations (aka without cycles), knife will generate an equivalent grammar without left recursion for you.
+* Syntax error recovery using panic mode approach without any additional performance overhead.
 
 ## Limitations
 
@@ -58,6 +59,12 @@ By default the type associated to all grammar symbols is `java.lang.Object`. In 
 ```
 
 Everywhere where the typed symbol will be used, the corresponding argument name will have the specified type.
+
+### Syntax errors
+
+In order to recover after syntax errors, knife uses panic mode approach. This approach works pretty good on most grammars, although some inputs can avoid the synchronizing states of the parser and cause a lot of error messages even if there was one or a few real errors.
+
+But: Knife doesn't have any performance overhead when dealing with errors.
 
 ### Example
 
@@ -112,6 +119,8 @@ public class Main {
     }
 }
 ```
+
+If you are looking for a more advanced, real-life example, see the source code of knife (Main class, `lexer` and `parser` packages).
 
 ## Support
 
