@@ -125,4 +125,6 @@ Copyright (c) 2020 Alexander Mayorov.
 
 This software is licensed under the terms of the GNU General Public License, Version 3.
 
+Copyright notice: this software uses [javapoet library](https://github.com/square/javapoet) for Java code generation which is licensed under the terms of the [Apache-2.0 License](https://github.com/square/javapoet/blob/master/LICENSE.txt). No changes to this library have been made.
+
 See the LICENSE file for more details.
