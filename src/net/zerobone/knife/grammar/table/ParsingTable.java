@@ -4,6 +4,8 @@ import net.zerobone.knife.utils.BijectiveMap;
 
 public class ParsingTable {
 
+    public static final int SYNCHRONIZE = -1;
+
     public final BijectiveMap<String, Integer> mapping;
 
     public final int nonTerminalCount;

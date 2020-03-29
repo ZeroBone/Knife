@@ -16,6 +16,7 @@ import net.zerobone.knife.grammar.Symbol;
 import net.zerobone.knife.lexer.Lexer;
 import net.zerobone.knife.lexer.LexerException;
 import net.zerobone.knife.lexer.tokens.Token;
+import net.zerobone.knife.parser.ParseError;
 import net.zerobone.knife.parser.Parser;
 
 import java.io.*;
@@ -308,7 +309,7 @@ public class Knife {
                 } while (currentToken.type != Parser.T_EOF);
 
             }
-            catch (LexerException | RuntimeException e) {
+            catch (LexerException e) {
                 System.err.println("Syntax error: " + e.getMessage());
                 return;
             }
@@ -318,7 +319,14 @@ public class Knife {
             }
 
             if (!parser.successfullyParsed()) {
-                // TODO: print errors
+
+                for (ParseError error : parser.getErrors()) {
+
+                    System.err.println("Syntax Error: Expected " + error.expected + ", got " + error.got +
+                        " at line " + ((Token)error.token).line);
+
+                }
+
                 return;
             }
 

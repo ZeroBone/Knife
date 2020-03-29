@@ -99,7 +99,7 @@ class ParsingTableBuilder {
         return new ParsingTableProduction(
             grammar.idToSymbol(nonTerminal),
             body,
-            production.code == null ? "" : production.code.toString()
+            production.code == null ? "" : production.code
         );
 
     }
@@ -140,6 +140,23 @@ class ParsingTableBuilder {
         lastWrittenProduction = production;
 
         productionCounter++;
+
+    }
+
+    public void writeSynchronize(int nonTerminal, int terminalOrEof) {
+
+        final int nonTerminalIndex = nonTerminalToIndex(nonTerminal);
+        final int terminalIndex = terminalToIndex(terminalOrEof);
+
+        if (table[nonTerminalIndex][terminalIndex] != 0) {
+            // this cell is already occupied by an action
+            return;
+        }
+
+        /* System.out.println("Synchronized entry at non-terminal: " + grammar.idToSymbol(nonTerminal) +
+            " Terminal: " + (terminalOrEof == Grammar.FOLLOW_SET_EOF ? "$" : grammar.idToSymbol(terminalOrEof))); */
+
+        table[nonTerminalIndex][terminalIndex] = ParsingTable.SYNCHRONIZE;
 
     }
 

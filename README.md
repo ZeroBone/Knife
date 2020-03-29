@@ -61,7 +61,7 @@ Everywhere where the typed symbol will be used, the corresponding argument name 
 
 ### Example
 
-This example parses prefix arithmetic expression with operations `+`, `-` and `*`.
+This example parses prefix arithmetic expressions with operations `+`, `-` and `*`.
 
 Grammar (file `prefix.kn`):
 
@@ -121,4 +121,4 @@ Copyright (c) 2020 Alexander Mayorov.
 
 This software is licensed under the terms of the GNU General Public License, Version 3.
 
-See the LICENCE file for more details.
+See the LICENSE file for more details.

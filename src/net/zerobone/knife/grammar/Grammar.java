@@ -417,114 +417,12 @@ public class Grammar {
 
     }
 
-    private HashSet<Integer> followSet(int nonTerminal) {
-
-        assert nonTerminal < 0;
-
-        if (followSets.containsKey(nonTerminal)) {
-            return followSets.get(nonTerminal);
-        }
-
-        HashSet<Integer> set = new HashSet<>();
-
-        if (nonTerminal == START_SYMBOL_ID) {
-            set.add(FOLLOW_SET_EOF);
-        }
-
-        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
-
-            int productionLabel = pair.getKey();
-
-            if (productionLabel == nonTerminal) {
-                // we only look in productions with other labels
-                continue;
-            }
-
-            ArrayList<InnerProduction> thisLabelProductions = pair.getValue();
-
-            for (InnerProduction production : thisLabelProductions) {
-
-                ArrayList<InnerSymbol> body = production.body;
-
-                for (int i = 0; i < body.size(); i++) {
-
-                    InnerSymbol symbol = body.get(i);
-
-                    if (symbol.id != nonTerminal) {
-                        continue;
-                    }
-
-                    assert !symbol.isTerminal();
-
-                    // we found a production either of the form alpha A beta
-                    // or alpha A
-                    // examine the next symbol to find out
-
-                    if (i == body.size() - 1) {
-                        // beta = epsilon
-                        // so we are in the alpha A situation
-                        System.out.println("Adding followset for " + productionLabel + " -> " + production.toString(this));
-                        set.addAll(followSet(productionLabel));
-                        break;
-                    }
-
-                    // we are in the alpha A beta
-
-                    InnerSymbol nextSymbol = body.get(i + 1);
-
-                    if (nextSymbol.isTerminal()) {
-                        // FIRST(terminal) = { terminal }
-                        // so we just add the symbol to the set
-                        set.add(nextSymbol.id);
-                        break;
-                    }
-
-                    // nextSymbol (aka beta) is a nonterminal
-
-                    HashSet<Integer> nextSymbolFirstSet = firstSet(nextSymbol.id);
-
-                    // check if there is epsilon in the set
-                    if (nextSymbolFirstSet.contains(FIRST_FOLLOW_SET_EPSILON)) {
-
-                        // union with FIRST(beta) \ epsilon
-                        set.addAll(nextSymbolFirstSet);
-                        set.remove(FIRST_FOLLOW_SET_EPSILON);
-
-                        // union with FOLLOW(A)
-                        set.addAll(followSet(productionLabel));
-
-                    }
-                    else {
-
-                        set.addAll(nextSymbolFirstSet);
-                        // we don't need to remove epsilon as we already handled this case
-
-                    }
-
-                    break;
-
-                }
-
-            }
-
-        }
-
-        followSets.put(nonTerminal, set);
-
-        return set;
-
-    }
-
     public int getTerminalCount() {
-
         return terminalCounter - 1;
-
     }
 
     public int getNonTerminalCount() {
-
         return productions.size();
-
     }
 
     public ParsingTable constructParsingTable() {
@@ -586,6 +484,18 @@ public class Grammar {
                     tableBuilder.write(productionLabel, first, production);
 
                 }
+
+            }
+
+        }
+
+        // write synchronyzing tokens for error recovery
+
+        for (int nonTerminal : productions.keySet()) {
+
+            for (int follow : followSets.get(nonTerminal)) {
+
+                tableBuilder.writeSynchronize(nonTerminal, follow);
 
             }
 

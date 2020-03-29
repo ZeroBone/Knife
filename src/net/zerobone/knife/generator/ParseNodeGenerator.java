@@ -97,7 +97,7 @@ class ParseNodeGenerator {
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder("ParseNode")
             .addModifiers(Modifier.FINAL);
 
-        // methods
+        // fields
 
         classBuilder.addField(
             FieldSpec
@@ -126,6 +126,8 @@ class ParseNodeGenerator {
                 .builder(ParameterizedTypeName.get(arrayList, nodesClassName), "children")
                 .build()
         );
+
+        // methods
 
         classBuilder.addMethod(constructConstructor());
         classBuilder.addMethod(constructReduceMethod(context));

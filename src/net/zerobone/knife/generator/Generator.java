@@ -15,6 +15,18 @@ public class Generator {
         {
 
             JavaFile javaFile = JavaFile
+                .builder(context.packageName, ParseErrorGenerator.generate(context).build())
+                .indent("\t")
+                .build();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter("ParseError.java"));
+            javaFile.writeTo(writer);
+            writer.close();
+        }
+
+        {
+
+            JavaFile javaFile = JavaFile
                 .builder(context.packageName, ParseNodeGenerator.generate(context).build())
                 .indent("\t")
                 .build();

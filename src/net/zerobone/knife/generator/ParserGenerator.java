@@ -10,12 +10,22 @@ class ParserGenerator {
 
     private static void constructParserFields(GeneratorContext context, TypeSpec.Builder classBuilder) {
 
+        // stack type
         final ClassName stack = ClassName.get("java.util", "Stack");
         final ClassName parseNode = ClassName.get(context.packageName, "ParseNode");
 
         TypeName stackType = ParameterizedTypeName.get(
             stack,
             parseNode
+        );
+
+        // error arraylist ty[e
+
+        final ClassName arrayList = ClassName.get("java.util", "ArrayList");
+        final ClassName parseError = ClassName.get(context.packageName, "ParseError");
+        TypeName errorsType = ParameterizedTypeName.get(
+            arrayList,
+            parseError
         );
 
         {
@@ -28,9 +38,16 @@ class ParserGenerator {
         }
 
         {
-            FieldSpec field = FieldSpec.builder(boolean.class, "success")
+            FieldSpec field = FieldSpec.builder(errorsType, "errors")
                 .addModifiers(Modifier.PRIVATE)
-                .initializer("false")
+                .build();
+
+            classBuilder.addField(field);
+        }
+
+        {
+            FieldSpec field = FieldSpec.builder(boolean.class, "reachedEof")
+                .addModifiers(Modifier.PRIVATE)
                 .build();
 
             classBuilder.addField(field);
@@ -64,13 +81,20 @@ class ParserGenerator {
         // inner loop
         b.beginControlFlow("while (prevRoot.actionId != 0)");
 
+        b.beginControlFlow("if (errors.isEmpty())");
         b.addStatement("prevRoot.reduce()");
+        b.nextControlFlow("else");
+        b.addStatement("prevRoot.children = null");
+        b.endControlFlow();
+
+
         b.addStatement("stack.pop()");
         b.beginControlFlow("if (stack.isEmpty())");
         b.beginControlFlow("if (tokenId != T_EOF)");
-        b.addStatement("throw new RuntimeException(\"Expected end of input. Got: \" + tokenId)");
+        b.addStatement("errors.add(new ParseError(T_EOF, tokenId, token))");
+        b.addStatement("return");
         b.endControlFlow();
-        b.addStatement("success = true");
+        b.addStatement("reachedEof = true");
         b.addStatement("return");
         b.endControlFlow();
 
@@ -84,7 +108,9 @@ class ParserGenerator {
         // if the current symbol is a terminal
 
         b.beginControlFlow("if (tokenId != prevRoot.symbolId)");
-        b.addStatement("throw new RuntimeException(\"Expected: \" + prevRoot.symbolId + \" Got: \" + tokenId)");
+        b.addStatement("stack.pop()");
+        b.addStatement("errors.add(new ParseError(prevRoot.symbolId, tokenId, token))");
+        b.addStatement("return");
         b.endControlFlow();
 
         // tokens match
@@ -98,8 +124,17 @@ class ParserGenerator {
 
         b.addStatement("int actionId = table[(-prevRoot.symbolId - 1) * terminalCount + tokenId]");
 
+        // empty entry in the table
         b.beginControlFlow("if (actionId == 0)");
-        b.addStatement("throw new RuntimeException(\"Syntax error. Token: \" + token)");
+        b.addStatement("errors.add(new ParseError(ParseError.ANY, tokenId, token))");
+        b.addStatement("return");
+        b.endControlFlow();
+
+        // synchronize entry in the table
+        b.beginControlFlow("if (actionId == -1)");
+        b.addStatement("errors.add(new ParseError(ParseError.ANY, tokenId, token))");
+        b.addStatement("stack.pop()");
+        b.addStatement("return");
         b.endControlFlow();
 
         b.addStatement("int[] action = actionTable[actionId - 1]");
@@ -128,7 +163,8 @@ class ParserGenerator {
 
         // method body
 
-        b.addStatement("success = false");
+        b.addStatement("errors = new ArrayList<>()");
+        b.addStatement("reachedEof = false");
         b.addStatement("parseTree = new ParseNode(startSymbol)");
         b.addStatement("stack = new Stack<>()");
         b.addStatement("stack.push(parseTree)");
@@ -144,11 +180,26 @@ class ParserGenerator {
         b.addModifiers(Modifier.PUBLIC);
         b.returns(Object.class);
 
-        b.beginControlFlow("if (!success)");
-        b.addStatement("return null");
-        b.endControlFlow();
+        b.addStatement("assert successfullyParsed()");
 
         b.addStatement("return parseTree.payload");
+
+        return b.build();
+
+    }
+
+    private static MethodSpec constructGetErrorsMethod(GeneratorContext context) {
+
+        final ClassName parseError = ClassName.get(context.packageName, "ParseError");
+
+        MethodSpec.Builder b = MethodSpec.methodBuilder("getErrors");
+
+        b.addModifiers(Modifier.PUBLIC);
+        b.returns(ArrayTypeName.of(parseError));
+
+        b.addStatement("ParseError[] parseErrors = new ParseError[errors.size()]");
+        b.addStatement("errors.toArray(parseErrors)");
+        b.addStatement("return parseErrors");
 
         return b.build();
 
@@ -182,13 +233,14 @@ class ParserGenerator {
 
         classBuilder.addMethod(constructResetMethod());
         classBuilder.addMethod(constructGetValueMethod());
+        classBuilder.addMethod(constructGetErrorsMethod(context));
 
         classBuilder.addMethod(
             MethodSpec
                 .methodBuilder("successfullyParsed")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(boolean.class)
-                .addStatement("return success")
+                .addStatement("return reachedEof && errors.isEmpty()")
                 .build()
         );
 
