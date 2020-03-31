@@ -42,9 +42,13 @@ public class Grammar {
 
     }
 
+    public boolean symbolDefined(String symbol) {
+        return symbolsMap.containsKey(symbol);
+    }
+
     public String idToSymbol(int id) {
-        assert id != 0;
-        assert symbolsMap.mapValue(id) != null;
+        assert id != 0 : "eof-to-symbol convertion is restricted";
+        assert symbolsMap.mapValue(id) != null : "id " + id + " is not defined";
         return symbolsMap.mapValue(id);
     }
 

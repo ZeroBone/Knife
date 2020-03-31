@@ -382,11 +382,18 @@ public class Knife {
             }
 
             if (grammar == null) {
-                System.out.println("Error: could not find start symbol in grammar.");
+                System.err.println("Error: could not find start symbol in grammar.");
                 return;
             }
 
-            // TODO: verify that all symbols in the type map exist in the grammar
+            // verify that all symbols in the type map exist in the grammar
+
+            for (String typedSymbol : typeMap.keySet()) {
+                if (!grammar.symbolDefined(typedSymbol)) {
+                    System.err.println("Error: Symbol '" + typedSymbol + "' is not defined, but has a type assigned to it.");
+                    return;
+                }
+            }
 
             Knife knife = new Knife(grammar, typeMap);
 
@@ -396,7 +403,7 @@ public class Knife {
 
         }
 
-        System.out.println("Invalid arguments!");
+        System.err.println("Invalid arguments!");
         System.out.println("Usage: knife filename.kn");
 
     }
