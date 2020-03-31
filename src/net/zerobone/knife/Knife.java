@@ -122,7 +122,7 @@ public class Knife {
         debugLogWriter.write("First sets:");
         debugLogWriter.newLine();
 
-        HashMap<Integer, HashSet<Integer>> firstSets = grammar.computeFirstSets();
+        HashMap<Integer, HashSet<Integer>> firstSets = grammar.getFirstSets();
 
         for (HashMap.Entry<Integer, HashSet<Integer>> entry : firstSets.entrySet()) {
 
@@ -165,7 +165,7 @@ public class Knife {
         debugLogWriter.write("Follow sets:");
         debugLogWriter.newLine();
 
-        HashMap<Integer, HashSet<Integer>> followSets = grammar.computeFollowSets();
+        HashMap<Integer, HashSet<Integer>> followSets = grammar.getFollowSets();
 
         for (HashMap.Entry<Integer, HashSet<Integer>> entry : followSets.entrySet()) {
 

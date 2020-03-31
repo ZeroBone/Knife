@@ -68,9 +68,9 @@ But: Knife doesn't have any performance overhead when dealing with errors.
 
 ### Example
 
-This example parses prefix arithmetic expressions with operations `+`, `-` and `*`.
+This example parses prefix arithmetic expressions with operators `+`, `-` and `*`.
 
-Grammar (file `prefix.kn`):
+Grammar (`prefix.kn`):
 
 ```
 %type expr Integer
@@ -82,9 +82,7 @@ expr = MINUS expr(op1) expr(op2); { v = op1 - op2; }
 expr = MUL expr(op1) expr(op2); { v = op1 * op2; }
 ```
 
-After `java -jar knife.jar prefix.kn` 2 files will be generated - `Parser.java` and `ParseNode.java`.
-
-Example usage:
+Usage of the parser generated for `prefix.kn`:
 
 ```java
 package net.zerobone.knifeexample;

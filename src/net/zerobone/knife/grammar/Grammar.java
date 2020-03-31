@@ -30,9 +30,9 @@ public class Grammar {
 
     HashMap<Integer, ArrayList<InnerProduction>> productions = new HashMap<>();
 
-    private HashMap<Integer, HashSet<Integer>> cachedFirstSets = new HashMap<>();
+    private HashMap<Integer, HashSet<Integer>> firstSets = null;
 
-    private HashMap<Integer, HashSet<Integer>> followSets = new HashMap<>();
+    private HashMap<Integer, HashSet<Integer>> followSets = null;
 
     public Grammar(String startSymbol, Production startProduction) {
 
@@ -173,83 +173,142 @@ public class Grammar {
 
     }
 
-    public HashMap<Integer, HashSet<Integer>> computeFirstSets() {
+    // first & follow
 
-        HashMap<Integer, HashSet<Integer>> firstSets = new HashMap<>();
+    public HashMap<Integer, HashSet<Integer>> getFirstSets() {
 
-        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
-
-            int nonTerminal = pair.getKey();
-
-            firstSets.put(nonTerminal, firstSet(nonTerminal));
-
+        if (firstSets == null) {
+            computeFirstSets();
         }
 
         return firstSets;
 
     }
 
-    private HashSet<Integer> firstSet(int nonTerminal) {
+    private void computeFirstSets() {
 
-        // TODO: implement incremental first set computation
+        firstSets = new HashMap<>();
 
-        assert nonTerminal < 0;
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
 
-        {
-            HashSet<Integer> cachedFirstSet = cachedFirstSets.get(nonTerminal);
-            if (cachedFirstSet != null) {
-                return cachedFirstSet;
+            int nonTerminal = pair.getKey();
+
+            firstSets.put(nonTerminal, initializeFirstSet(nonTerminal));
+
+        }
+
+        while (true) {
+            if (!updateFirstSets()) {
+                break;
             }
         }
 
-        ArrayList<InnerProduction> nonTerminalProductions = productions.get(nonTerminal);
+    }
 
-        if (nonTerminalProductions == null) {
-            throw new RuntimeException("Non-terminal " + idToSymbol(nonTerminal) + " doesn't exist in the grammar.");
-        }
+    private HashSet<Integer> initializeFirstSet(int nonTerminal) {
 
         HashSet<Integer> set = new HashSet<>();
 
-        for (InnerProduction prod : nonTerminalProductions) {
+        for (InnerProduction production : productions.get(nonTerminal)) {
 
-            ArrayList<InnerSymbol> body = prod.body;
+            if (production.body.isEmpty()) {
 
-            if (body.size() == 0) {
-                // epsilon production
                 set.add(FIRST_FOLLOW_SET_EPSILON);
+
                 continue;
+
             }
 
-            for (InnerSymbol symbol : body) {
+            InnerSymbol firstSymbol = production.body.get(0);
 
-                if (symbol.isTerminal()) {
-                    set.add(symbol.id);
-                    break;
-                }
-
-                HashSet<Integer> firstSetOfNonTerminal = firstSet(symbol.id);
-
-                set.addAll(firstSetOfNonTerminal);
-
-                if (!firstSetOfNonTerminal.contains(FIRST_FOLLOW_SET_EPSILON)) {
-                    // the current nonterminal doesn't contain epsilon, so we don't need to move on to the next terminal
-                    break;
-                }
-
-                // the current nonterminal is nullable, so it is possible that the next ones appear at the start
-                // so we move on to the next symbol in the production
-
+            if (firstSymbol.isTerminal()) {
+                set.add(firstSymbol.id);
             }
 
         }
-
-        cachedFirstSets.put(nonTerminal, set);
 
         return set;
 
     }
 
-    public HashMap<Integer, HashSet<Integer>> computeFollowSets() {
+    private boolean updateFirstSets() {
+
+        boolean modified = false;
+
+        for (Map.Entry<Integer, ArrayList<InnerProduction>> pair : productions.entrySet()) {
+
+            int label = pair.getKey();
+
+            HashSet<Integer> labelFirstSet = firstSets.get(label);
+
+            ArrayList<InnerProduction> thisLabelProductions = pair.getValue();
+
+            for (InnerProduction production : thisLabelProductions) {
+
+                ArrayList<InnerSymbol> body = production.body;
+
+                if (body.isEmpty()) {
+                    continue;
+                }
+
+                for (InnerSymbol symbol : body) {
+
+                    if (symbol.isTerminal()) {
+                        if (labelFirstSet.add(symbol.id)) {
+                            modified = true;
+                        }
+                        break;
+                    }
+
+                    // non-terminal
+
+                    HashSet<Integer> currentFirstSet = firstSets.get(symbol.id);
+
+                    if (labelFirstSet.addAll(currentFirstSet)) {
+                        modified = true;
+                    }
+
+                    if (!currentFirstSet.contains(FIRST_FOLLOW_SET_EPSILON)) {
+                        // the current nonterminal doesn't contain epsilon, so we don't need to move on to the next terminal
+                        break;
+                    }
+
+                    // the current nonterminal is nullable, so it is possible that the next ones appear at the start
+                    // so we move on to the next symbol in the production
+
+                }
+
+            }
+
+        }
+
+        return modified;
+
+    }
+
+    // follow sets
+
+    public HashMap<Integer, HashSet<Integer>> getFollowSets() {
+
+        if (followSets != null) {
+            return followSets; // already cached
+        }
+
+        // we need to compute first sets in order to compute follow sets
+
+        if (firstSets == null) {
+            computeFirstSets();
+        }
+
+        assert followSets == null;
+
+        computeFollowSets();
+
+        return followSets;
+
+    }
+
+    private void computeFollowSets() {
 
         followSets = new HashMap<>();
 
@@ -265,14 +324,11 @@ public class Grammar {
             .get(START_SYMBOL_ID)
             .add(FOLLOW_SET_EOF);
 
-        boolean updated;
-
-        // TODO: try to optimize the number of iterations
-        do {
-            updated = updateFollowSets();
-        } while (updated);
-
-        return followSets;
+        while (true) {
+            if (!updateFollowSets()) {
+                break;
+            }
+        }
 
     }
 
@@ -379,7 +435,7 @@ public class Grammar {
 
                     // nextSymbol (aka beta) is a nonterminal
 
-                    HashSet<Integer> nextSymbolFirstSet = firstSet(nextSymbol.id);
+                    HashSet<Integer> nextSymbolFirstSet = firstSets.get(nextSymbol.id);
 
                     HashSet<Integer> followSet = followSets.get(symbol.id);
 
@@ -419,6 +475,8 @@ public class Grammar {
 
     }
 
+    // end first & follow set methods
+
     public int getTerminalCount() {
         return terminalCounter - 1;
     }
@@ -429,9 +487,9 @@ public class Grammar {
 
     public ParsingTable constructParsingTable() {
 
-        final HashMap<Integer, HashSet<Integer>> firstSets = computeFirstSets();
+        final HashMap<Integer, HashSet<Integer>> firstSets = getFirstSets();
 
-        final HashMap<Integer, HashSet<Integer>> followSets = computeFollowSets();
+        final HashMap<Integer, HashSet<Integer>> followSets = getFollowSets();
 
         final ParsingTableBuilder tableBuilder = new ParsingTableBuilder(this);
 
