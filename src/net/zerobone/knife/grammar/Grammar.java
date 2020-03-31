@@ -412,12 +412,8 @@ public class Grammar {
 
                         HashSet<Integer> followSet = followSets.get(symbol.id);
 
-                        int oldSize = followSet.size();
-
                         // System.out.println("Adding followset for " + productionLabel + " -> " + production.toString(this));
-                        followSet.addAll(followSets.get(productionLabel));
-
-                        if (followSet.size() > oldSize) {
+                        if (followSet.addAll(followSets.get(productionLabel))) {
                             modified = true;
                         }
 
