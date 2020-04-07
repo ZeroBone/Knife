@@ -12,7 +12,7 @@ Also, as other good parser generation tools, knife uses itself to read the input
 * Parsing is done using push-down automata without recursion.
 * Knife uses an explicit API for accepting the token stream. It allows you to easily use knife with any (including your own) lexer. You can pause and resume parsing at any point. Parsing multiple token streams simultaneously is also possible.
 * No complete parse-trees are being built during parsing. Reduction of the tree is done on-the-fly for performance. Optimized AST's can be built during parsing with minimal overhead.
-* If your grammar is left-recursive without `A =>* A` derivations (aka without cycles), knife will generate an equivalent grammar without left recursion for you.
+* If your grammar is [left-recursive](https://en.wikipedia.org/wiki/Left_recursion) without `A =>* A` derivations (aka without cycles), knife will generate an equivalent grammar without left recursion for you.
 * Syntax error recovery using panic mode approach without any additional performance overhead.
 
 ## Limitations
