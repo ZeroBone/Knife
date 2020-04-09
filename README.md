@@ -1,5 +1,6 @@
 # Knife
 <img alt="knife logo" align="right" width="100" height="100" src="/assets/logo_128.png">
+[![Build Status](https://travis-ci.org/ZeroBone/Knife.svg?branch=master)](https://travis-ci.org/ZeroBone/Knife)
 Knife is a tool that reads input grammar specification and converts it to a few Java classes that can parse the given grammar through a simple interface. 
 
 Knife doesn't require any external libraries or dependencies. All generation is done ahead-of-time. After generating the parsing classes you can just copy them into your project.
