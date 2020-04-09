@@ -9,21 +9,21 @@ Also, as other good parser generation tools, knife uses itself to read the input
 ## Table of Contents
 
 - [Knife](#knife)
-- [Knife vs JavaCC](#-star2-knife-vs-javacc)
-  * [Comparing syntax](#-page-with-curl-comparing-syntax)
+- [Knife vs JavaCC](#-star2knife-vs-javacc)
+  * [Comparing syntax](#-page-with-curlcomparing-syntax)
     + [JavaCC example syntax](#javacc-example-syntax)
     + [Equivalent knife syntax](#equivalent-knife-syntax)
-- [Features](#-triangular-flag-on-post-features)
-- [Limitations](#-warning-limitations)
-- [Getting Started](#-point-right-getting-started)
+- [Features](#-triangular-flag-on-postfeatures)
+- [Limitations](#-warninglimitations)
+- [Getting Started](#-point-rightgetting-started)
   * [Grammar file syntax](#grammar-file-syntax)
     + [Terminals and non-terminals](#terminals-and-non-terminals)
     + [Arguments](#arguments)
     + [Type statements](#type-statements)
-  * [​Syntax errors](#-syntax-errors)
+  * [Syntax errors](#syntax-errors)
   * [Example](#example)
-- [Support](#-heart-support)
-- [Copyright](#-copyright-copyright)
+- [Support](#-heartsupport)
+- [Copyright](#-copyrightcopyright)
 
 ## :star2:Knife vs JavaCC
 
