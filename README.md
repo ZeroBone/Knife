@@ -1,12 +1,74 @@
 # Knife
-<img align="right" width="100" height="100" src="/assets/logo_128.png">
-Knife is a tool that reads input grammar in BNF format and converts it to a few Java classes that can parse the given grammar through a simple interface. 
+<img alt="knife logo" align="right" width="100" height="100" src="/assets/logo_128.png">
+Knife is a tool that reads input grammar specification and converts it to a few Java classes that can parse the given grammar through a simple interface. 
 
 Knife doesn't require any external libraries or dependencies. All generation is done ahead-of-time. After generating the parsing classes you can just copy them into your project.
 
 Also, as other good parser generation tools, knife uses itself to read the input grammar.
 
-## Features
+## Table of Contents
+
+- [Knife](#knife)
+- [Knife vs JavaCC](#-star2-knife-vs-javacc)
+  * [Comparing syntax](#-page-with-curl-comparing-syntax)
+    + [JavaCC example syntax](#javacc-example-syntax)
+    + [Equivalent knife syntax](#equivalent-knife-syntax)
+- [Features](#-triangular-flag-on-post-features)
+- [Limitations](#-warning-limitations)
+- [Getting Started](#-point-right-getting-started)
+  * [Grammar file syntax](#grammar-file-syntax)
+    + [Terminals and non-terminals](#terminals-and-non-terminals)
+    + [Arguments](#arguments)
+    + [Type statements](#type-statements)
+  * [​Syntax errors](#-syntax-errors)
+  * [Example](#example)
+- [Support](#-heart-support)
+- [Copyright](#-copyright-copyright)
+
+## :star2:Knife vs JavaCC
+
+[JavaCC](https://github.com/javacc/javacc) is one of the most popular tool to generate Java parsers. However, knife has been built to eliminate some disadvantages of JavaCC. Here is a comparison table:
+
+|                           Feature                            |       Knife        |       JavaCC       |
+| :----------------------------------------------------------: | :----------------: | :----------------: |
+|                   LL(1) parser generation                    | :heavy_check_mark: | :heavy_check_mark: |
+|                       Lexer generation                       |        :x:         | :heavy_check_mark: |
+|                 Push-down automation parsing                 | :heavy_check_mark: |        :x:         |
+|                  Recursive-descent parsing                   |        :x:         | :heavy_check_mark: |
+| Equivalent grammar generation<br />for left recursive grammars | :heavy_check_mark: |        :x:         |
+|                        Error recovery                        | :heavy_check_mark: | :heavy_check_mark: |
+|                   No runtime dependencies                    | :heavy_check_mark: | :heavy_check_mark: |
+|                       Target languages                       |        Java        |   Java, C++, C#    |
+|                       Grammar notation                       |        BNF         |        EBNF        |
+|           Can start parsing from any non-terminal            |        :x:         | :heavy_check_mark: |
+
+### :page_with_curl:Comparing syntax
+
+Knife doesn't require you to declare the variables used in productions.
+
+#### JavaCC example syntax
+
+```
+TranslationUnitNode translationUnit():
+{
+    StatementNode s;
+    TranslationUnitNode t;
+}
+{
+    <EOF> { return new TranslationUnitNode(); }
+    | s=statement() t=translationUnit() { t.addStatement(s); return t; }
+}
+```
+
+#### Equivalent knife syntax
+
+```
+%type translationUnit TranslationUnitNode
+translationUnit = ; { v = new TranslationUnitNode(); }
+translationUnit = statement(s) translationUnit(t); { t.addStatement(s); v = t; }
+```
+
+## :triangular_flag_on_post:Features
 
 * No runtime dependencies, knife generates pure Java code that can easily be ported to other JVM-based languages.
 * Parsing is done using push-down automata without recursion.
@@ -15,11 +77,12 @@ Also, as other good parser generation tools, knife uses itself to read the input
 * If your grammar is [left-recursive](https://en.wikipedia.org/wiki/Left_recursion) without `A =>* A` derivations (aka without cycles), knife will generate an equivalent grammar without left recursion for you.
 * Syntax error recovery using panic mode approach without any additional performance overhead.
 
-## Limitations
+## :warning:Limitations
 
 * Knife generates only **top-down** parsers for **LL(1)** grammars. Please note that many grammars can be converted to LL(1) grammars by eliminating left recursion and left factoring. As already mentioned above, knife will help you with left recursion elimination.
+* Knife doesn't generate lexers. You have to supply a token stream yourself.
 
-## Getting Started
+## :point_right:Getting Started
 
 1. Download the latest `.jar` file from the [releases](https://github.com/ZeroBone/Knife/releases) page.
 2. Run `java -jar knife.jar grammar.kn` where `grammar.kn` is your grammar file.
@@ -121,13 +184,15 @@ public class Main {
 
 If you are looking for a more advanced, real-life example, see the source code of knife (Main class, `lexer` and `parser` packages).
 
-## Support
+## :heart:Support
+
+Don't hesitate to ask via [issues](https://github.com/ZeroBone/Knife/issues)
 
 Please [open an issue](https://github.com/ZeroBone/Knife/issues) if you found a bug in Knife.
 
-Any contribution support is very appreciated.
+Any contributions are **greatly appreciated**.
 
-## Copyright
+## :copyright:Copyright
 
 Copyright (c) 2020 Alexander Mayorov.
 
