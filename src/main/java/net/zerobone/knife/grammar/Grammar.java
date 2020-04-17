@@ -364,9 +364,11 @@ public class Grammar {
 
                     if (nextSymbol.isTerminal()) {
                         set.add(nextSymbol.id);
+                        i += 2;
                     }
-
-                    i += 2;
+                    else {
+                        i++;
+                    }
 
                 }
 
